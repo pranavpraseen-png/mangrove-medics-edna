@@ -25,6 +25,11 @@ svg{display:block}
 /* loader */
 #loader{position:fixed;inset:0;z-index:100;display:grid;place-content:center;justify-items:center;gap:18px;background:radial-gradient(circle at 50% 45%,#12403C,var(--bg) 60%);transition:opacity .7s ease, visibility .7s}
 #loader.gone{opacity:0;visibility:hidden}
+.loader-logo{width:150px;height:150px;filter:drop-shadow(0 0 28px var(--mint-glow));animation:logoIn 1s cubic-bezier(.2,.8,.2,1) both, breathe 2.4s 1s ease-in-out infinite}
+.loader-team{font-family:var(--display);font-weight:700;letter-spacing:.3em;margin:0;color:var(--text)}
+@keyframes logoIn{from{opacity:0;transform:scale(.7) rotate(-20deg)}}
+@keyframes breathe{50%{transform:scale(1.04);filter:drop-shadow(0 0 40px var(--mint-glow))}}
+.brand img{width:44px;height:44px;filter:drop-shadow(0 0 10px var(--mint-glow))}
 .loader-drop{width:120px;height:150px;filter:drop-shadow(0 0 24px var(--mint-glow))}
 .ld-shell{fill:rgba(63,224,176,.12);stroke:var(--mint);stroke-width:3;stroke-dasharray:420;stroke-dashoffset:420;animation:draw 1.4s ease forwards}
 .ld-h1,.ld-h2{fill:none;stroke-width:4;stroke-linecap:round;stroke-dasharray:160;stroke-dashoffset:160;animation:draw 1.2s .5s ease forwards, sway 2.4s 1.7s ease-in-out infinite}

@@ -608,7 +608,7 @@ function help(root) {
         </ul>
       </div>
       <div class="card">
-        <h2>Made by Team Mangrove Medics</h2>
+        <h2><img src="assets/mangrove-medics-logo.svg" alt="" width="40" height="40"> Made by Team Mangrove Medics</h2>
         <div class="team">${team.map(([n, r]) => `<div class="member"><span class="av">${n[0]}</span><div><b>${n}</b><small>${r}</small></div></div>`).join('')}</div>
         <p class="dim" style="margin-top:12px;font-size:13px">FIRST LEGO League · BIOGLOW 2026–27 · Dubai, UAE. Demo results in this app are fictional.</p>
       </div>
