@@ -41,7 +41,7 @@ export function columns(data, { unit = '' } = {}) {
 
 // The 8-step mission ring.
 export function missionRing(active = 0, done = 0) {
-  const names = ['Self-check', 'Drive', 'Test water', 'Prime', 'Sample', 'Seal', 'Log', 'Rinse'];
+  const names = ['Self-check', 'Index', 'Test water', 'Prime', 'Sample', 'Preserve', 'Log', 'Rinse'];
   const cx = 150, cy = 150, r = 112, gap = 0.06;
   const arc = (a0, a1) => {
     const p = a => [cx + r * Math.cos(a), cy + r * Math.sin(a)];

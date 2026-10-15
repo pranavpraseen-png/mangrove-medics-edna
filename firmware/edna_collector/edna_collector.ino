@@ -1,105 +1,92 @@
 /*
-  eDNA Collector firmware — Team Canopy Keepers (FIRST LEGO League BIOGLOW 2026–27)
+  eDNA Pod firmware — Team Canopy Keepers (FIRST LEGO League BIOGLOW 2026–27)
 
-  ESP32 DevKit. Talks to the eDNA Collector Console in newline-delimited JSON
-  (docs/PROTOCOL.md) over USB serial, Bluetooth LE (Nordic UART Service) and
-  Wi-Fi (access point + WebSocket, and it serves the console from LittleFS).
+  ESP32 DevKit inside the eDNA Pod: a 22 cm canister with an 8-seat filter carousel.
+  Talks to the eDNA Collector Console in newline-delimited JSON (docs/PROTOCOL.md)
+  over USB serial, Bluetooth LE (Nordic UART Service) and Wi-Fi (access point +
+  WebSocket; it also serves the console from LittleFS).
 
-  Mission per site: SELFCHECK → DRIVE → TEST → PRIME → SAMPLE → SEAL → LOG → RINSE.
-  Everything in loop() is non-blocking so a stop/abort is handled within milliseconds.
+  Mission per site: SELFCHECK → INDEX → TEST → PRIME → SAMPLE → PRESERVE → LOG → RINSE
+    INDEX     stepper turns a clean cartridge under the nozzle; the Pod is carried and staked
+    PRIME     nozzle up, sample pump flushes the hose to the waste tray
+    SAMPLE    servo presses the nozzle onto the cartridge, pump pushes water through the filter;
+              the INA219 watches pump current — a rising current means the filter is clogging
+    PRESERVE  cartridge drains, then the ethanol pump adds ~2 mL
+    RINSE     nozzle lifts, the hose is flushed with site water for the next site
+  Everything in loop() is non-blocking, so pause/abort are handled within milliseconds.
 
-  STATUS: written for the team’s hardware plan and NOT yet tested on real hardware.
+  STATUS: written for the Pod build in the "Flow" doc and NOT yet tested on hardware.
   Test each subsystem on its own first (see firmware/README.md).
 
   Libraries (Arduino Library Manager):
-    ArduinoJson 7.x · NimBLE-Arduino 1.4.x · ESPAsyncWebServer + AsyncTCP
-    Adafruit PWM Servo Driver · Adafruit SSD1306 + Adafruit GFX · Adafruit ADS1X15 · AccelStepper
+    ArduinoJson 7.x · NimBLE-Arduino 1.4.x · ESPAsyncWebServer + AsyncTCP · AccelStepper
+    ESP32Servo · Adafruit INA219 · OneWire · DallasTemperature · TinyGPSPlus   (SD is built in)
 */
 #include <Arduino.h>
 #include <Wire.h>
 #include <WiFi.h>
 #include <LittleFS.h>
+#include <SPI.h>
+#include <SD.h>
 #include <ArduinoJson.h>
 #include <NimBLEDevice.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <Adafruit_PWMServoDriver.h>
-#include <Adafruit_SSD1306.h>
-#include <Adafruit_ADS1X15.h>
 #include <AccelStepper.h>
+#include <ESP32Servo.h>
+#include <Adafruit_INA219.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include <TinyGPSPlus.h>
 #include <time.h>
 
 // ───────────── Identity ─────────────
-#define FW_VERSION   "1.0.0"
+#define FW_VERSION   "2.0.0"
 #define DEVICE_ID    "EDNA-01"           // BLE name + Wi-Fi network name
-#define WIFI_PASS    "canopy2026"      // change before the event (8+ characters)
-#define UTC_OFFSET_S (4 * 3600)          // Dubai, UTC+4
+#define WIFI_PASS    "canopy2026"        // change before the event (8+ characters)
 
-// ───────────── Pin map (ESP32 DevKit) ─────────────
-// Drive: two L298N boards (left and right side motors wired in parallel)
-#define DRV_L_EN   25   // PWM
-#define DRV_L_IN1  26
-#define DRV_L_IN2  27
-#define DRV_R_EN   14   // PWM
-#define DRV_R_IN1  32
-#define DRV_R_IN2  33
-// Relay board (most modules switch ON when the input is LOW)
-#define RELAY_ON        LOW
-#define RELAY_OFF       HIGH
-#define PIN_PUMP_SAMPLE 4
-#define PIN_PUMP_RINSE  16
-#define PIN_VALVE_WASTE 17
-#define PIN_VALVE_FILTER 5
-// Gantry steppers (STEP/DIR drivers, e.g. A4988 / DRV8825 or the slide’s own driver)
-#define X_STEP 18
-#define X_DIR  19
-#define Y_STEP 23
-#define Y_DIR  2
-#define X_HOME 34       // limit switch to GND, external 10k pull-up (input-only pin)
-#define Y_HOME 35       // limit switch to GND, external 10k pull-up (input-only pin)
-// Ultrasonic HC-SR04 ×2 (shared trigger; ECHO through a 5 V → 3.3 V divider!)
-#define US_TRIG    15
-#define US_ECHO_L  36
-#define US_ECHO_R  39
-// Flow sensor YF-S201 (cross-check only; reads ~1–30 L/min)
-#define PIN_FLOW   13
-// I2C: SDA 21, SCL 22 → PCA9685 servo board (0x40), SSD1306 OLED (0x3C), ADS1115 ADC (0x48)
-// ADS1115 channels
-#define ADC_PH   0
-#define ADC_NTU  1
-#define ADC_BAT  2
-#define BAT_DIVIDER 4.0f   // 12 V battery through a 30k/10k divider → ×4
-// PCA9685 servo channels
-#define SV_SHOULDER 0
-#define SV_ELBOW    1
-#define SV_TURN     2
-#define SV_LIFT     3
-#define SV_JAW      4
+// ───────────── Pin map (matches the Flow doc) ─────────────
+// Analog sensors on ADC1 only (ADC2 stops working while Wi-Fi/Bluetooth is on)
+#define PIN_TURBIDITY 34   // through a 10k/20k divider (sensor gives up to 4.5 V)
+#define PIN_RAIN      35   // rain sensor AO, powered from 3.3 V
+#define PIN_PH        36   // optional pH kit, through a divider
+#define PIN_FLOAT     39   // rain-reservoir float switch, external 10k pull-up (input-only pin)
+#define PIN_HOME      26   // carousel home switch (magnet under seat 1), internal pull-up
+#define PIN_ONEWIRE    4   // DS18B20, 4.7k pull-up to 3.3 V
+#define PIN_GPS_RX    16   // ← GPS TX
+#define PIN_GPS_TX    17   // → GPS RX
+#define PIN_SD_CS      5   // SD on VSPI: SCK 18, MISO 19, MOSI 23
+#define STEP_PIN      25   // A4988
+#define DIR_PIN       33
+#define EN_PIN        32   // LOW = driver on
+#define PIN_SERVO     13
+#define PIN_PUMP_S    14   // sample pump MOSFET (PWM)
+#define PIN_PUMP_E    27   // ethanol pump MOSFET
+// I2C: SDA 21, SCL 22 → INA219 (0x40), in series with the 11.1 V pump rail
 
 // ───────────── Mechanics (calibrate on the real build) ─────────────
-const float STEPS_PER_MM = 80.0f;        // GT2 belt, 20T pulley, 1/16 microstep
-const float GANTRY_MAX_MM_S = 60.0f;
-const int   OBSTACLE_CM = 30;
-// Fixed gantry positions (mm from home)
-const float FILTER_STATION_X = 200, FILTER_STATION_Y = 10;   // used cartridge sits here after sampling
-const float FRESH_STACK_X    = 200, FRESH_STACK_Y    = 60;   // stack of clean cartridges
-// Servo angles
-const int ARM_UP_SH = 20, ARM_UP_EL = 150, ARM_DOWN_SH = 95, ARM_DOWN_EL = 60;
-const int LIFT_UP = 30, LIFT_DOWN = 120, JAW_OPEN = 40, JAW_CLOSED = 100;
+int   SEATS = 8;
+int   STEPS_PER_SEAT = 400;              // 200-step motor × 16 microsteps ÷ 8 seats
+const int SERVO_UP = 20, SERVO_DOWN = 95; // nozzle lifted / pressed onto the cartridge
+const float ETHANOL_ML_S = 0.5f;          // ethanol pump at low PWM, calibrate
+const float CLOG_AMPS_RISE = 0.25f;       // stop when pump current rises this much above its start value
+const int   PUMP_PWM = 255;               // full speed; lower for gentler flow
 
 // ───────────── Hardware objects ─────────────
-Adafruit_PWMServoDriver servos(0x40);
-Adafruit_SSD1306 oled(128, 64, &Wire, -1);
-Adafruit_ADS1115 ads;
-AccelStepper stepX(AccelStepper::DRIVER, X_STEP, X_DIR);
-AccelStepper stepY(AccelStepper::DRIVER, Y_STEP, Y_DIR);
+AccelStepper carousel(AccelStepper::DRIVER, STEP_PIN, DIR_PIN);
+Servo nozzle;
+Adafruit_INA219 ina;
+OneWire oneWire(PIN_ONEWIRE);
+DallasTemperature thermo(&oneWire);
+TinyGPSPlus gps;
+HardwareSerial GPSSerial(2);
 AsyncWebServer http(80);
 AsyncWebSocket ws("/ws");
 NimBLECharacteristic *bleTx = nullptr;
-bool bleConnected = false, oledOK = false, adsOK = false;
+bool bleConnected = false, inaOK = false, sdOK = false;
 
-// Calibration (persisted only in RAM; the console re-sends it with every mission)
-struct Cal { float v7 = 2.50, v4 = 3.05, ntuZeroV = 4.20, mlPerS = 8.5; int cols = 10, rows = 5; float x0 = 20, y0 = 20, dx = 18, dy = 18; } cal;
+// Calibration (RAM; the console re-sends it with every mission)
+struct Cal { float v7 = 2.50, v4 = 3.05, ntuZeroV = 4.20, mlPerS = 1.7; } cal;
 
 // ───────────── Incoming lines from three links → one queue ─────────────
 QueueHandle_t inbox;
@@ -131,7 +118,7 @@ void onWs(AsyncWebSocket *, AsyncWebSocketClient *, AwsEventType type, void *arg
   }
 }
 
-// ───────────── Outgoing: same line to every link ─────────────
+// ───────────── Outgoing: same line to every link (+ SD for samples) ─────────────
 void emit(JsonDocument &doc) {
   String out; serializeJson(doc, out); out += '\n';
   Serial.print(out);
@@ -147,141 +134,106 @@ void emit(JsonDocument &doc) {
 }
 void logMsg(const String &m) { JsonDocument d; d["t"] = "log"; d["msg"] = m; emit(d); }
 void errMsg(const char *code, const String &m) { JsonDocument d; d["t"] = "err"; d["code"] = code; d["msg"] = m; emit(d); }
+void sdAppend(const String &line) {
+  if (!sdOK) return;
+  File f = SD.open("/samples.jsonl", FILE_APPEND);
+  if (f) { f.println(line); f.close(); }
+}
 
 // ───────────── Actuators & sensors ─────────────
-void relay(int pin, bool on) { digitalWrite(pin, on ? RELAY_ON : RELAY_OFF); }
-bool pumpS = false, pumpR = false, valveW = false, valveF = false;
-void setFluidics(bool ps, bool pr, bool vw, bool vf) {
-  pumpS = ps; pumpR = pr; valveW = vw; valveF = vf;
-  relay(PIN_PUMP_SAMPLE, ps); relay(PIN_PUMP_RINSE, pr); relay(PIN_VALVE_WASTE, vw); relay(PIN_VALVE_FILTER, vf);
+bool pumpS = false, pumpE = false, pressed = false;
+void setPumps(bool s, bool e) {
+  pumpS = s; pumpE = e;
+  analogWrite(PIN_PUMP_S, s ? PUMP_PWM : 0);
+  analogWrite(PIN_PUMP_E, e ? 160 : 0);   // slower for the small ethanol dose
 }
-void allStop() { setFluidics(false, false, false, false); analogWrite(DRV_L_EN, 0); analogWrite(DRV_R_EN, 0); stepX.stop(); stepY.stop(); }
-void servoAngle(uint8_t ch, int deg) { servos.setPWM(ch, 0, map(constrain(deg, 0, 180), 0, 180, 110, 500)); }
-int armPos = 0;
-void armDown(bool down) { armPos = down; servoAngle(SV_SHOULDER, down ? ARM_DOWN_SH : ARM_UP_SH); servoAngle(SV_ELBOW, down ? ARM_DOWN_EL : ARM_UP_EL); }
+void press(bool down) { pressed = down; nozzle.write(down ? SERVO_DOWN : SERVO_UP); }
+void allStop() { setPumps(false, false); press(false); carousel.stop(); }
 
-int driveL = 0, driveR = 0; unsigned long driveUntil = 0;
-void drive(int l, int r, unsigned long ms) {   // -255..255
-  driveL = l; driveR = r; driveUntil = millis() + ms;
-  digitalWrite(DRV_L_IN1, l > 0); digitalWrite(DRV_L_IN2, l < 0); analogWrite(DRV_L_EN, abs(l));
-  digitalWrite(DRV_R_IN1, r > 0); digitalWrite(DRV_R_IN2, r < 0); analogWrite(DRV_R_EN, abs(r));
+int seatNow() { long s = carousel.currentPosition() / STEPS_PER_SEAT; return (int)(((s % SEATS) + SEATS) % SEATS) + 1; }
+void seatTo(int seat) {               // always turns forward to the next seat
+  long cur = carousel.currentPosition(), base = cur - (cur % ((long)STEPS_PER_SEAT * SEATS));
+  long target = base + (long)(seat - 1) * STEPS_PER_SEAT;
+  if (target < cur) target += (long)STEPS_PER_SEAT * SEATS;
+  digitalWrite(EN_PIN, LOW); carousel.moveTo(target);
 }
-
-float readVolts(int ch) { return adsOK ? ads.computeVolts(ads.readADC_SingleEnded(ch)) : 0; }
-float phNow = 7, ntuNow = 0, batNow = 12.6;
-void readWater() {
-  float v = 0; for (int i = 0; i < 8; i++) v += readVolts(ADC_PH); v /= 8;
-  phNow = 7.0f + (v - cal.v7) * (3.0f / (cal.v7 - cal.v4));         // two-point line
-  float t = 0; for (int i = 0; i < 8; i++) t += readVolts(ADC_NTU); t /= 8;
-  ntuNow = max(0.0f, (cal.ntuZeroV - t) * 833.0f);                     // ~0–3000 NTU over the sensor’s range; refine in testing
-}
-int distanceCm(int echo) {
-  digitalWrite(US_TRIG, LOW); delayMicroseconds(2); digitalWrite(US_TRIG, HIGH); delayMicroseconds(10); digitalWrite(US_TRIG, LOW);
-  unsigned long us = pulseIn(echo, HIGH, 25000);
-  return us ? (int)(us / 58) : 400;
-}
-volatile uint32_t flowPulses = 0;
-void IRAM_ATTR onFlow() { flowPulses++; }
-
-// gantry helpers (mm)
-void gantryTo(float x, float y) { stepX.moveTo(lround(x * STEPS_PER_MM)); stepY.moveTo(lround(y * STEPS_PER_MM)); }
-bool gantryIdle() { return stepX.distanceToGo() == 0 && stepY.distanceToGo() == 0; }
-float gx() { return stepX.currentPosition() / STEPS_PER_MM; }
-float gy() { return stepY.currentPosition() / STEPS_PER_MM; }
-void slotXY(int tube, float &x, float &y) {
-  int slot = (tube - 1) % (cal.cols * cal.rows);
-  x = cal.x0 + (slot % cal.cols) * cal.dx; y = cal.y0 + (slot / cal.cols) * cal.dy;
-}
-bool homeGantry() {   // blocking but short; only called while idle or in SELFCHECK
-  stepX.setSpeed(-30 * STEPS_PER_MM); stepY.setSpeed(-30 * STEPS_PER_MM);
+bool homeCarousel() {                 // short and blocking; only while idle or in SELFCHECK
+  press(false); delay(300);
+  digitalWrite(EN_PIN, LOW); carousel.setSpeed(300);
   unsigned long t0 = millis();
-  while ((digitalRead(X_HOME) == HIGH || digitalRead(Y_HOME) == HIGH) && millis() - t0 < 15000) {
-    if (digitalRead(X_HOME) == HIGH) stepX.runSpeed();
-    if (digitalRead(Y_HOME) == HIGH) stepY.runSpeed();
-  }
-  stepX.setCurrentPosition(0); stepY.setCurrentPosition(0);
-  gantryTo(5, 5);   // park off the switches (pin 34/35 boot-safe either way)
-  return millis() - t0 < 15000;
+  while (digitalRead(PIN_HOME) == HIGH && millis() - t0 < 8000) carousel.runSpeed();
+  carousel.setCurrentPosition(0);
+  return millis() - t0 < 8000;
 }
+
+float adcVolts(int pin) { return analogReadMilliVolts(pin) / 1000.0f; }
+float ntuNow = 0, phNow = 7, tempNow = 25, batNow = 12.0, ampsNow = 0;
+void readWater() {
+  float t = 0; for (int i = 0; i < 8; i++) t += adcVolts(PIN_TURBIDITY); t = t / 8 * 1.5f;   // undo the 10k/20k divider
+  ntuNow = max(0.0f, (cal.ntuZeroV - t) * 833.0f);                                           // refine in testing
+  float v = 0; for (int i = 0; i < 8; i++) v += adcVolts(PIN_PH); v = v / 8 * 1.5f;
+  phNow = 7.0f + (v - cal.v7) * (3.0f / (cal.v7 - cal.v4));
+  thermo.requestTemperatures(); float c = thermo.getTempCByIndex(0); if (c > -50) tempNow = c;
+}
+void readPower() {
+  if (!inaOK) return;
+  batNow = ina.getBusVoltage_V() + ina.getShuntVoltage_mV() / 1000.0f;
+  ampsNow = ina.getCurrent_mA() / 1000.0f;
+}
+bool raining() { return analogRead(PIN_RAIN) < 2000; }   // wet pad pulls AO low; tune in testing
 
 // ───────────── Mission state ─────────────
-enum St { IDLE, SELFCHECK, DRIVE, TEST, PRIME, SAMPLE, SEAL, LOG, RINSE };
-const char *ST_NAME[] = { "IDLE", "SELFCHECK", "DRIVE", "TEST", "PRIME", "SAMPLE", "SEAL", "LOG", "RINSE" };
+enum St { IDLE, SELFCHECK, INDEX, TEST, PRIME, SAMPLE, PRESERVE, LOG, RINSE };
+const char *ST_NAME[] = { "IDLE", "SELFCHECK", "INDEX", "TEST", "PRIME", "SAMPLE", "PRESERVE", "LOG", "RINSE" };
 St st = IDLE;
-bool paused = false, arrived = false;
+bool paused = false, placed = false, autoPlaced = false;
 JsonDocument mission;
-int siteIdx = -1;            // -1 = field blank
+int siteIdx = -1;                    // -1 = field blank
 int tube = 1, tubesDone = 0;
-float targetMl = 0, sampledMl = 0;
+float targetMl = 0, sampledMl = 0, startAmps = 0;
 bool clogged = false;
 unsigned long phaseT = 0, pumpMsAcc = 0, lastPumpTick = 0;
-int sealStep = 0;
-struct Rules { float ntuMurky = 40, clearMl = 1000, murkyMl = 500, maxPumpS = 600, primeMl = 100, rinseMl = 100; bool blank = true; } rules;
+struct Rules { float ntuMurky = 40, clearMl = 1000, murkyMl = 500, maxPumpS = 900, primeMl = 34, rinseMl = 34, ethanolMl = 2; bool blank = true; } rules;
 
 JsonObject site() { return siteIdx >= 0 ? mission["sites"][siteIdx].as<JsonObject>() : JsonObject(); }
 const char *siteId() { return siteIdx >= 0 ? (const char *)site()["id"] : "BLANK"; }
 const char *siteName() { return siteIdx >= 0 ? (const char *)site()["name"] : "Field blank"; }
+int seatFor(int t) { return (t - 1) % SEATS + 1; }
 
 void enter(St s) {
   st = s; phaseT = millis();
   JsonDocument d; d["t"] = "step"; d["n"] = (int)s; d["name"] = ST_NAME[s]; d["site"] = siteId(); d["siteName"] = siteName(); d["tube"] = tube; emit(d);
 }
 void finishMission(bool aborted, const char *msg = "") {
-  allStop(); armDown(false); servoAngle(SV_LIFT, LIFT_UP);
-  st = IDLE; paused = false;
+  allStop(); st = IDLE; paused = false;
   JsonDocument d; d["t"] = aborted ? "aborted" : "done"; d["mission"] = mission["id"]; if (aborted) d["msg"] = msg; else d["tubes"] = tubesDone; emit(d);
+}
+void goIndex() {
+  press(false); placed = autoPlaced || siteIdx < 0;
+  seatTo(seatFor(tube));
+  enter(INDEX);
+  logMsg(String("Carousel → seat ") + seatFor(tube) + " (cartridge " + tube + ")" + (placed ? "" : String(" · carry the Pod to ") + siteName() + " and confirm in the console"));
 }
 void nextSiteOrDone() {
   siteIdx++;
-  if (siteIdx >= (int)mission["sites"].size()) { gantryTo(5, 5); finishMission(false); return; }
-  arrived = false; enter(DRIVE);
-  logMsg(String("Drive to ") + siteName() + " — confirm arrival in the console");
+  if (siteIdx >= (int)mission["sites"].size()) { finishMission(false); return; }
+  goIndex();
 }
 void startMission(JsonObject m) {
   if (st != IDLE) { errMsg("BUSY", "A mission is already running"); return; }
   mission.clear(); mission.set(m);
   JsonObject r = mission["rules"];
   rules.ntuMurky = r["ntuMurky"] | 40; rules.clearMl = r["clearMl"] | 1000; rules.murkyMl = r["murkyMl"] | 500;
-  rules.maxPumpS = r["maxPumpS"] | 600; rules.primeMl = r["primeMl"] | 100; rules.rinseMl = r["rinseMl"] | 100; rules.blank = r["blank"] | true;
+  rules.maxPumpS = r["maxPumpS"] | 900; rules.primeMl = r["primeMl"] | 34; rules.rinseMl = r["rinseMl"] | 34;
+  rules.ethanolMl = r["ethanolMl"] | 2; rules.blank = r["blank"] | true;
   cal.mlPerS = mission["mlPerS"] | cal.mlPerS;
-  if (mission["gantry"].is<JsonObject>()) { JsonObject g = mission["gantry"]; cal.cols = g["cols"] | 10; cal.rows = g["rows"] | 5; cal.x0 = g["x0"] | 20; cal.y0 = g["y0"] | 20; cal.dx = g["dx"] | 18; cal.dy = g["dy"] | 18; }
+  if (mission["carousel"].is<JsonObject>()) { SEATS = mission["carousel"]["seats"] | 8; STEPS_PER_SEAT = mission["carousel"]["stepsPerSeat"] | 400; }
   tube = mission["tubeStart"] | 1; tubesDone = 0;
+  int needed = mission["sites"].size() + (rules.blank ? 1 : 0), free = SEATS - (tube - 1) % SEATS;
+  if (needed > free) logMsg(String("Only ") + free + " clean seats left — swap in a fresh carousel when it fills");
   siteIdx = rules.blank ? -1 : 0;
   JsonDocument d; d["t"] = "mission"; d["id"] = mission["id"]; d["sites"] = mission["sites"].size(); d["blank"] = rules.blank; emit(d);
   enter(SELFCHECK);
-}
-
-// Seal sub-sequence: used cartridge → tube N, fresh cartridge → station
-struct Act { char kind; float a, b; };   // 'M' move x,y · 'L' lift deg · 'J' jaw deg · 'W' wait ms
-Act sealSeq[14]; int sealLen = 0;
-void buildSeal() {
-  float tx, ty; slotXY(tube, tx, ty);
-  Act s[] = {
-    {'J', JAW_OPEN, 0}, {'M', FILTER_STATION_X, FILTER_STATION_Y}, {'L', LIFT_DOWN, 0}, {'J', JAW_CLOSED, 0}, {'L', LIFT_UP, 0},
-    {'M', tx, ty}, {'L', LIFT_DOWN, 0}, {'J', JAW_OPEN, 0}, {'L', LIFT_UP, 0},
-    {'M', FRESH_STACK_X, FRESH_STACK_Y}, {'L', LIFT_DOWN, 0}, {'J', JAW_CLOSED, 0}, {'L', LIFT_UP, 0}, {'M', FILTER_STATION_X, FILTER_STATION_Y},
-  };
-  sealLen = sizeof(s) / sizeof(s[0]); memcpy(sealSeq, s, sizeof(s)); sealStep = 0;
-}
-// (after the last move the fresh cartridge is lowered and released at the station)
-bool runSeal() {
-  static unsigned long waitUntil = 0; static bool started = false;
-  if (sealStep >= sealLen) {
-    if (!started) { servoAngle(SV_LIFT, LIFT_DOWN); waitUntil = millis() + 600; started = true; }
-    if (millis() < waitUntil) return false;
-    servoAngle(SV_JAW, JAW_OPEN); servoAngle(SV_LIFT, LIFT_UP); started = false; return true;
-  }
-  Act &a = sealSeq[sealStep];
-  if (!started) {
-    if (a.kind == 'M') gantryTo(a.a, a.b);
-    else if (a.kind == 'L') { servoAngle(SV_LIFT, a.a); waitUntil = millis() + 600; }
-    else if (a.kind == 'J') { servoAngle(SV_JAW, a.a); waitUntil = millis() + 400; }
-    else waitUntil = millis() + (unsigned long)a.a;
-    started = true;
-  }
-  bool done = a.kind == 'M' ? gantryIdle() : millis() >= waitUntil;
-  if (done) { started = false; sealStep++; }
-  return false;
 }
 
 void missionTick() {
@@ -290,59 +242,69 @@ void missionTick() {
   switch (st) {
     case SELFCHECK:
       if (el < 50) return;
-      batNow = readVolts(ADC_BAT) * BAT_DIVIDER;
-      if (adsOK && batNow < 11.0f) { errMsg("LOWBAT", String("Battery ") + batNow + " V — charge before sampling"); finishMission(true, "Battery too low"); return; }
-      if (!homeGantry()) errMsg("HOME", "Gantry did not reach the home switches");
-      logMsg(String("Self-check OK · battery ") + String(batNow, 2) + " V");
-      if (siteIdx < 0) { enter(TEST); } else { siteIdx--; nextSiteOrDone(); }
+      readPower();
+      if (inaOK && batNow < 10.5f) { errMsg("LOWBAT", String("Battery ") + String(batNow, 2) + " V — charge before sampling"); finishMission(true, "Battery too low"); return; }
+      if (!homeCarousel()) errMsg("HOME", "Carousel did not find the home magnet");
+      logMsg(String("Self-check OK · battery ") + String(batNow, 2) + " V · GPS " + (gps.location.isValid() ? "fix" : "searching"));
+      goIndex();
       break;
-    case DRIVE:
-      if (min(distanceCm(US_ECHO_L), distanceCm(US_ECHO_R)) < OBSTACLE_CM && (driveL > 0 || driveR > 0)) { drive(0, 0, 0); errMsg("OBSTACLE", "Obstacle ahead — stopped"); }
-      if (arrived) { drive(0, 0, 0); enter(TEST); }
+    case INDEX:
+      if (carousel.distanceToGo() != 0) return;
+      digitalWrite(EN_PIN, HIGH);          // motor off between moves (saves power, no hum)
+      if (placed) enter(TEST);
       break;
     case TEST:
-      if (el < 50) { if (siteIdx >= 0) armDown(true); return; }
-      if (el < 4000) return;               // let the arm settle and the probe stabilise
+      if (el < 3000) return;               // let the probes settle
       readWater();
-      if (siteIdx < 0) { targetMl = 250; logMsg("Field blank: clean water, 250 mL"); }
+      if (siteIdx < 0) { targetMl = 250; logMsg("Field blank: bottled water, 250 mL"); }
       else { targetMl = ntuNow >= rules.ntuMurky ? rules.murkyMl : rules.clearMl; logMsg(String(ntuNow >= rules.ntuMurky ? "Water MURKY" : "Water clear") + " (" + String(ntuNow, 1) + " NTU) → target " + (int)targetMl + " mL"); }
       enter(PRIME);
       break;
-    case PRIME: {
-      bool blank = siteIdx < 0;
-      setFluidics(!blank, blank, true, false);
-      if (el >= (unsigned long)(rules.primeMl / cal.mlPerS * 1000)) { setFluidics(false, false, false, false); sampledMl = 0; pumpMsAcc = 0; lastPumpTick = millis(); clogged = false; flowPulses = 0; enter(SAMPLE); }
+    case PRIME:
+      press(false); setPumps(true, false);
+      if (el >= (unsigned long)(rules.primeMl / cal.mlPerS * 1000)) { setPumps(false, false); sampledMl = 0; pumpMsAcc = 0; clogged = false; enter(SAMPLE); }
       break;
-    }
     case SAMPLE: {
-      bool blank = siteIdx < 0;
-      setFluidics(!blank, blank, false, true);
+      if (el < 1200) { press(true); return; }         // servo seals first
+      if (!pumpS) { setPumps(true, false); lastPumpTick = millis(); startAmps = 0; }
       unsigned long now = millis(); pumpMsAcc += now - lastPumpTick; lastPumpTick = now;
       sampledMl = pumpMsAcc / 1000.0f * cal.mlPerS;
-      if (sampledMl >= targetMl || pumpMsAcc >= rules.maxPumpS * 1000) {
+      if (pumpMsAcc > 5000 && startAmps == 0) startAmps = ampsNow;   // baseline once flow is steady
+      bool clog = startAmps > 0 && ampsNow - startAmps > CLOG_AMPS_RISE;
+      if (sampledMl >= targetMl || clog || pumpMsAcc >= rules.maxPumpS * 1000) {
         clogged = sampledMl < targetMl;
-        setFluidics(false, false, false, false);
-        if (clogged) errMsg("CLOG", String("Time limit reached at ") + (int)sampledMl + " mL");
-        armDown(false); buildSeal(); enter(SEAL);
+        setPumps(false, false);
+        if (clogged) errMsg("CLOG", String(clog ? "Pump current rose" : "Time limit") + " — filter clogging, stopped at " + (int)sampledMl + " mL");
+        enter(PRESERVE);
       }
       break;
     }
-    case SEAL:
-      if (runSeal()) { logMsg(String("Cartridge sealed in tube ") + tube); enter(LOG); }
+    case PRESERVE: {
+      unsigned long dose = (unsigned long)(rules.ethanolMl / ETHANOL_ML_S * 1000);
+      if (el < 3000) return;                          // drain to the waste tray
+      if (el < 3000 + dose) { if (!pumpE) setPumps(false, true); return; }
+      setPumps(false, false);
+      logMsg(String("Cartridge ") + tube + " preserved with " + String(rules.ethanolMl, 1) + " mL ethanol (seat " + seatNow() + ")");
+      enter(LOG);
       break;
+    }
     case LOG: {
-      JsonDocument d; d["t"] = "sample"; d["mission"] = mission["id"]; d["tube"] = tube; d["site"] = siteId(); d["name"] = siteName();
+      JsonDocument d; d["t"] = "sample"; d["mission"] = mission["id"]; d["tube"] = tube; d["seat"] = seatNow(); d["site"] = siteId(); d["name"] = siteName();
       JsonObject s = siteIdx >= 0 ? site() : mission["sites"][0].as<JsonObject>();
-      d["lat"] = s["lat"]; d["lon"] = s["lon"];
+      if (gps.location.isValid()) { d["lat"] = gps.location.lat(); d["lon"] = gps.location.lng(); }
+      else { d["lat"] = s["lat"]; d["lon"] = s["lon"]; }
       time_t nowT = time(nullptr); d["ts"] = nowT > 1700000000 ? (double)nowT * 1000.0 : (double)millis();
       d["ml"] = (int)sampledMl; d["target"] = (int)targetMl; d["ph"] = serialized(String(phNow, 2)); d["ntu"] = serialized(String(ntuNow, 1));
-      d["blank"] = siteIdx < 0; d["clog"] = clogged; emit(d);
+      d["temp"] = serialized(String(tempNow, 1)); d["blank"] = siteIdx < 0; d["clog"] = clogged;
+      emit(d);
+      String line; serializeJson(d, line); sdAppend(line);
       tubesDone++; enter(RINSE);
       break;
     }
     case RINSE:
-      setFluidics(false, true, true, false);
-      if (el >= (unsigned long)(rules.rinseMl / cal.mlPerS * 1000)) { setFluidics(false, false, false, false); tube++; nextSiteOrDone(); }
+      if (el < 800) { press(false); return; }
+      setPumps(true, false);
+      if (el >= 800 + (unsigned long)(rules.rinseMl / cal.mlPerS * 1000)) { setPumps(false, false); tube++; nextSiteOrDone(); }
       break;
     default: break;
   }
@@ -358,24 +320,27 @@ void handle(const char *line) {
   if (deserializeJson(m, line)) { errMsg("PARSE", "Bad JSON"); return; }
   const char *cmd = m["cmd"] | "";
   if (!strcmp(cmd, "hello")) {
-    JsonDocument d; d["t"] = "hello"; d["id"] = DEVICE_ID; d["fw"] = FW_VERSION; d["slots"] = cal.cols * cal.rows; d["bat"] = serialized(String(batNow, 2)); emit(d);
+    JsonDocument d; d["t"] = "hello"; d["id"] = DEVICE_ID; d["fw"] = FW_VERSION; d["seats"] = SEATS; d["bat"] = serialized(String(batNow, 2)); emit(d);
   } else if (!strcmp(cmd, "settime")) {
     struct timeval tv = { (time_t)((m["ts"] | 0.0) / 1000.0), 0 }; settimeofday(&tv, nullptr);
-  } else if (!strcmp(cmd, "start")) startMission(m["mission"].as<JsonObject>());
-  else if (!strcmp(cmd, "pause")) { if (st != IDLE) { paused = true; allStop(); logMsg("Paused — pumps stopped, valves closed"); } }
+  } else if (!strcmp(cmd, "start")) { autoPlaced = false; startMission(m["mission"].as<JsonObject>()); }
+  else if (!strcmp(cmd, "pause")) { if (st != IDLE) { paused = true; setPumps(false, false); logMsg("Paused — pumps stopped"); } }
   else if (!strcmp(cmd, "resume")) { if (paused) { paused = false; lastPumpTick = millis(); logMsg("Resumed"); } }
-  else if (!strcmp(cmd, "abort")) { if (st != IDLE) finishMission(true, "Safe stop: pumps off, valves closed, arm raised"); }
-  else if (!strcmp(cmd, "arrived")) { arrived = true; }
-  else if (!strcmp(cmd, "drive")) { if (st == IDLE || st == DRIVE) drive(m["l"] | 0, m["r"] | 0, m["ms"] | 300); }
-  else if (!strcmp(cmd, "home")) { if (st == IDLE) { homeGantry(); logMsg("Gantry homed"); } }
-  else if (!strcmp(cmd, "read")) { readWater(); JsonDocument d; d["t"] = "raw"; d["phV"] = serialized(String(readVolts(ADC_PH), 3)); d["ntuV"] = serialized(String(readVolts(ADC_NTU), 3)); emit(d); }
-  else if (!strcmp(cmd, "pump")) {
+  else if (!strcmp(cmd, "abort")) { if (st != IDLE) finishMission(true, "Safe stop: pumps off, nozzle lifted"); }
+  else if (!strcmp(cmd, "placed") || !strcmp(cmd, "arrived")) { placed = true; if (st == INDEX) logMsg(String("Pod placed at ") + siteName()); }
+  else if (!strcmp(cmd, "home")) { if (st == IDLE) { homeCarousel(); logMsg("Carousel homed — seat 1 under the nozzle"); } else errMsg("BUSY", "Mission running"); }
+  else if (!strcmp(cmd, "read")) {
+    readWater(); JsonDocument d; d["t"] = "raw";
+    d["phV"] = serialized(String(adcVolts(PIN_PH) * 1.5f, 3)); d["ntuV"] = serialized(String(adcVolts(PIN_TURBIDITY) * 1.5f, 3)); d["temp"] = serialized(String(tempNow, 1));
+    emit(d);
+  } else if (!strcmp(cmd, "pump")) {
     if (st != IDLE) { errMsg("BUSY", "Mission running"); return; }
     calPump = (m["which"] | "S")[0]; calPumpS = m["seconds"] | 10; calPumpUntil = millis() + calPumpS * 1000UL;
-    setFluidics(calPump == 'S', calPump == 'R', true, false);
+    setPumps(calPump == 'S', calPump == 'E');
     logMsg(String("Calibration: pump ") + calPump + " on for " + calPumpS + " s");
   } else if (!strcmp(cmd, "setcal")) {
     cal.v7 = m["ph"]["v7"] | cal.v7; cal.v4 = m["ph"]["v4"] | cal.v4; cal.ntuZeroV = m["ntuZeroV"] | cal.ntuZeroV; cal.mlPerS = m["mlPerS"] | cal.mlPerS;
+    if (m["carousel"].is<JsonObject>()) { SEATS = m["carousel"]["seats"] | SEATS; STEPS_PER_SEAT = m["carousel"]["stepsPerSeat"] | STEPS_PER_SEAT; }
     JsonDocument d; d["t"] = "ack"; d["cmd"] = "setcal"; d["ok"] = true; emit(d);
   } else if (!strcmp(cmd, "schedule")) {
     strlcpy(sched.mode, m["mode"] | "now", sizeof(sched.mode));
@@ -386,53 +351,36 @@ void handle(const char *line) {
   } else errMsg("CMD", String("Unknown command ") + cmd);
 }
 
-// ───────────── Display + telemetry ─────────────
+// ───────────── Telemetry ─────────────
 void telemetry() {
-  JsonDocument d; d["t"] = "tele"; d["state"] = ST_NAME[st]; d["site"] = siteName(); d["tube"] = tube;
-  d["bat"] = serialized(String(batNow, 2)); d["ph"] = serialized(String(phNow, 2)); d["ntu"] = serialized(String(ntuNow, 1));
-  d["ml"] = (int)sampledMl; d["target"] = (int)targetMl; d["flow"] = serialized(String(pumpS || pumpR ? cal.mlPerS : 0, 2));
-  d["pumpS"] = (int)pumpS; d["pumpR"] = (int)pumpR; d["vW"] = (int)valveW; d["vF"] = (int)valveF;
-  static int lastDist = 400;   // pulseIn blocks, so only ping while driving or idle (keeps the gantry smooth)
-  if (st == DRIVE || st == IDLE) lastDist = min(distanceCm(US_ECHO_L), distanceCm(US_ECHO_R));
-  d["gx"] = (int)gx(); d["gy"] = (int)gy(); d["dist"] = lastDist;
-  d["arm"] = armPos; d["drive"] = (int)(driveL || driveR); d["paused"] = (int)paused; d["flowPulses"] = flowPulses;
+  JsonDocument d; d["t"] = "tele"; d["state"] = ST_NAME[st]; d["site"] = siteName(); d["tube"] = tube; d["seat"] = seatNow(); d["press"] = (int)pressed;
+  d["bat"] = serialized(String(batNow, 2)); d["ph"] = serialized(String(phNow, 2)); d["ntu"] = serialized(String(ntuNow, 1)); d["temp"] = serialized(String(tempNow, 1));
+  d["ml"] = (int)sampledMl; d["target"] = (int)targetMl; d["flow"] = serialized(String(pumpS ? cal.mlPerS : 0, 2)); d["cur"] = serialized(String(ampsNow, 2));
+  d["pumpS"] = (int)pumpS; d["pumpE"] = (int)pumpE; d["rain"] = (int)raining(); d["paused"] = (int)paused;
   emit(d);
-}
-void drawOled() {
-  if (!oledOK) return;
-  oled.clearDisplay(); oled.setTextSize(1); oled.setTextColor(SSD1306_WHITE); oled.setCursor(0, 0);
-  oled.printf("eDNA %s %s\n", DEVICE_ID, paused ? "PAUSED" : ST_NAME[st]);
-  oled.printf("Tube %d  %s\n", tube, siteName());
-  oled.printf("pH %.2f  %.0f NTU\n", phNow, ntuNow);
-  oled.printf("Vol %d/%d mL\n", (int)sampledMl, (int)targetMl);
-  oled.printf("Bat %.2f V\n", batNow);
-  oled.printf("P%c%c V%c%c\n", pumpS ? 'S' : '-', pumpR ? 'R' : '-', valveW ? 'W' : '-', valveF ? 'F' : '-');
-  oled.display();
 }
 
 // ───────────── Setup / loop ─────────────
 void setup() {
   Serial.begin(115200);
   inbox = xQueueCreate(8, sizeof(Line));
-  for (int p : { PIN_PUMP_SAMPLE, PIN_PUMP_RINSE, PIN_VALVE_WASTE, PIN_VALVE_FILTER }) { pinMode(p, OUTPUT); digitalWrite(p, RELAY_OFF); }
-  for (int p : { DRV_L_EN, DRV_L_IN1, DRV_L_IN2, DRV_R_EN, DRV_R_IN1, DRV_R_IN2, US_TRIG }) { pinMode(p, OUTPUT); digitalWrite(p, LOW); }
-  pinMode(X_HOME, INPUT); pinMode(Y_HOME, INPUT); pinMode(US_ECHO_L, INPUT); pinMode(US_ECHO_R, INPUT);
-  pinMode(PIN_FLOW, INPUT_PULLUP); attachInterrupt(digitalPinToInterrupt(PIN_FLOW), onFlow, RISING);
-  stepX.setMaxSpeed(GANTRY_MAX_MM_S * STEPS_PER_MM); stepX.setAcceleration(200 * STEPS_PER_MM);
-  stepY.setMaxSpeed(GANTRY_MAX_MM_S * STEPS_PER_MM); stepY.setAcceleration(200 * STEPS_PER_MM);
+  pinMode(PIN_PUMP_S, OUTPUT); pinMode(PIN_PUMP_E, OUTPUT); setPumps(false, false);
+  pinMode(EN_PIN, OUTPUT); digitalWrite(EN_PIN, HIGH);
+  pinMode(PIN_HOME, INPUT_PULLUP); pinMode(PIN_FLOAT, INPUT);
+  analogReadResolution(12);
+  carousel.setMaxSpeed(1200); carousel.setAcceleration(800);
+  nozzle.attach(PIN_SERVO, 500, 2400); press(false);
 
   Wire.begin(21, 22);
-  servos.begin(); servos.setPWMFreq(50);
-  armDown(false); servoAngle(SV_LIFT, LIFT_UP); servoAngle(SV_JAW, JAW_OPEN); servoAngle(SV_TURN, 90);
-  oledOK = oled.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-  adsOK = ads.begin(0x48); if (adsOK) ads.setGain(GAIN_ONE);   // ±4.096 V
+  inaOK = ina.begin();
+  thermo.begin();
+  GPSSerial.begin(9600, SERIAL_8N1, PIN_GPS_RX, PIN_GPS_TX);
+  sdOK = SD.begin(PIN_SD_CS);
 
-  // Wi-Fi access point + console from LittleFS + WebSocket
   WiFi.softAP(DEVICE_ID, WIFI_PASS);
-  if (LittleFS.begin(true)) http.serveStatic("/", LittleFS, "/").setDefaultFile("index.html");
+  if (LittleFS.begin(true)) http.serveStatic("/", LittleFS, "/").setDefaultFile("console.html");
   ws.onEvent(onWs); http.addHandler(&ws); http.begin();
 
-  // Bluetooth LE — Nordic UART Service
   NimBLEDevice::init(DEVICE_ID);
   NimBLEServer *srv = NimBLEDevice::createServer(); srv->setCallbacks(new SrvCB());
   NimBLEService *svc = srv->createService("6E400001-B5A3-F393-E0A9-E50E24DCCA9E");
@@ -443,38 +391,51 @@ void setup() {
   NimBLEAdvertising *adv = NimBLEDevice::getAdvertising(); adv->addServiceUUID(svc->getUUID()); adv->start();
 
   setenv("TZ", "UTC-4", 1); tzset();   // POSIX sign is inverted: UTC-4 means UTC+4 (Dubai)
-  batNow = readVolts(ADC_BAT) * BAT_DIVIDER;
-  logMsg(String("eDNA Collector ") + FW_VERSION + " ready · Wi-Fi " + DEVICE_ID + " · http://192.168.4.1");
+  readPower();
+  logMsg(String("eDNA Pod ") + FW_VERSION + " ready · Wi-Fi " + DEVICE_ID + " · http://192.168.4.1" + (sdOK ? " · SD OK" : " · no SD card"));
 }
 
 String serialBuf;
-unsigned long lastTele = 0, lastOled = 0, lastSched = 0;
+unsigned long lastTele = 0, lastSched = 0, rainSince = 0;
 void loop() {
-  // USB serial lines
   while (Serial.available()) {
     char c = Serial.read();
     if (c == '\n') { pushLine(serialBuf.c_str(), serialBuf.length()); serialBuf = ""; }
     else if (c != '\r' && serialBuf.length() < 500) serialBuf += c;
   }
   Line l; while (xQueueReceive(inbox, &l, 0) == pdTRUE) handle(l.s);
+  while (GPSSerial.available()) gps.encode(GPSSerial.read());
+  if (gps.time.isValid() && gps.date.isValid() && time(nullptr) < 1700000000) {   // GPS sets the clock in the field
+    struct tm t = {}; t.tm_year = gps.date.year() - 1900; t.tm_mon = gps.date.month() - 1; t.tm_mday = gps.date.day();
+    t.tm_hour = gps.time.hour(); t.tm_min = gps.time.minute(); t.tm_sec = gps.time.second();
+    setenv("TZ", "UTC0", 1); tzset(); time_t utc = mktime(&t); setenv("TZ", "UTC-4", 1); tzset();
+    struct timeval tv = { utc, 0 }; settimeofday(&tv, nullptr);
+  }
 
-  stepX.run(); stepY.run();
-  if (driveUntil && millis() > driveUntil) { drive(0, 0, 0); driveUntil = 0; }
+  carousel.run();
   if (calPumpUntil && millis() > calPumpUntil) {
-    setFluidics(false, false, false, false); calPumpUntil = 0;
+    setPumps(false, false); calPumpUntil = 0;
     JsonDocument d; d["t"] = "pumped"; d["which"] = String(calPump); d["seconds"] = calPumpS; emit(d);
   }
   missionTick();
 
-  if (millis() - lastTele > 250) { lastTele = millis(); if (st == TEST || st == SAMPLE) readWater(); if (adsOK) batNow = readVolts(ADC_BAT) * BAT_DIVIDER; telemetry(); }
-  if (millis() - lastOled > 500) { lastOled = millis(); drawOled(); ws.cleanupClients(); }
+  if (millis() - lastTele > 250) { lastTele = millis(); readPower(); if (st == TEST || st == SAMPLE) readWater(); telemetry(); ws.cleanupClients(); }
+
+  // Rain mode: a stored mission starts when the pad stays wet for 2 min and the reservoir float is up
+  if (st == IDLE && !strcmp(sched.mode, "rain") && schedMission.size()) {
+    if (raining()) { if (!rainSince) rainSince = millis(); } else rainSince = 0;
+    if (rainSince && millis() - rainSince > 120000 && digitalRead(PIN_FLOAT) == LOW) {
+      rainSince = 0; logMsg("Rain detected — canopy sample starting");
+      autoPlaced = true; startMission(schedMission.as<JsonObject>());
+    }
+  }
+  // Timed schedule (nightly / after-rain time)
   if (sched.armed && st == IDLE && millis() - lastSched > 10000) {
     lastSched = millis();
     time_t now = time(nullptr); struct tm t; localtime_r(&now, &t);
     if (now > 1700000000 && t.tm_hour == sched.hh && t.tm_min == sched.mm && t.tm_yday != sched.lastDay) {
       sched.lastDay = t.tm_yday; logMsg("Scheduled mission starting");
-      startMission(schedMission.as<JsonObject>());
-      arrived = true;   // fixed post: already at the site
+      autoPlaced = true; startMission(schedMission.as<JsonObject>());   // staked already: no confirm needed
     }
   }
 }

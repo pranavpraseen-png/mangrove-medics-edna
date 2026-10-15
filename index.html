@@ -47,7 +47,7 @@
     <div class="copy">
       <h1><span class="ln"><span>Every drop</span></span><span class="ln"><span>has a</span></span><span class="ln"><span><em>guest list.</em></span></span></h1>
       <div class="side">
-        <p>The eDNA Collector samples rainforest streams and canopy rain, and catches the invisible DNA every animal leaves behind.</p>
+        <p>The eDNA Pod is a 22 cm canister you carry in one hand. Staked by a rainforest stream or under the canopy, it catches the invisible DNA every animal leaves behind.</p>
         <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn solid" href="#sim">Run the simulator <span class="arr">↓</span></a><a class="btn line" href="console.html">Open console <span class="arr">→</span></a></div>
       </div>
     </div>
@@ -63,7 +63,7 @@
 
   <section class="drop dark" id="drop" aria-label="How it works: follow one drop">
     <div class="drop-pin">
-      <svg class="scene" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animation: a raindrop washes DNA off a leaf into a stream, the collector pumps it through a filter and seals it in a tube">
+      <svg class="scene" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animation: a raindrop washes DNA off a leaf into a stream, the Pod pumps it through a filter and seals it in a tube">
         <defs>
           <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0F2620"/><stop offset="1" stop-color="#14352A"/></linearGradient>
           <pattern id="mesh" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#F3EEE2" stroke-width="1" opacity=".45"/></pattern>
@@ -107,8 +107,8 @@
       <div class="steps">
         <div class="step"><span class="k">01 / SHED</span><h3>Animals leave DNA everywhere</h3><p>Skin, hair and saliva rub off on leaves high in the canopy — monkeys, sloths, frogs.</p></div>
         <div class="step"><span class="k">02 / RAIN</span><h3>Rain washes it down</h3><p>Every shower carries that DNA off the leaves and into the forest streams.</p></div>
-        <div class="step"><span class="k">03 / CATCH</span><h3>We filter the water</h3><p>The collector pumps about 1 litre through a 0.45 µm filter — finer than a hair.</p></div>
-        <div class="step"><span class="k">04 / SEAL</span><h3>Sealed and labelled</h3><p>The filter drops into a numbered tube of ethanol, with the place, time and volume.</p></div>
+        <div class="step"><span class="k">03 / CATCH</span><h3>We filter the water</h3><p>The Pod pumps up to 1 litre through a 0.45 µm filter — finer than a hair.</p></div>
+        <div class="step"><span class="k">04 / KEEP</span><h3>Preserved and logged</h3><p>2 mL of ethanol keeps the DNA safe inside numbered cartridge CK-T007, with the place, time and volume.</p></div>
         <div class="step"><span class="k">05 / READ</span><h3>A lab reads the guest list</h3><p>DNA barcodes are matched to species. In French Guiana, canopy rain revealed 562 kinds of life.</p></div>
       </div>
       <div class="prog" aria-hidden="true"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
@@ -118,15 +118,15 @@
   <section class="explode" id="explode" aria-label="The machine, taken apart">
     <div class="explode-pin">
       <div class="stage3d" id="explodeStage" data-autorotate="off"></div>
-      <div class="head"><h2>The machine, taken apart</h2><p>One plug-in lab module. It rides a rover on the stream bank, a kayak, or sits on a post under the canopy.</p></div>
-      <div class="tag3d" data-part="solar"><span>Solar panel</span><small>tops up the 12 V battery</small></div>
-      <div class="tag3d" data-part="gantry"><span>X-Y gantry</span><small>moves filters into tubes</small></div>
-      <div class="tag3d" data-part="rack"><span>50-tube rack</span><small>ethanol, numbered</small></div>
-      <div class="tag3d" data-part="arm"><span>Sampling arm</span><small>dips the intake in the stream</small></div>
-      <div class="tag3d" data-part="pumps"><span>2 peristaltic pumps</span><small>sample + clean rinse</small></div>
-      <div class="tag3d" data-part="brain"><span>ESP32 brain</span><small>Bluetooth, USB, Wi-Fi</small></div>
-      <div class="tag3d" data-part="sensors"><span>Ultrasonic eyes</span><small>stops before obstacles</small></div>
-      <div class="tag3d" data-part="wheels"><span>4WD base</span><small>grip for muddy banks</small></div>
+      <div class="head"><h2>The Pod, taken apart</h2><p>22 cm across, 28 cm tall, about 2.5 kg. Staked on a stream bank, or under the canopy with the rain funnel on.</p></div>
+      <div class="tag3d" data-part="funnel"><span>Rain funnel</span><small>rain sensor starts a sample</small></div>
+      <div class="tag3d" data-part="brain"><span>Electronics box</span><small>ESP32, GPS, SD, 3 × 18650</small></div>
+      <div class="tag3d" data-part="pumps"><span>2 peristaltic pumps</span><small>site water + ethanol</small></div>
+      <div class="tag3d" data-part="vessels"><span>Ethanol bottle</span><small>2 mL per filter</small></div>
+      <div class="tag3d" data-part="nozzle"><span>Servo nozzle</span><small>presses down to seal</small></div>
+      <div class="tag3d" data-part="carousel"><span>8-filter carousel</span><small>printed seats, O-rings</small></div>
+      <div class="tag3d" data-part="stepper"><span>Stepper + home switch</span><small>45° per sample</small></div>
+      <div class="tag3d" data-part="sensors"><span>Sensor probes</span><small>turbidity + temperature</small></div>
     </div>
   </section>
 
@@ -134,20 +134,20 @@
     <div class="loop-pin">
       <div class="loop-top"><h2>One clean loop.<br>Every site.</h2><span class="mono" style="font-size:13px;letter-spacing:.1em">SCROLL →</span></div>
       <div class="loop-track">
-        <div class="panel"><span class="n">01</span><div><h3>Self-check</h3><p>Battery, sensors and gantry home.</p></div></div>
-        <div class="panel"><span class="n">02</span><div><h3>Reach</h3><p>Drive to the stream, or wait for rain.</p></div></div>
+        <div class="panel"><span class="n">01</span><div><h3>Self-check</h3><p>Battery, sensors, GPS. The carousel finds seat 1.</p></div></div>
+        <div class="panel"><span class="n">02</span><div><h3>Index</h3><p>A clean cartridge turns under the nozzle. Stake the Pod, or wait for rain.</p></div></div>
         <div class="panel"><span class="n">03</span><div><h3>Test</h3><p>Murky water? Take a smaller sample so the filter won’t clog.</p></div></div>
-        <div class="panel"><span class="n">04</span><div><h3>Prime</h3><p>Flush the pipe with site water, to waste.</p></div></div>
-        <div class="panel on"><span class="n">05</span><div><h3>Filter</h3><p>About 1 litre through a fresh filter.</p></div></div>
-        <div class="panel"><span class="n">06</span><div><h3>Seal</h3><p>Into ethanol tube #N.</p></div></div>
-        <div class="panel"><span class="n">07</span><div><h3>Log</h3><p>Place, time, volume, pH, turbidity.</p></div></div>
-        <div class="panel hot"><span class="n">08</span><div><h3>Rinse + blank</h3><p>Clean water through the lines. One blank per mission proves nothing leaked.</p></div></div>
+        <div class="panel"><span class="n">04</span><div><h3>Prime</h3><p>Flush the hose with site water, to waste.</p></div></div>
+        <div class="panel on"><span class="n">05</span><div><h3>Filter</h3><p>The nozzle seals and up to 1 litre goes through. Rising pump current means a clog, so it stops.</p></div></div>
+        <div class="panel"><span class="n">06</span><div><h3>Preserve</h3><p>Drain, then 2 mL of ethanol onto the filter.</p></div></div>
+        <div class="panel"><span class="n">07</span><div><h3>Log</h3><p>Cartridge, seat, GPS, time, volume, turbidity, temperature.</p></div></div>
+        <div class="panel hot"><span class="n">08</span><div><h3>Rinse + blank</h3><p>Nozzle lifts, the hose is flushed. One bottled-water blank per mission proves nothing leaked.</p></div></div>
       </div>
     </div>
   </section>
 
   <section class="sim dark" id="sim" aria-label="Live simulator">
-    <div class="sec-head"><span class="num">03 · SIMULATOR</span><h2>Run a real mission. Right here.</h2><p>This is the same software that drives the collector, running on its digital twin. Every tube it seals lands in the database below.</p></div>
+    <div class="sec-head"><span class="num">03 · SIMULATOR</span><h2>Run a real mission. Right here.</h2><p>This is the same software that drives the Pod, running on its digital twin. Every cartridge it fills lands in the database below.</p></div>
     <div class="sim-grid">
       <div class="sim-stage stage3d" id="simStage" data-autorotate="off" style="position:relative">
         <div class="sim-hud"><span id="hudState">IDLE</span><span id="hudTube">—</span></div>
@@ -173,34 +173,34 @@
     <div class="sec-head"><span class="num">05 · DATABASE</span><h2>Who was there.</h2><p>Every species the lab finds, linked to its tube, site and time. Stored on this device; export it from the console.</p></div>
     <div class="db-bar">
       <label class="visually-hidden" for="dbSearch" style="position:absolute;left:-9999px">Search species</label>
-      <input id="dbSearch" type="search" placeholder="Search a species, tube or site">
+      <input id="dbSearch" type="search" placeholder="Search a species, cartridge or site">
       <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
       <button class="chip" type="button" data-f="watch" aria-pressed="false">Watchlist</button>
       <button class="btn dark" id="dbDemo" type="button">Load demo lab results</button>
     </div>
     <div class="db-table" id="dbTable"></div>
-    <div class="db-stats"><div><b id="sTubes">0</b><small>tubes sealed</small></div><div><b id="sSpecies">0</b><small>species found</small></div><div><b id="sSites">0</b><small>sites sampled</small></div><div><b id="sAlerts">0</b><small>alerts</small></div></div>
+    <div class="db-stats"><div><b id="sTubes">0</b><small>cartridges filled</small></div><div><b id="sSpecies">0</b><small>species found</small></div><div><b id="sSites">0</b><small>sites sampled</small></div><div><b id="sAlerts">0</b><small>alerts</small></div></div>
   </section>
 
   <section class="cta-band"><h2>Every drop of water has a guest list.</h2><a class="btn dark" href="console.html">Open the console <span class="arr">→</span></a></section>
 
   <section id="team" aria-label="Team">
-    <div class="sec-head"><span class="num">06 · TEAM</span><h2>Canopy Keepers</h2><p>Seven students in Dubai. FIRST LEGO League BIOGLOW 2026–27.</p></div>
+    <div class="sec-head"><span class="num">06 · TEAM</span><h2>Canopy Keepers</h2><p>Eight students in Dubai. FIRST LEGO League BIOGLOW 2026–27. Roles from the FLL Engineering Notebook.</p></div>
     <div class="team">
-      <div class="member"><b>Araav</b><span>Project lead</span></div>
-      <div class="member"><b>Arnav</b><span>Research</span></div>
-      <div class="member"><b>Atharv</b><span>Mechanical build</span></div>
-      <div class="member"><b>Dipayan</b><span>Electronics &amp; power</span></div>
-      <div class="member"><b>Gokul</b><span>Code</span></div>
-      <div class="member"><b>Lakshanya</b><span>Mini-lab &amp; testing</span></div>
-      <div class="member"><b>Jude Mugalian</b><span>Outreach &amp; notebook</span></div>
-      <div class="member" style="background:var(--ink);color:var(--paper)"><b>You?</b><span style="color:#B9C4B5">Ecologists — talk to us</span></div>
+      <div class="member" style="background:var(--ink);color:var(--paper)"><b>Pranav</b><span style="color:#B9C4B5">Team Captain</span></div>
+      <div class="member"><b>Araav</b><span>Project Manager</span></div>
+      <div class="member"><b>Arnav</b><span>Researcher</span></div>
+      <div class="member"><b>Atharv</b><span>Builder</span></div>
+      <div class="member"><b>Dipayan</b><span>Material Manager · electronics</span></div>
+      <div class="member"><b>Gokul</b><span>Coder</span></div>
+      <div class="member"><b>Lakshanya</b><span>Creative Designer · testing</span></div>
+      <div class="member"><b>Jude Mugalian</b><span>Communicator</span></div>
     </div>
   </section>
 </main>
 
 <footer class="foot">
-  <div class="big" id="footBig">Canopy Keepers · eDNA Collector · </div>
+  <div class="big" id="footBig">Canopy Keepers · eDNA Pod · </div>
   <div class="row"><span>Facts: National Geographic · Conservation International / WRI · rainwash eDNA study, French Guiana (bioRxiv 2025)</span><span>Demo results are fictional and labelled.</span><a href="console.html">Console</a></div>
 </footer>
 <div id="toasts" aria-live="polite"></div>

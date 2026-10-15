@@ -43,11 +43,11 @@ function use(name) {
   if (name !== 'explode' && collector.root) collector.root.rotation.y = 0;
   if (name === 'hero') {
     collector.setRain(true); collector.setInteractive(false); ctl.autoRotate = !RM; ctl.autoRotateSpeed = 0.5;
-    cam.position.set(9.5, 5.4, 9.5); ctl.target.set(0, 2.4, 0); collector.setViewShift(innerWidth > 900 ? 0.2 : 0);
+    cam.position.set(11.5, 6.2, 11.5); ctl.target.set(0, 1.5, 0); collector.setViewShift(innerWidth > 900 ? 0.2 : 0);
     collector.explode(0);
   } else if (name === 'explode') {
     collector.setRain(false); collector.setInteractive(false); ctl.autoRotate = false;
-    cam.position.set(10.5, 6.5, 10.5); ctl.target.set(0, 2.8, 0); collector.setViewShift(innerWidth > 900 ? 0.16 : 0);
+    cam.position.set(12, 7, 12); ctl.target.set(0, 2.2, 0); collector.setViewShift(innerWidth > 900 ? 0.16 : 0);
   } else {
     collector.setRain(false); collector.setInteractive(true); ctl.enableZoom = false; ctl.autoRotate = false;
     cam.position.set(8, 5.6, 8.2); ctl.target.set(0, 2.4, 0); collector.setViewShift(0);
@@ -176,7 +176,7 @@ $$('[data-count]').forEach(el => {
   const ring = $('#simRing'), log = $('#simLog');
   ring.innerHTML = missionRing(0);
   const add = (txt, cls = '') => { const d = document.createElement('div'); d.textContent = txt; if (cls) d.style.color = cls; log.appendChild(d); while (log.childNodes.length > 80) log.firstChild.remove(); log.scrollTop = log.scrollHeight; };
-  add('Ready. Press “Start mission” — the collector’s digital twin will run a blank plus every planned site.', '#B9C4B5');
+  add('Ready. Press “Start mission” — the Pod’s digital twin will run a blank plus every planned site.', '#B9C4B5');
   link.addEventListener('tele', e => {
     const t = e.detail;
     $('#rPh').textContent = fmtNum(t.ph, 2); $('#rNtu').textContent = fmtNum(t.ntu, 1);
@@ -186,13 +186,13 @@ $$('[data-count]').forEach(el => {
   });
   link.addEventListener('step', e => { ring.innerHTML = missionRing(e.detail.n); if (e.detail.tube) $('#hudTube').textContent = tubeId(e.detail.tube); add(`Step ${e.detail.n}/8 · ${e.detail.name.toLowerCase()} · ${e.detail.siteName}`); });
   link.addEventListener('log', e => add(e.detail.msg, '#B9C4B5'));
-  link.addEventListener('sample', e => add(`Sealed ${tubeId(e.detail.tube)} · ${e.detail.name} · ${e.detail.ml} mL${e.detail.blank ? ' · field blank' : ''}`, '#B8E07A'));
+  link.addEventListener('sample', e => add(`Preserved ${tubeId(e.detail.tube)} · seat ${e.detail.seat || '?'} · ${e.detail.name} · ${e.detail.ml} mL${e.detail.blank ? ' · field blank' : ''}`, '#B8E07A'));
   link.addEventListener('err', e => add(`! ${e.detail.msg}`, '#E8A23A'));
-  link.addEventListener('done', e => { ring.innerHTML = missionRing(0, 8); add(`Mission complete — ${e.detail.tubes} tubes. Scroll down to the database.`, '#B8E07A'); });
+  link.addEventListener('done', e => { ring.innerHTML = missionRing(0, 8); add(`Mission complete — ${e.detail.tubes} cartridges. Scroll down to the database.`, '#B8E07A'); });
   link.addEventListener('aborted', e => { ring.innerHTML = missionRing(0); add(`Safe stop. ${e.detail.msg}`, '#E8A23A'); });
   $('#simStart').onclick = async () => {
-    state.settings.simSpeed = Math.max(state.settings.simSpeed || 10, 24); save();
-    if (await startMission()) add('Mission sent to the collector.', '#B9C4B5');
+    state.settings.simSpeed = Math.max(state.settings.simSpeed || 10, 40); save();
+    if (await startMission()) add('Mission sent to the Pod.', '#B9C4B5');
   };
   $('#simPause').onclick = () => link.connected && link.send({ cmd: link.tele?.paused ? 'resume' : 'pause' });
   $('#simAbort').onclick = () => link.busy && link.send({ cmd: 'abort' });
@@ -240,9 +240,9 @@ $$('[data-count]').forEach(el => {
     const all = rows();
     const max = Math.max(1, ...all.map(r => r.reads));
     const list = all.filter(r => (filter === 'all' || r.watch) && (!q || `${r.species} ${r.common} ${[...r.tubes].join(' ')} ${[...r.sites].join(' ')}`.toLowerCase().includes(q)));
-    table.innerHTML = `<div class="db-row h"><span>Species</span><span class="hide-m">Sites</span><span class="hide-m">Tubes</span><span>DNA reads</span><span class="hide-m">Signal</span></div>` +
+    table.innerHTML = `<div class="db-row h"><span>Species</span><span class="hide-m">Sites</span><span class="hide-m">Cartridges</span><span>DNA reads</span><span class="hide-m">Signal</span></div>` +
       (list.length ? list.map(r => `<div class="db-row"><span><b>${esc(r.common || r.species)}</b>${r.watch ? '<span class="w">WATCHLIST</span>' : ''}<br><i>${esc(r.species)}</i></span><span class="hide-m">${esc([...r.sites].join(', '))}</span><span class="hide-m mono">${[...r.tubes].join(' ')}</span><span class="mono">${r.reads.toLocaleString()}</span><span class="hide-m"><span class="db-bars"><span style="width:${(r.reads / max * 100).toFixed(1)}%"></span></span></span></div>`).join('')
-        : `<div class="db-empty">${all.length ? 'No species match.' : state.samples.length ? 'Tubes are sealed — load the lab results to see who was there.' : 'No tubes yet. Run the simulator above, then load the demo lab results.'}</div>`);
+        : `<div class="db-empty">${all.length ? 'No species match.' : state.samples.length ? 'Cartridges are filled — load the lab results to see who was there.' : 'No cartridges yet. Run the simulator above, then load the demo lab results.'}</div>`);
     $('#sTubes').textContent = state.samples.length;
     $('#sSpecies').textContent = all.length;
     $('#sSites').textContent = new Set(state.samples.filter(s => !s.blank).map(s => s.site)).size;
@@ -252,7 +252,7 @@ $$('[data-count]').forEach(el => {
   $('#dbSearch').addEventListener('input', () => render(false));
   $$('.chip').forEach(c => c.onclick = () => { filter = c.dataset.f; $$('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === c))); render(true); });
   $('#dbDemo').onclick = () => {
-    if (!state.samples.length) { toast('Run the simulator first', 'warn', 'Demo results are made for the tubes it seals.'); const t = $('#sim'); lenis ? lenis.scrollTo(t) : t.scrollIntoView(); return; }
+    if (!state.samples.length) { toast('Run the simulator first', 'warn', 'Demo results are made for the cartridges it fills.'); const t = $('#sim'); lenis ? lenis.scrollTo(t) : t.scrollIntoView(); return; }
     const n = demoResults(); toast(`${n} demo detections loaded`, 'ok', 'Fictional data for training.'); render(true);
   };
   render(false);

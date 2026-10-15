@@ -2,7 +2,7 @@
 // Persisted in localStorage; export/import as JSON.
 import { uid, tubeId } from './util.js';
 
-const KEY = 'edna-console-v2';
+const KEY = 'edna-console-v3';
 const listeners = new Set();
 
 export const STATUSES = ['Collected', 'Shipped', 'At lab', 'Results in'];
@@ -12,14 +12,14 @@ function defaults() {
     version: 1,
     settings: {
       deviceName: 'EDNA-01',
-      pumpMlPerS: 8.5,          // from the pump calibration wizard
+      pumpMlPerS: 1.7,          // from the pump calibration wizard (≈100 mL/min)
       pumpCal: [],              // [{seconds, ml}]
       ph: { v7: 2.50, v4: 3.05 },// probe voltage at pH 7 and pH 4 (two-point calibration)
       ntuZeroV: 4.20,           // turbidity sensor voltage in clean water
-      gantry: { cols: 10, rows: 5, x0: 20, y0: 20, dx: 18, dy: 18 },
+      carousel: { seats: 8, stepsPerSeat: 400 }, // 200-step motor × 16 microsteps ÷ 8 seats
       simSpeed: 10,
     },
-    rules: { ntuMurky: 40, clearMl: 1000, murkyMl: 500, maxPumpS: 600, primeMl: 100, rinseMl: 100, blank: true },
+    rules: { ntuMurky: 40, clearMl: 1000, murkyMl: 500, maxPumpS: 900, primeMl: 34, rinseMl: 34, ethanolMl: 2, blank: true },
     schedule: { mode: 'now', time: '21:30', tide: '' },
     sites: [
       { id: 'site_a', name: 'Rainforest stream (demo)', lat: 25.20690, lon: 55.26180, protected: true, notes: 'Indoor rainforest — written permission needed' },
@@ -42,7 +42,7 @@ function load() {
     if (raw) {
       const s = JSON.parse(raw);
       const d = defaults();
-      return { ...d, ...s, settings: { ...d.settings, ...s.settings, gantry: { ...d.settings.gantry, ...(s.settings || {}).gantry } }, rules: { ...d.rules, ...s.rules } };
+      return { ...d, ...s, settings: { ...d.settings, ...s.settings, carousel: { ...d.settings.carousel, ...(s.settings || {}).carousel } }, rules: { ...d.rules, ...s.rules } };
     }
   } catch (e) { /* storage blocked or corrupt — start fresh */ }
   return defaults();

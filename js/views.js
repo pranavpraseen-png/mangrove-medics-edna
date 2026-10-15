@@ -8,14 +8,14 @@ import { hbars, columns, missionRing } from './charts.js';
 import { startMission, scheduleMission } from './mission.js';
 
 const STEPS = [
-  ['Self-check', 'Battery, sensors and gantry home position checked.'],
-  ['Drive to site', 'Live camera driving; ultrasonic sensors stop it before obstacles.'],
+  ['Self-check', 'Battery, sensors and GPS checked; the carousel finds seat 1.'],
+  ['Index', 'The carousel turns a clean cartridge under the nozzle; place the Pod at the site.'],
   ['Test the water', 'pH and turbidity decide how much water to filter.'],
-  ['Prime', 'About 100 mL of site water flushes the pipe to waste.'],
-  ['Sample', 'The pump pushes water through a fresh 0.45 µm filter.'],
-  ['Seal', 'The gantry drops the filter into ethanol tube #N.'],
-  ['Log', 'Tube, place, time, volume, pH and turbidity are saved.'],
-  ['Rinse', 'Clean water flushes the line; one field blank per mission.'],
+  ['Prime', 'Site water flushes the hose to waste, nozzle lifted.'],
+  ['Sample', 'The servo seals the nozzle and the pump pushes water through the 0.45 µm filter.'],
+  ['Preserve', 'The cartridge drains, then 2 mL of ethanol keeps the DNA safe.'],
+  ['Log', 'Cartridge, seat, place, time, volume and sensors saved to SD and the app.'],
+  ['Rinse', 'Nozzle lifts and site water flushes the hose; one field blank per mission.'],
 ];
 
 function stage(root, sel) {
@@ -37,7 +37,7 @@ function overview(root) {
       <div class="hero-copy">
         <p class="eyebrow">eDNA Collector · Mission control</p>
         <h2>Find the animals <em>nobody can see</em> — from one bottle of water.</h2>
-        <p>Plan sampling missions, watch the collector work in real time, track every tube from the field to the lab, and see which species live in your water.</p>
+        <p>Plan sampling missions, watch the Pod work in real time, track every cartridge from the field to the lab, and see which species live in your water.</p>
         <div class="row" style="margin-top:6px">
           <a class="btn primary" href="#/planner">Plan a mission</a>
           <button class="btn" id="quickSim">Run a demo mission</button>
@@ -46,7 +46,7 @@ function overview(root) {
       <div class="stage" id="heroStage"><span class="stage-label">Live 3D twin · drag to orbit</span></div>
     </div>
     <div class="grid g4">
-      ${stat('tube', state.samples.length, 'Tubes collected', 'sCount')}
+      ${stat('tube', state.samples.length, 'Cartridges filled', 'sCount')}
       ${stat('pin', state.sites.length, 'Sites in the plan', 'siteCount')}
       ${stat('dna', species.size, 'Species detected', 'spCount')}
       ${stat('bell', al.length, 'Open alerts', 'alCount')}
@@ -54,9 +54,9 @@ function overview(root) {
     <div class="grid g2">
       <div class="card">
         <h2>Recent samples <a class="tag info" href="#/samples" style="margin-left:auto;text-decoration:none">Registry →</a></h2>
-        ${recent.length ? `<div class="table-wrap"><table><thead><tr><th>Tube</th><th>Site</th><th>Volume</th><th>When</th></tr></thead><tbody>
+        ${recent.length ? `<div class="table-wrap"><table><thead><tr><th>Cartridge</th><th>Site</th><th>Volume</th><th>When</th></tr></thead><tbody>
           ${recent.map(s => `<tr><td class="mono">${s.id}${s.blank ? ' <span class="tag info">blank</span>' : ''}</td><td>${esc(s.siteName)}</td><td>${s.ml} mL</td><td class="dim">${fmtTime(s.ts)}</td></tr>`).join('')}
-        </tbody></table></div>` : '<div class="empty">No samples yet — run a mission to fill the rack.</div>'}
+        </tbody></table></div>` : '<div class="empty">No samples yet — run a mission to fill the carousel.</div>'}
       </div>
       <div class="card">
         <h2>Alerts <span class="tag ${al.length ? 'crit' : 'ok'}">${al.length ? `${al.length} open` : 'All clear'}</span></h2>
@@ -81,10 +81,10 @@ const alertRow = a => `<div class="alert ${a.level}"><span class="dot"></span><d
 /* ─────────────────────────── Connect ─────────────────────────── */
 function connect(root) {
   const opts = [
-    { k: 'sim', t: 'Simulator', d: 'A digital twin of the collector. Runs full missions with realistic sensor data — perfect for training and demos.', ok: true, ic: '<path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/>' },
-    { k: 'ble', t: 'Bluetooth', d: 'Wireless link to the collector in the field (Chrome or Edge on Android, Windows, macOS).', ok: support.bluetooth(), ic: '<path d="M7 7l10 10-5 4V3l5 4L7 17"/>' },
-    { k: 'serial', t: 'USB cable', d: 'Plug the collector into a laptop. Most reliable for setup and calibration (Chrome or Edge).', ok: support.serial(), ic: '<path d="M10 3h4v5h-4zM8 8h8v6a4 4 0 0 1-8 0zM12 18v3"/>' },
-    { k: 'wifi', t: 'Wi-Fi (on the collector)', d: 'Join the collector’s Wi-Fi “EDNA-01” and open http://192.168.4.1 — the collector serves this same app.', ok: support.wifi(), ic: '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/>' },
+    { k: 'sim', t: 'Simulator', d: 'A digital twin of the Pod. Runs full missions with realistic sensor data — perfect for training and demos.', ok: true, ic: '<path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/>' },
+    { k: 'ble', t: 'Bluetooth', d: 'Wireless link to the Pod in the field (Chrome or Edge on Android, Windows, macOS).', ok: support.bluetooth(), ic: '<path d="M7 7l10 10-5 4V3l5 4L7 17"/>' },
+    { k: 'serial', t: 'USB cable', d: 'Plug the Pod into a laptop. Most reliable for setup and calibration (Chrome or Edge).', ok: support.serial(), ic: '<path d="M10 3h4v5h-4zM8 8h8v6a4 4 0 0 1-8 0zM12 18v3"/>' },
+    { k: 'wifi', t: 'Wi-Fi (on the Pod)', d: 'Join the Pod’s Wi-Fi “EDNA-01” and open http://192.168.4.1 — the Pod serves this same app.', ok: support.wifi(), ic: '<path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M12 19.5h.01"/>' },
   ];
   root.innerHTML = `
   <section class="grid">
@@ -94,7 +94,7 @@ function connect(root) {
         <h3>${o.t}</h3><p>${o.d}</p>
         <div class="spacer"></div>
         ${o.ok ? `<button class="btn ${o.k === 'sim' ? 'primary' : ''}" data-connect="${o.k}">${link.kind === o.k ? 'Reconnect' : 'Connect'}</button>`
-               : `<span class="tag warn">${o.k === 'wifi' ? 'Open the app from the collector’s address' : 'Not supported in this browser'}</span>`}
+               : `<span class="tag warn">${o.k === 'wifi' ? 'Open the app from the Pod’s address' : 'Not supported in this browser'}</span>`}
       </div>`).join('')}
     </div>
     <div class="grid g2">
@@ -102,7 +102,7 @@ function connect(root) {
         <h2>Device</h2>
         <div id="devInfo"></div>
         <div class="row" style="margin-top:14px">
-          <button class="btn" id="homeBtn">Home gantry</button>
+          <button class="btn" id="homeBtn">Home carousel</button>
           <button class="btn" id="readBtn">Read sensors</button>
           <button class="btn danger" id="discBtn">Disconnect</button>
         </div>
@@ -117,7 +117,7 @@ function connect(root) {
     $('#devInfo', root).innerHTML = link.connected
       ? `<div class="grid g2"><div><p class="eyebrow">Link</p><b>${link.label}</b></div><div><p class="eyebrow">Device</p><b class="mono">${esc(link.info?.id || '…')}</b></div>
          <div><p class="eyebrow">Firmware</p><b class="mono">${esc(link.info?.fw || '…')}</b></div><div><p class="eyebrow">Battery</p><b>${fmtNum(link.tele?.bat ?? link.info?.bat, 2)} V</b></div></div>`
-      : '<p>No collector connected. Pick a link above — or start with the simulator.</p>';
+      : '<p>No Pod connected. Pick a link above — or start with the simulator.</p>';
     $$('.conn-opt', root).forEach(c => c.classList.toggle('active', c.dataset.k === link.kind));
   };
   info();
@@ -189,10 +189,11 @@ function planner(root) {
           <label class="f">When<select name="mode">
             <option value="now" ${sch.mode === 'now' ? 'selected' : ''}>Start now</option>
             <option value="nightly" ${sch.mode === 'nightly' ? 'selected' : ''}>Every night at a set time</option>
-            <option value="tide" ${sch.mode === 'tide' ? 'selected' : ''}>After rain (enter time)</option></select></label>
+            <option value="tide" ${sch.mode === 'tide' ? 'selected' : ''}>After rain (enter time)</option>
+            <option value="rain" ${sch.mode === 'rain' ? 'selected' : ''}>When the rain sensor gets wet</option></select></label>
           <label class="f">Time<input type="time" name="time" value="${sch.time}"></label>
           <label class="f">Rain-run time (after a shower)<input type="time" name="tide" value="${sch.tide}"></label>
-          <p class="dim" style="font-size:13px">Scheduled missions are stored on the collector so a fixed post can sample on its own — for example right after rain, when canopy DNA washes down.</p>
+          <p class="dim" style="font-size:13px">Scheduled missions are stored on the Pod so it can sample on its own — for example right after rain, when canopy DNA washes down. With the funnel on, the rain sensor can start it too.</p>
         </form>
       </div>
       <div class="card">
@@ -223,8 +224,8 @@ function planner(root) {
     const est = state.sites.length * ((state.rules.clearMl + state.rules.primeMl + state.rules.rinseMl) / state.settings.pumpMlPerS + 60) + (state.rules.blank ? 120 : 0);
     const items = [
       [state.sites.length > 0, `${state.sites.length} site${state.sites.length === 1 ? '' : 's'} planned`],
-      [state.sites.length + (state.rules.blank ? 1 : 0) <= 50 - ((state.nextTube - 1) % 50), `Tubes ${tubeId(state.nextTube)} → ${tubeId(state.nextTube + state.sites.length + (state.rules.blank ? 1 : 0) - 1)}`],
-      [state.settings.pumpCal.length >= 3, state.settings.pumpCal.length >= 3 ? `Pump calibrated (${state.settings.pumpMlPerS} mL/s)` : 'Pump not calibrated — using default 8.5 mL/s'],
+      [state.sites.length + (state.rules.blank ? 1 : 0) <= 8 - ((state.nextTube - 1) % 8), state.sites.length + (state.rules.blank ? 1 : 0) <= 8 - ((state.nextTube - 1) % 8) ? `Cartridges ${tubeId(state.nextTube)} → ${tubeId(state.nextTube + state.sites.length + (state.rules.blank ? 1 : 0) - 1)} · ${8 - ((state.nextTube - 1) % 8)} clean seats` : `Only ${8 - ((state.nextTube - 1) % 8)} clean seats — swap in a fresh carousel`],
+      [state.settings.pumpCal.length >= 3, state.settings.pumpCal.length >= 3 ? `Pump calibrated (${state.settings.pumpMlPerS} mL/s)` : 'Pump not calibrated — using default 1.7 mL/s'],
       [link.connected, link.connected ? `Connected via ${link.label}` : 'Not connected — the simulator will be used'],
     ];
     $('#ready', root).innerHTML = items.map(([ok, t]) => `<div class="check-item"><span class="tag ${ok ? 'ok' : 'warn'}">${ok ? 'OK' : 'Check'}</span><span>${t}</span></div>`).join('') + `<p class="dim" style="font-size:13px;margin-top:8px">Estimated field time ≈ ${Math.round(est / 60)} min</p>`;
@@ -276,26 +277,20 @@ function live(root) {
             ${gauge('ml', 'Volume', 'mL', 1000)}${gauge('bat', 'Battery', 'V', 12.8)}
           </div>
           <div class="io">
-            <span id="io-pumpS"><i></i>Sample pump</span><span id="io-pumpR"><i></i>Rinse pump</span>
-            <span id="io-vW"><i></i>Waste valve</span><span id="io-vF"><i></i>Filter valve</span>
+            <span id="io-pumpS"><i></i>Sample pump</span><span id="io-pumpE"><i></i>Ethanol pump</span>
+            <span id="io-press"><i></i>Nozzle sealed</span><span id="io-rain"><i></i>Rain</span>
           </div>
         </div>
       </div>
     </div>
     <div class="grid g2">
       <div class="card"><h2>Mission log</h2><div class="term" id="term"></div></div>
-      <div class="card"><h2>Collector camera <span class="tag">ESP32-CAM</span></h2><div class="cam"><span class="scan"></span><span id="camTxt">Video appears here when the collector streams over Wi-Fi.</span></div>
-        <p class="dim" style="font-size:13px;margin-top:10px">Distance to nearest obstacle: <b id="dist">—</b></p>
-        <div class="drivepad">
-          <div class="pad" aria-label="Drive controls">
-            <button class="icon-btn" data-drive="150,150" aria-label="Forward">${icons.up}</button>
-            <button class="icon-btn" data-drive="-140,140" aria-label="Turn left" style="transform:rotate(-90deg)">${icons.up}</button>
-            <button class="icon-btn" data-drive="140,-140" aria-label="Turn right" style="transform:rotate(90deg)">${icons.up}</button>
-            <button class="icon-btn" data-drive="-120,-120" aria-label="Reverse">${icons.down}</button>
-          </div>
-          <div><b>Drive to the site</b><p class="dim" style="font-size:13px;margin:2px 0 8px">Hold an arrow to drive. The collector stops itself before obstacles.</p>
-          <button class="btn primary sm" id="arrived" disabled>Arrived at site — start sampling</button></div>
-        </div></div>
+      <div class="card"><h2>Carousel <span class="tag" id="seatTag">Seat 1 of 8</span></h2>
+        <div class="slotgrid" id="seatGrid" style="grid-template-columns:repeat(8,1fr)"></div>
+        <p class="dim" style="font-size:13px;margin-top:10px">Pump current: <b id="cur">—</b> · Water temperature: <b id="temp">—</b> · Rain sensor: <b id="rain">dry</b></p>
+        <div style="margin-top:10px"><b>Carry the Pod to the site</b><p class="dim" style="font-size:13px;margin:2px 0 8px">While the carousel turns, stake the Pod on the bank and drop the strainer in the water. Then tap the button.</p>
+          <button class="btn primary sm" id="arrived" disabled>Pod in place — start sampling</button></div>
+      </div>
     </div>
   </section>`;
   const off = stage(root, '#liveStage');
@@ -303,9 +298,12 @@ function live(root) {
   const onTele = e => {
     const t = e.detail;
     setG('ph', t.ph, 14, 2); setG('ntu', t.ntu, 100, 1); setG('ml', t.ml, t.target || 1000, 0, t.target ? ` / ${t.target}` : ''); setG('bat', t.bat, 12.8, 2);
-    ['pumpS', 'pumpR', 'vW', 'vF'].forEach(k => $(`#io-${k}`, root)?.classList.toggle('on', !!t[k]));
+    ['pumpS', 'pumpE', 'press', 'rain'].forEach(k => $(`#io-${k}`, root)?.classList.toggle('on', !!t[k]));
     $('#hState', root).textContent = t.paused ? 'PAUSED' : t.state;
-    $('#dist', root).textContent = `${t.dist} cm${t.dist < 40 ? ' — stopping' : ''}`;
+    $('#cur', root).textContent = t.cur ? `${fmtNum(t.cur, 2)} A${t.cur > 0.5 ? ' — clogging' : ''}` : '—';
+    $('#temp', root).textContent = t.temp != null ? `${fmtNum(t.temp, 1)} °C` : '—';
+    $('#rain', root).textContent = t.rain ? 'wet' : 'dry';
+    seats(t.seat);
     $('#pause', root).textContent = t.paused ? 'Resume' : 'Pause';
   };
   const setG = (k, v, max, d, extra = '') => {
@@ -313,6 +311,12 @@ function live(root) {
     el.querySelector('.gv').innerHTML = `${fmtNum(v, d)}<small> ${el.dataset.unit}${extra}</small>`;
     el.querySelector('.bar i').style.width = `${Math.max(0, Math.min(100, (v / max) * 100))}%`;
   };
+  const seats = cur => {
+    const base = Math.floor((state.nextTube - 1) / 8) * 8;
+    $('#seatTag', root).textContent = `Seat ${cur || 1} of 8`;
+    $('#seatGrid', root).innerHTML = Array.from({ length: 8 }, (_, i) => { const s = state.samples.find(x => x.tube === base + i + 1); return `<span class="${s ? (s.blank ? 'blank' : 'used') : ''}" style="${(cur || 1) === i + 1 ? 'outline:2px solid var(--mint);outline-offset:1px' : ''}" title="${s ? s.id : `Seat ${i + 1}`}">${i + 1}</span>`; }).join('');
+  };
+  seats(link.tele?.seat);
   const onStep = e => {
     $('#arrived', root).disabled = e.detail.n !== 2;
     $('#ring', root).innerHTML = missionRing(e.detail.n);
@@ -328,24 +332,10 @@ function live(root) {
   if (link.tele) onTele({ detail: link.tele });
   $('#start', root).onclick = () => startMission();
   $('#arrived', root).disabled = link.step?.n !== 2;
-  $('#arrived', root).onclick = () => { link.send({ cmd: 'arrived' }); $('#arrived', root).disabled = true; };
-  let driveTimer = null;
-  const stopDrive = () => { clearInterval(driveTimer); driveTimer = null; };
-  $$('[data-drive]', root).forEach(b => {
-    const go = e => {
-      e.preventDefault();
-      if (!link.connected) return toast('Connect first', 'warn');
-      const [l, r] = b.dataset.drive.split(',').map(Number);
-      const send = () => link.send({ cmd: 'drive', l, r, ms: 300 });
-      send(); stopDrive(); driveTimer = setInterval(send, 250);
-    };
-    b.addEventListener('pointerdown', go);
-    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => b.addEventListener(ev, stopDrive));
-    b.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { const [l, r] = b.dataset.drive.split(',').map(Number); link.send({ cmd: 'drive', l, r, ms: 300 }); } });
-  });
+  $('#arrived', root).onclick = () => { link.send({ cmd: 'placed' }); $('#arrived', root).disabled = true; };
   $('#pause', root).onclick = () => { if (!link.connected) return; link.send({ cmd: link.tele?.paused ? 'resume' : 'pause' }); };
-  $('#abort', root).onclick = () => { if (link.busy && confirm('Abort the mission? Pumps stop, valves close and the arm lifts.')) link.send({ cmd: 'abort' }); };
-  return () => { stopDrive(); off(); offT(); link.removeEventListener('tele', onTele); link.removeEventListener('step', onStep); link.removeEventListener('done', onEnd); link.removeEventListener('aborted', onEnd); link.removeEventListener('status', onStatus); };
+  $('#abort', root).onclick = () => { if (link.busy && confirm('Abort the mission? Pumps stop and the nozzle lifts.')) link.send({ cmd: 'abort' }); };
+  return () => { off(); offT(); link.removeEventListener('tele', onTele); link.removeEventListener('step', onStep); link.removeEventListener('done', onEnd); link.removeEventListener('aborted', onEnd); link.removeEventListener('status', onStatus); };
 }
 const gauge = (k, l, unit, max, amber) => `<div class="gauge" id="g-${k}" data-unit="${unit}"><div class="gl">${l}</div><div class="gv">—<small> ${unit}</small></div><div class="bar ${amber ? 'amber' : ''}"><i></i></div></div>`;
 
@@ -355,7 +345,7 @@ function samples(root) {
   <section class="grid">
     <div class="card">
       <div class="row" style="margin-bottom:14px">
-        <input type="search" id="q" placeholder="Search tube or site" style="max-width:260px" aria-label="Search samples">
+        <input type="search" id="q" placeholder="Search cartridge or site" style="max-width:260px" aria-label="Search samples">
         <select id="st" style="max-width:200px" aria-label="Filter by status"><option value="">All statuses</option>${STATUSES.map(s => `<option>${s}</option>`).join('')}</select>
         <span class="spacer"></span>
         <button class="btn" id="ship">Mark selected shipped</button>
@@ -363,13 +353,13 @@ function samples(root) {
         <button class="btn primary" id="csv">Export lab manifest (CSV)</button>
       </div>
       <div class="table-wrap"><table>
-        <thead><tr><th><input type="checkbox" id="all" aria-label="Select all"></th><th>Tube</th><th>Site</th><th>Collected</th><th>Volume</th><th>pH</th><th>NTU</th><th>Type</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th><input type="checkbox" id="all" aria-label="Select all"></th><th>Cartridge</th><th>Site</th><th>Collected</th><th>Volume</th><th>pH</th><th>NTU</th><th>Type</th><th>Status</th><th></th></tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
     </div>
     <div class="grid g2">
-      <div class="card"><h2>Tube rack <span class="tag">${state.samples.length} / 50 slots used this rack</span></h2><div class="slotgrid" id="rack" style="grid-template-columns:repeat(10,1fr)"></div></div>
-      <div class="card"><h2>Chain of custody</h2><p>Every tube has a QR label that encodes its ID, site, time and volume. Scan it at each hand-over so the lab result always matches the right place and time.</p>
+      <div class="card"><h2>Carousels <span class="tag">8 seats each · ${Math.ceil(state.samples.length / 8) || 0} used</span></h2><div class="slotgrid" id="rack" style="grid-template-columns:repeat(8,1fr)"></div><p class="dim" style="font-size:13px;margin-top:8px">One row per carousel. A full carousel goes in the fridge, then to the lab, and a fresh one clicks in.</p></div>
+      <div class="card"><h2>Chain of custody</h2><p>Every cartridge has a QR label that encodes its ID, site, time and volume. Scan it at each hand-over so the lab result always matches the right place and time.</p>
         <div class="row">${STATUSES.map((s, i) => `<span class="tag ${i === 3 ? 'ok' : ''}">${i + 1}. ${s}</span>`).join('')}</div></div>
     </div>
   </section>`;
@@ -391,13 +381,14 @@ function samples(root) {
     $$('[data-sel]', root).forEach(c => c.onchange = () => { c.checked ? sel.add(+c.dataset.sel) : sel.delete(+c.dataset.sel); });
     $$('[data-status]', root).forEach(c => c.onchange = () => { state.samples.find(s => s.tube === +c.dataset.status).status = c.value; save(); });
     $$('[data-del]', root).forEach(b => b.onclick = () => { if (confirm('Delete this sample record?')) { state.samples = state.samples.filter(s => s.tube !== +b.dataset.del); save(); draw(); } });
-    const used = new Map(state.samples.map(s => [((s.tube - 1) % 50), s]));
-    $('#rack', root).innerHTML = Array.from({ length: 50 }, (_, i) => { const s = used.get(i); return `<span class="${s ? (s.blank ? 'blank' : 'used') : ''}" title="${s ? s.id : `Slot ${i + 1}`}">${i + 1}</span>`; }).join('');
+    const used = new Map(state.samples.map(s => [s.tube - 1, s]));
+    const rows = Math.max(1, Math.ceil(Math.max(state.nextTube - 1, state.samples.length) / 8));
+    $('#rack', root).innerHTML = Array.from({ length: rows * 8 }, (_, i) => { const s = used.get(i); return `<span class="${s ? (s.blank ? 'blank' : 'used') : ''}" title="${s ? s.id : `Carousel ${Math.floor(i / 8) + 1}, seat ${i % 8 + 1}`}">${i % 8 + 1}</span>`; }).join('');
   };
   draw();
   $('#q', root).oninput = draw; $('#st', root).onchange = draw;
   $('#all', root).onchange = e => { list().forEach(s => e.target.checked ? sel.add(s.tube) : sel.delete(s.tube)); draw(); };
-  $('#ship', root).onclick = () => { if (!sel.size) return toast('Select tubes first', 'warn'); state.samples.forEach(s => { if (sel.has(s.tube)) s.status = 'Shipped'; }); save(); draw(); toast(`${sel.size} tubes marked shipped`); };
+  $('#ship', root).onclick = () => { if (!sel.size) return toast('Select cartridges first', 'warn'); state.samples.forEach(s => { if (sel.has(s.tube)) s.status = 'Shipped'; }); save(); draw(); toast(`${sel.size} cartridges marked shipped`); };
   $('#csv', root).onclick = () => {
     const rows = (sel.size ? state.samples.filter(s => sel.has(s.tube)) : state.samples).map(s => ({ tube_id: s.id, site: s.siteName, lat: s.lat, lon: s.lon, collected: new Date(s.ts).toISOString(), volume_ml: s.ml, ph: s.ph, ntu: s.ntu, field_blank: s.blank ? 'yes' : 'no', status: s.status }));
     if (!rows.length) return toast('No samples to export', 'warn');
@@ -412,7 +403,7 @@ function printLabels(list) {
   area.innerHTML = list.map(s => {
     let qr = '';
     if (window.qrcode) { const q = qrcode(0, 'M'); q.addData(`EDNA|${s.id}|${s.siteName}|${new Date(s.ts).toISOString()}|${s.ml}mL${s.blank ? '|BLANK' : ''}`); q.make(); qr = q.createSvgTag({ cellSize: 3, margin: 0, scalable: true }); }
-    return `<div class="label">${qr}<div><b>${s.id}</b>${esc(s.siteName)}<br>${new Date(s.ts).toLocaleString()}<br>${s.ml} mL · pH ${s.ph} · ${s.ntu} NTU${s.blank ? '<br><b>FIELD BLANK</b>' : ''}<br>Canopy Keepers · eDNA Collector</div></div>`;
+    return `<div class="label">${qr}<div><b>${s.id}</b>${esc(s.siteName)}<br>${new Date(s.ts).toLocaleString()}<br>${s.ml} mL · pH ${s.ph} · ${s.ntu} NTU${s.blank ? '<br><b>FIELD BLANK</b>' : ''}<br>Canopy Keepers · eDNA Pod</div></div>`;
   }).join('');
   setTimeout(() => window.print(), 100);
 }
@@ -469,7 +460,7 @@ function results(root) {
   drop.ondragover = e => { e.preventDefault(); drop.classList.add('over'); };
   drop.ondragleave = () => drop.classList.remove('over');
   drop.ondrop = e => { e.preventDefault(); drop.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) f.text().then(load); };
-  $('#demo', root).onclick = () => { if (!state.samples.length) return toast('Run a mission first', 'warn', 'Demo results are generated for the tubes in your registry.'); const n = demoResults(); toast(`${n} demo detections loaded`, 'ok', 'Fictional data for training.'); results(root); };
+  $('#demo', root).onclick = () => { if (!state.samples.length) return toast('Run a mission first', 'warn', 'Demo results are generated for the cartridges in your registry.'); const n = demoResults(); toast(`${n} demo detections loaded`, 'ok', 'Fictional data for training.'); results(root); };
   $('#clear', root).onclick = () => { if (confirm('Clear all lab results?')) { state.results = []; save(); results(root); } };
   if (window.gsap && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const hb = root.querySelectorAll('.hb-bar'), cb = root.querySelectorAll('.col-bar');
@@ -480,7 +471,7 @@ function results(root) {
 
 /* ─────────────────────────── Calibration ─────────────────────────── */
 function calibrate(root) {
-  const st = state.settings, g = st.gantry;
+  const st = state.settings, g = st.carousel;
   root.innerHTML = `
   <section class="grid">
     <div class="grid g2">
@@ -511,15 +502,11 @@ function calibrate(root) {
     </div>
     <div class="grid g2">
       <div class="card">
-        <h2>Gantry slot map</h2>
-        <p>Where each tube sits under the gantry (millimetres from home).</p>
+        <h2>Carousel</h2>
+        <p>How far the stepper turns between seats. With a 200-step motor at 16 microsteps, 8 seats need 400 steps each. Run 80 moves and check seat 1 still lines up (test 3).</p>
         <form class="form c3" id="gForm">
-          <label class="f">Columns<input type="number" name="cols" value="${g.cols}" min="1" max="20"></label>
-          <label class="f">Rows<input type="number" name="rows" value="${g.rows}" min="1" max="10"></label>
-          <label class="f">First slot X<input type="number" name="x0" value="${g.x0}"></label>
-          <label class="f">First slot Y<input type="number" name="y0" value="${g.y0}"></label>
-          <label class="f">Pitch X<input type="number" name="dx" value="${g.dx}"></label>
-          <label class="f">Pitch Y<input type="number" name="dy" value="${g.dy}"></label>
+          <label class="f">Seats<input type="number" name="seats" value="${g.seats}" min="1" max="16"></label>
+          <label class="f">Steps per seat<input type="number" name="stepsPerSeat" value="${g.stepsPerSeat}" min="10"></label>
         </form>
         <div class="slotgrid" id="gPrev"></div>
       </div>
@@ -541,7 +528,7 @@ function calibrate(root) {
       <p style="margin-top:10px"><b>Mean ${mean.toFixed(2)} mL/s</b> · spread ±${spread.toFixed(1)}% <span class="tag ${spread <= 5 ? 'ok' : 'warn'}">${spread <= 5 ? 'Within ±5% target' : 'Above ±5% — check tubing'}</span></p>`;
   };
   pRes();
-  $('#pRun', root).onclick = () => { if (!link.send({ cmd: 'pump', which: 'S', seconds: +$('#pSec', root).value })) toast('Connect the collector (or simulator) first', 'warn'); else toast('Pump running', 'ok', 'Measure the water in the jug when it stops, then save the run.'); };
+  $('#pRun', root).onclick = () => { if (!link.send({ cmd: 'pump', which: 'S', seconds: +$('#pSec', root).value })) toast('Connect the Pod (or simulator) first', 'warn'); else toast('Pump running', 'ok', 'Measure the water in the jug when it stops, then save the run.'); };
   $('#pAdd', root).onclick = () => {
     const ml = +$('#pMl', root).value, seconds = +$('#pSec', root).value;
     if (!ml || !seconds) return toast('Enter the measured volume', 'warn');
@@ -560,11 +547,11 @@ function calibrate(root) {
   calRaw = onRaw;
   link.addEventListener('raw', onRaw);
   $('#v7', root).oninput = slope; $('#v4', root).oninput = slope;
-  $('#phSave', root).onclick = () => { st.ph = { v7: +$('#v7', root).value, v4: +$('#v4', root).value }; st.ntuZeroV = +$('#nz', root).value; save(); link.send({ cmd: 'setcal', ph: st.ph, ntuZeroV: st.ntuZeroV, mlPerS: st.pumpMlPerS, gantry: st.gantry }); toast('Calibration saved'); };
+  $('#phSave', root).onclick = () => { st.ph = { v7: +$('#v7', root).value, v4: +$('#v4', root).value }; st.ntuZeroV = +$('#nz', root).value; save(); link.send({ cmd: 'setcal', ph: st.ph, ntuZeroV: st.ntuZeroV, mlPerS: st.pumpMlPerS, carousel: st.carousel }); toast('Calibration saved'); };
   const gPrev = () => {
-    const f = $('#gForm', root); ['cols', 'rows', 'x0', 'y0', 'dx', 'dy'].forEach(k => g[k] = +f[k].value || 0); save();
-    const el = $('#gPrev', root); el.style.gridTemplateColumns = `repeat(${g.cols},1fr)`;
-    el.innerHTML = Array.from({ length: g.cols * g.rows }, (_, i) => `<span title="X ${g.x0 + (i % g.cols) * g.dx}, Y ${g.y0 + Math.floor(i / g.cols) * g.dy} mm">${i + 1}</span>`).join('');
+    const f = $('#gForm', root); ['seats', 'stepsPerSeat'].forEach(k => g[k] = +f[k].value || 0); save();
+    const el = $('#gPrev', root); el.style.gridTemplateColumns = `repeat(${g.seats},1fr)`;
+    el.innerHTML = Array.from({ length: g.seats }, (_, i) => `<span title="${i * g.stepsPerSeat} steps from home">${i + 1}</span>`).join('');
   };
   gPrev(); $('#gForm', root).oninput = gPrev;
   $('#exp', root).onclick = () => download(`edna-backup-${new Date().toISOString().slice(0, 10)}.json`, exportJSON(), 'application/json');
@@ -577,7 +564,7 @@ let calRaw = null;
 
 /* ─────────────────────────── Help ─────────────────────────── */
 function help(root) {
-  const team = [['Araav', 'Project lead'], ['Arnav', 'Research'], ['Atharv', 'Mechanical build'], ['Dipayan', 'Electronics & power'], ['Gokul', 'Code'], ['Lakshanya', 'Mini-lab & testing'], ['Jude Mugalian', 'Outreach & notebook']];
+  const team = [['Pranav', 'Team Captain'], ['Araav', 'Project Manager'], ['Arnav', 'Researcher'], ['Atharv', 'Builder'], ['Dipayan', 'Material Manager · electronics'], ['Gokul', 'Coder'], ['Lakshanya', 'Creative Designer · testing'], ['Jude Mugalian', 'Communicator']];
   root.innerHTML = `
   <section class="grid g2">
     <div class="card prose">
@@ -586,14 +573,14 @@ function help(root) {
         <li><b>Calibrate</b> the pump (5 runs) and the pH probe before each field day.</li>
         <li><b>Plan</b> sites on the map, check the sampling rules, keep the field blank on.</li>
         <li><b>Connect</b> by Bluetooth or USB — or use the simulator to practise.</li>
-        <li><b>Start</b> the mission and watch it live. Abort stops pumps, closes valves and lifts the arm.</li>
-        <li><b>Label</b> tubes with QR codes, export the lab manifest and ship the tubes cool.</li>
+        <li><b>Start</b> the mission and watch it live. Abort stops the pumps and lifts the nozzle.</li>
+        <li><b>Label</b> cartridges with QR codes, export the lab manifest and ship them cool.</li>
         <li><b>Import</b> the lab’s CSV to see species per site and alerts.</li>
       </ol>
       <h3>How a sample stays clean</h3>
-      <p>Prime with site water → filter → seal → rinse with clean water, a fresh filter at every site, and one clean-water blank per mission. If the blank shows DNA, the app raises a contamination alert.</p>
+      <p>Prime with site water → seal the nozzle → filter → preserve with ethanol → flush the hose, a fresh cartridge at every site, and one bottled-water blank per mission. If the blank shows DNA, the app raises a contamination alert.</p>
       <h3>For developers</h3>
-      <p>The app talks to the collector in newline-delimited JSON over Bluetooth (Nordic UART service), USB serial at 115200 baud, or a WebSocket at <code>/ws</code>. See <a href="docs/PROTOCOL.md">PROTOCOL.md</a> and the ESP32 firmware in <code>/firmware</code>.</p>
+      <p>The app talks to the Pod in newline-delimited JSON over Bluetooth (Nordic UART service), USB serial at 115200 baud, or a WebSocket at <code>/ws</code>. See <a href="docs/PROTOCOL.md">PROTOCOL.md</a> and the ESP32 firmware in <code>/firmware</code>.</p>
     </div>
     <div class="grid" style="align-content:start">
       <div class="card prose">
