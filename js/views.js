@@ -442,7 +442,7 @@ function results(root) {
     </div>
     <div class="grid g2">
       <div class="card chart"><h2>Species per site</h2>${columns([...bySite].map(([k, v]) => ({ label: k, value: v.size })))}</div>
-      <div class="card chart"><h2>Strongest DNA signals <span class="tag">total reads</span></h2>${hbars(top.map(t => ({ label: t.common || t.species, value: t.reads, color: inv.has(t.species.toLowerCase()) ? '#F5A524' : '#3FE0B0', note: inv.has(t.species.toLowerCase()) ? 'watchlist' : '' })))}</div>
+      <div class="card chart"><h2>Strongest DNA signals <span class="tag">total reads</span></h2>${hbars(top.map(t => ({ label: t.common || t.species, value: t.reads, color: inv.has(t.species.toLowerCase()) ? '#F5A524' : '#B8E07A', note: inv.has(t.species.toLowerCase()) ? 'watchlist' : '' })))}</div>
     </div>
     <div class="grid g2">
       <div class="card"><h2>Species list by site</h2>${bySite.size ? [...bySite].map(([site, set]) => `<p class="eyebrow" style="margin-top:12px">${esc(site)}</p><div class="species">${[...set].map(sp => { const r = reads.get(sp); const bad = inv.has(sp.toLowerCase()); return `<div class="sp"><div><b>${esc(r?.common || sp)}</b> <i>${esc(sp)}</i></div>${bad ? '<span class="tag crit">Watchlist</span>' : '<span class="tag ok">Detected</span>'}</div>`; }).join('') || '<div class="dim">No detections</div>'}</div>`).join('') : '<div class="empty">Import results to see species.</div>'}</div>

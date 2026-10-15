@@ -13,7 +13,7 @@ export function hbars(data, { unit = '', max } = {}) {
     return `<g class="hb" style="--d:${i * 60}ms">
       <text x="0" y="${y + 17}" fill="#EEF3EF" style="font-size:13px">${esc(d.label)}</text>
       <rect x="${labelW}" y="${y + 4}" width="${barW}" height="18" rx="9" fill="#1F3D47" opacity=".6"/>
-      <rect class="hb-bar" x="${labelW}" y="${y + 4}" width="${w}" height="18" rx="9" fill="${d.color || '#3FE0B0'}"/>
+      <rect class="hb-bar" x="${labelW}" y="${y + 4}" width="${w}" height="18" rx="9" fill="${d.color || '#B8E07A'}"/>
       <text x="${labelW + w + 8}" y="${y + 17}" style="font-size:12px">${esc(String(d.value))}${unit}${d.note ? ` · ${esc(d.note)}` : ''}</text>
     </g>`;
   }).join('')}
@@ -35,7 +35,7 @@ export function columns(data, { unit = '' } = {}) {
       <text x="${x + bw / 2}" y="${H - h - 8}" text-anchor="middle" fill="#EEF3EF" style="font-size:14px;font-weight:700">${d.value}${unit}</text>
       <text x="${x + bw / 2}" y="${H + 20}" text-anchor="middle">${esc(d.label.length > 16 ? d.label.slice(0, 15) + '…' : d.label)}</text>`;
     }).join('')}
-    <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3FE0B0"/><stop offset="1" stop-color="#1f8e7a"/></linearGradient></defs>
+    <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B8E07A"/><stop offset="1" stop-color="#1f8e7a"/></linearGradient></defs>
   </svg>`;
 }
 
@@ -52,11 +52,11 @@ export function missionRing(active = 0, done = 0) {
     const a0 = -Math.PI / 2 + i * (Math.PI / 4) + gap, a1 = a0 + Math.PI / 4 - gap * 2;
     const cls = i + 1 === active ? 'on' : (i + 1 < active || i + 1 <= done ? 'done' : '');
     const am = (a0 + a1) / 2, lx = cx + (r + 0) * Math.cos(am), ly = cy + (r + 0) * Math.sin(am);
-    return `<path class="seg ${cls}" d="${arc(a0, a1)}"/><text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:700;fill:${cls === 'on' ? '#05231b' : '#EEF3EF'}">${i + 1}</text>`;
+    return `<path class="seg ${cls}" d="${arc(a0, a1)}"/><text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:700;fill:${cls === 'on' ? '#13231B' : '#EEF3EF'}">${i + 1}</text>`;
   }).join('');
   const label = active ? names[active - 1] : 'Ready';
   return `<svg class="ring" viewBox="0 0 300 300" role="img" aria-label="Mission step ${active || 0} of 8: ${label}">
-    <circle cx="150" cy="150" r="78" fill="rgba(63,224,176,.06)" stroke="#1F3D47"/>
+    <circle cx="150" cy="150" r="78" fill="rgba(184,224,122,.06)" stroke="#1F3D47"/>
     ${segs}
     <text x="150" y="140" text-anchor="middle" style="font-size:12px;fill:#A9C2C8;letter-spacing:.15em">STEP ${active || '–'} / 8</text>
     <text x="150" y="170" text-anchor="middle" style="font-size:22px;font-weight:700">${label}</text>

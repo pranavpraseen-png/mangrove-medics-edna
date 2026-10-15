@@ -17,7 +17,7 @@ export function siteMap(el, sites, { onAdd, onSelect } = {}) {
     if (tileErrors === 4) { note.textContent = 'Map tiles offline — sites shown on a grid. Click to add a site.'; el.querySelector('.leaflet-tile-pane').style.display = 'none'; el.classList.add('fallback-map'); }
   });
   const layer = L.layerGroup().addTo(map);
-  const line = L.polyline([], { color: '#3FE0B0', weight: 2, dashArray: '6 6', opacity: .8 }).addTo(map);
+  const line = L.polyline([], { color: '#B8E07A', weight: 2, dashArray: '6 6', opacity: .8 }).addTo(map);
   function draw(list) {
     layer.clearLayers();
     list.forEach((s, i) => {

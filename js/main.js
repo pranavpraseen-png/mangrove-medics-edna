@@ -68,13 +68,13 @@ function ambient() {
   (function frame(t) {
     g.clearRect(0, 0, w, h);
     const glow = g.createRadialGradient(w * .8, h * .1, 0, w * .8, h * .1, w * .6);
-    glow.addColorStop(0, 'rgba(18,64,60,.55)'); glow.addColorStop(1, 'rgba(11,24,32,0)');
+    glow.addColorStop(0, 'rgba(40,80,50,.45)'); glow.addColorStop(1, 'rgba(11,24,32,0)');
     g.fillStyle = glow; g.fillRect(0, 0, w, h);
     dots.forEach(d => {
       d.y -= d.s * devicePixelRatio; if (d.y < -10) { d.y = h + 10; d.x = Math.random() * w; }
       const a = .25 + Math.sin(t / 900 + d.p) * .2;
       g.beginPath(); g.arc(d.x + Math.sin(t / 2000 + d.p) * 8, d.y, d.r, 0, 6.28);
-      g.fillStyle = `rgba(63,224,176,${a})`; g.shadowColor = '#3FE0B0'; g.shadowBlur = 8 * devicePixelRatio; g.fill();
+      g.fillStyle = `rgba(184,224,122,${a})`; g.shadowColor = '#B8E07A'; g.shadowBlur = 8 * devicePixelRatio; g.fill();
     });
     g.shadowBlur = 0;
     requestAnimationFrame(frame);

@@ -3,70 +3,207 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>eDNA Collector Console · Canopy Keepers</title>
-<meta name="description" content="Mission control for the eDNA Collector: plan sampling missions, watch the collector live in 3D, track every tube from field to lab, and see which species live in the water.">
-<meta name="theme-color" content="#0B1820">
-<meta property="og:title" content="eDNA Collector Console">
-<meta property="og:description" content="Find the animals nobody can see — from one bottle of water. By Team Canopy Keepers, FIRST LEGO League BIOGLOW.">
+<title>eDNA Collector · Canopy Keepers</title>
+<meta name="description" content="The eDNA Collector samples rainforest streams and canopy rain and catches the DNA every animal leaves behind. Built by Team Canopy Keepers for FIRST LEGO League BIOGLOW.">
+<meta name="theme-color" content="#0F2620">
+<meta property="og:title" content="eDNA Collector — every drop has a guest list">
+<meta property="og:description" content="A plug-in eDNA lab for rainforest streams and rain, with the software to run it. By Team Canopy Keepers, Dubai.">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/svg+xml" href="assets/canopy-keepers-logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Black&family=JetBrains+Mono:wght@400;600&display=swap">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-<link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="vendor/lenis/lenis.css">
+<link rel="stylesheet" href="css/site.css">
 <script type="importmap">
 { "imports": { "three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/" } }
 </script>
 <script src="vendor/gsap/gsap.min.js" defer></script>
+<script src="vendor/gsap/ScrollTrigger.min.js" defer></script>
+<script src="vendor/lenis/lenis.min.js" defer></script>
 <script src="vendor/leaflet/leaflet.js" defer></script>
-<script src="vendor/qrcode/qrcode.js" defer></script>
 </head>
 <body>
-<div id="loader" role="status" aria-live="polite">
-  <img class="loader-logo" src="assets/canopy-keepers-logo.svg" alt="Canopy Keepers" width="150" height="150">
-  <p class="loader-team">CANOPY KEEPERS</p>
-  <p class="loader-text">Waking the eDNA Collector<span class="dots"></span></p>
-</div>
+<div id="pre" aria-hidden="true"><span class="n" id="preN">000</span><span class="t">Waking the collector — Canopy Keepers · FLL BIOGLOW</span></div>
 
-<canvas id="bg" aria-hidden="true"></canvas>
+<header class="nav">
+  <a class="brand" href="#top"><img src="assets/canopy-keepers-logo.svg" alt="" width="34" height="34">eDNA Collector</a>
+  <nav aria-label="Main">
+    <a href="#drop">How it works</a>
+    <a href="#explode">The machine</a>
+    <a href="#sim">Simulator</a>
+    <a href="#map">Map</a>
+    <a href="#db">Database</a>
+    <a href="#team">Team</a>
+  </nav>
+  <a class="cta" href="console.html">Console →</a>
+</header>
 
-<div class="shell">
-  <aside class="sidebar" aria-label="Main navigation">
-    <a class="brand" href="#/overview" aria-label="eDNA Collector Console home">
-      <img src="assets/canopy-keepers-logo.svg" alt="" width="44" height="44">
-      <span><b>eDNA Collector</b><small>Console</small></span>
-    </a>
-    <nav>
-      <a href="#/overview" data-route="overview"><svg viewBox="0 0 24 24"><path d="M3 12l9-8 9 8M5 10v10h14V10"/></svg><span>Overview</span></a>
-      <a href="#/connect" data-route="connect"><svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M10 12h4"/></svg><span>Connect</span></a>
-      <a href="#/planner" data-route="planner"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg><span>Mission planner</span></a>
-      <a href="#/live" data-route="live"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M5 12a7 7 0 0 1 14 0M2 12a10 10 0 0 1 20 0"/></svg><span>Live mission</span></a>
-      <a href="#/samples" data-route="samples"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v13a2 2 0 0 0 4 0V3M7 21h10"/></svg><span>Sample registry</span></a>
-      <a href="#/results" data-route="results"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Biodiversity</span></a>
-      <a href="#/calibrate" data-route="calibrate"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><span>Calibration</span></a>
-      <a href="#/help" data-route="help"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7M12 17h.01"/></svg><span>Help &amp; safety</span></a>
-    </nav>
-    <div class="side-foot">Team Canopy Keepers<br><span>FLL BIOGLOW 2026–27</span></div>
-  </aside>
-
-  <div class="main">
-    <header class="topbar">
-      <button class="menu-btn" id="menuBtn" aria-label="Open navigation" aria-expanded="false"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
-      <h1 id="viewTitle">Overview</h1>
-      <div class="top-right">
-        <span class="pill" id="connPill" data-state="off"><i></i><span>Not connected</span></span>
-        <span class="pill" id="missionPill" hidden><i></i><span></span></span>
-        <a class="bell" href="#/results" id="bell" aria-label="Alerts"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><b id="bellCount" hidden>0</b></a>
+<main id="top">
+  <section class="hero" aria-label="Introduction">
+    <div class="stage3d" id="heroStage" data-autorotate="on"></div>
+    <div class="meta"><span>FIRST LEGO League · BIOGLOW 2026–27</span><span>Team Canopy Keepers · Dubai</span></div>
+    <div class="copy">
+      <h1><span class="ln"><span>Every drop</span></span><span class="ln"><span>has a</span></span><span class="ln"><span><em>guest list.</em></span></span></h1>
+      <div class="side">
+        <p>The eDNA Collector samples rainforest streams and canopy rain, and catches the invisible DNA every animal leaves behind.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn solid" href="#sim">Run the simulator <span class="arr">↓</span></a><a class="btn line" href="console.html">Open console <span class="arr">→</span></a></div>
       </div>
-    </header>
-    <main id="view" tabindex="-1"></main>
-  </div>
-</div>
+    </div>
+    <div class="scroll" aria-hidden="true"><i></i></div>
+  </section>
 
+  <div class="kicker"><span>The problem</span><span>Why rainforests</span></div>
+  <section class="facts" aria-label="Key facts">
+    <div class="fact"><div class="v"><span data-count="6">0</span>%</div><p>of Earth’s surface is rainforest.</p><small>National Geographic</small></div>
+    <div class="fact"><div class="v"><span data-count="50">0</span>%+</div><p>of all plant and animal species live there.</p><small>National Geographic</small></div>
+    <div class="fact"><div class="v"><span data-count="18">0</span></div><p>football fields of mature rainforest lost every minute in 2024.</p><small>Conservation International, citing WRI</small></div>
+  </section>
+
+  <section class="drop dark" id="drop" aria-label="How it works: follow one drop">
+    <div class="drop-pin">
+      <svg class="scene" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animation: a raindrop washes DNA off a leaf into a stream, the collector pumps it through a filter and seals it in a tube">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0F2620"/><stop offset="1" stop-color="#14352A"/></linearGradient>
+          <pattern id="mesh" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#F3EEE2" stroke-width="1" opacity=".45"/></pattern>
+        </defs>
+        <rect width="1440" height="900" fill="url(#sky)"/>
+        <g id="leaves">
+          <path d="M760 -40C900 60 1000 150 1060 250C960 260 840 210 760 120Z" fill="#2F5A3C"/>
+          <path d="M1060 250C1000 150 900 60 760 -40" stroke="#6E8B3D" stroke-width="4" fill="none"/>
+          <path d="M1440 40C1320 120 1240 210 1210 320C1300 300 1400 230 1460 140Z" fill="#244B33"/>
+          <path d="M620 80C700 150 760 230 790 330C710 310 640 250 600 170Z" fill="#1E4430"/>
+          <path d="M880 230C960 250 1040 300 1080 360C1000 380 920 350 870 300Z" fill="#6E8B3D"/>
+        </g>
+        <g id="bits">
+          <circle cx="930" cy="290" r="5" fill="#B8E07A"/><circle cx="960" cy="305" r="4" fill="#B8E07A"/><circle cx="990" cy="300" r="5" fill="#E8A23A"/><circle cx="1010" cy="320" r="4" fill="#B8E07A"/><circle cx="945" cy="320" r="4" fill="#F3EEE2"/><circle cx="975" cy="330" r="5" fill="#B8E07A"/><circle cx="1030" cy="335" r="4" fill="#E8A23A"/>
+        </g>
+        <path id="raindrop" d="M0 -34C0 -34 -20 -6 -20 8a20 20 0 0 0 40 0C20 -6 0 -34 0 -34Z" fill="#9FD8DF" stroke="#F3EEE2" stroke-width="2" transform="translate(980 40)"/>
+        <g id="stream">
+          <path d="M-20 660C200 630 400 690 620 660S1000 620 1200 660S1400 690 1460 670V900H-20Z" fill="#1D5A6A"/>
+          <path d="M-20 660C200 630 400 690 620 660S1000 620 1200 660S1400 690 1460 670" fill="none" stroke="#9FD8DF" stroke-width="3" opacity=".6"/>
+        </g>
+        <circle id="ripple" cx="980" cy="655" r="10" fill="none" stroke="#F3EEE2" stroke-width="3" opacity="0"/>
+        <path id="pipe" d="M1000 690C1010 600 1040 520 1110 470S1190 420 1190 380" fill="none" stroke="#F3EEE2" stroke-width="10" stroke-linecap="round" opacity=".9"/>
+        <g id="filter" transform="translate(1130 300)">
+          <rect width="120" height="80" fill="#13231B" stroke="#F3EEE2" stroke-width="3"/>
+          <rect x="10" y="10" width="100" height="60" fill="url(#mesh)"/>
+          <rect id="filterGlow" x="10" y="10" width="100" height="60" fill="#B8E07A" opacity="0"/>
+          <text x="60" y="-12" text-anchor="middle" fill="#F3EEE2" font-family="JetBrains Mono, monospace" font-size="14">0.45 µm FILTER</text>
+        </g>
+        <g id="tube" transform="translate(1290 250)">
+          <path d="M0 0H44V170A22 22 0 0 1 0 170Z" fill="none" stroke="#F3EEE2" stroke-width="3"/>
+          <rect id="fill" x="3" y="40" width="38" height="150" fill="#B8E07A" transform-origin="22px 190px"/>
+          <g id="label" opacity="0"><rect x="-70" y="210" width="184" height="58" fill="#F3EEE2"/><text x="22" y="236" text-anchor="middle" fill="#13231B" font-family="Archivo Black, sans-serif" font-size="18">CK-T007</text><text x="22" y="256" text-anchor="middle" fill="#13231B" font-family="JetBrains Mono, monospace" font-size="12">960 mL · pH 7.9 · 21:42</text></g>
+        </g>
+        <g id="species" font-family="Archivo, sans-serif" font-size="20" font-weight="800">
+          <g class="sp"><rect x="1060" y="560" width="210" height="40" fill="#F3EEE2"/><text x="1076" y="587" fill="#13231B">Two-toed sloth</text></g>
+          <g class="sp"><rect x="1100" y="610" width="190" height="40" fill="#F3EEE2"/><text x="1116" y="637" fill="#13231B">Toco toucan</text></g>
+          <g class="sp"><rect x="1040" y="660" width="230" height="40" fill="#F3EEE2"/><text x="1056" y="687" fill="#13231B">Poison dart frog</text></g>
+          <g class="sp"><rect x="1080" y="710" width="250" height="40" fill="#C2562B"/><text x="1096" y="737" fill="#F3EEE2">Bullfrog · watchlist</text></g>
+        </g>
+      </svg>
+      <div class="steps">
+        <div class="step"><span class="k">01 / SHED</span><h3>Animals leave DNA everywhere</h3><p>Skin, hair and saliva rub off on leaves high in the canopy — monkeys, sloths, frogs.</p></div>
+        <div class="step"><span class="k">02 / RAIN</span><h3>Rain washes it down</h3><p>Every shower carries that DNA off the leaves and into the forest streams.</p></div>
+        <div class="step"><span class="k">03 / CATCH</span><h3>We filter the water</h3><p>The collector pumps about 1 litre through a 0.45 µm filter — finer than a hair.</p></div>
+        <div class="step"><span class="k">04 / SEAL</span><h3>Sealed and labelled</h3><p>The filter drops into a numbered tube of ethanol, with the place, time and volume.</p></div>
+        <div class="step"><span class="k">05 / READ</span><h3>A lab reads the guest list</h3><p>DNA barcodes are matched to species. In French Guiana, canopy rain revealed 562 kinds of life.</p></div>
+      </div>
+      <div class="prog" aria-hidden="true"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+    </div>
+  </section>
+
+  <section class="explode" id="explode" aria-label="The machine, taken apart">
+    <div class="explode-pin">
+      <div class="stage3d" id="explodeStage" data-autorotate="off"></div>
+      <div class="head"><h2>The machine, taken apart</h2><p>One plug-in lab module. It rides a rover on the stream bank, a kayak, or sits on a post under the canopy.</p></div>
+      <div class="tag3d" data-part="solar"><span>Solar panel</span><small>tops up the 12 V battery</small></div>
+      <div class="tag3d" data-part="gantry"><span>X-Y gantry</span><small>moves filters into tubes</small></div>
+      <div class="tag3d" data-part="rack"><span>50-tube rack</span><small>ethanol, numbered</small></div>
+      <div class="tag3d" data-part="arm"><span>Sampling arm</span><small>dips the intake in the stream</small></div>
+      <div class="tag3d" data-part="pumps"><span>2 peristaltic pumps</span><small>sample + clean rinse</small></div>
+      <div class="tag3d" data-part="brain"><span>ESP32 brain</span><small>Bluetooth, USB, Wi-Fi</small></div>
+      <div class="tag3d" data-part="sensors"><span>Ultrasonic eyes</span><small>stops before obstacles</small></div>
+      <div class="tag3d" data-part="wheels"><span>4WD base</span><small>grip for muddy banks</small></div>
+    </div>
+  </section>
+
+  <section class="loop" aria-label="The mission loop">
+    <div class="loop-pin">
+      <div class="loop-top"><h2>One clean loop.<br>Every site.</h2><span class="mono" style="font-size:13px;letter-spacing:.1em">SCROLL →</span></div>
+      <div class="loop-track">
+        <div class="panel"><span class="n">01</span><div><h3>Self-check</h3><p>Battery, sensors and gantry home.</p></div></div>
+        <div class="panel"><span class="n">02</span><div><h3>Reach</h3><p>Drive to the stream, or wait for rain.</p></div></div>
+        <div class="panel"><span class="n">03</span><div><h3>Test</h3><p>Murky water? Take a smaller sample so the filter won’t clog.</p></div></div>
+        <div class="panel"><span class="n">04</span><div><h3>Prime</h3><p>Flush the pipe with site water, to waste.</p></div></div>
+        <div class="panel on"><span class="n">05</span><div><h3>Filter</h3><p>About 1 litre through a fresh filter.</p></div></div>
+        <div class="panel"><span class="n">06</span><div><h3>Seal</h3><p>Into ethanol tube #N.</p></div></div>
+        <div class="panel"><span class="n">07</span><div><h3>Log</h3><p>Place, time, volume, pH, turbidity.</p></div></div>
+        <div class="panel hot"><span class="n">08</span><div><h3>Rinse + blank</h3><p>Clean water through the lines. One blank per mission proves nothing leaked.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sim dark" id="sim" aria-label="Live simulator">
+    <div class="sec-head"><span class="num">03 · SIMULATOR</span><h2>Run a real mission. Right here.</h2><p>This is the same software that drives the collector, running on its digital twin. Every tube it seals lands in the database below.</p></div>
+    <div class="sim-grid">
+      <div class="sim-stage stage3d" id="simStage" data-autorotate="off" style="position:relative">
+        <div class="sim-hud"><span id="hudState">IDLE</span><span id="hudTube">—</span></div>
+        <div class="sim-ctrl"><button class="btn solid" id="simStart" type="button">Start mission</button><button class="btn line" id="simPause" type="button">Pause</button><button class="btn line" id="simAbort" type="button">Safe stop</button></div>
+      </div>
+      <div class="sim-side">
+        <div class="block ring" id="simRing"></div>
+        <div class="block readings"><div><small>PH</small><b id="rPh">—</b></div><div><small>TURBIDITY NTU</small><b id="rNtu">—</b></div><div><small>FILTERED ML</small><b id="rMl">—</b></div><div><small>BATTERY V</small><b id="rBat">—</b></div></div>
+        <div class="simlog" id="simLog" aria-live="polite"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="mapsec" id="map" aria-label="Sampling map">
+    <div class="sec-head"><span class="num">04 · MAP</span><h2>Every tube has a place.</h2><p>Sites from the console’s mission plan. Click the map in the console to add your own.</p></div>
+    <div class="map-grid">
+      <div class="map" id="siteMap"></div>
+      <div class="map-side" id="siteList"></div>
+    </div>
+  </section>
+
+  <section class="db" id="db" aria-label="Species database">
+    <div class="sec-head"><span class="num">05 · DATABASE</span><h2>Who was there.</h2><p>Every species the lab finds, linked to its tube, site and time. Stored on this device; export it from the console.</p></div>
+    <div class="db-bar">
+      <label class="visually-hidden" for="dbSearch" style="position:absolute;left:-9999px">Search species</label>
+      <input id="dbSearch" type="search" placeholder="Search a species, tube or site">
+      <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-f="watch" aria-pressed="false">Watchlist</button>
+      <button class="btn dark" id="dbDemo" type="button">Load demo lab results</button>
+    </div>
+    <div class="db-table" id="dbTable"></div>
+    <div class="db-stats"><div><b id="sTubes">0</b><small>tubes sealed</small></div><div><b id="sSpecies">0</b><small>species found</small></div><div><b id="sSites">0</b><small>sites sampled</small></div><div><b id="sAlerts">0</b><small>alerts</small></div></div>
+  </section>
+
+  <section class="cta-band"><h2>Every drop of water has a guest list.</h2><a class="btn dark" href="console.html">Open the console <span class="arr">→</span></a></section>
+
+  <section id="team" aria-label="Team">
+    <div class="sec-head"><span class="num">06 · TEAM</span><h2>Canopy Keepers</h2><p>Seven students in Dubai. FIRST LEGO League BIOGLOW 2026–27.</p></div>
+    <div class="team">
+      <div class="member"><b>Araav</b><span>Project lead</span></div>
+      <div class="member"><b>Arnav</b><span>Research</span></div>
+      <div class="member"><b>Atharv</b><span>Mechanical build</span></div>
+      <div class="member"><b>Dipayan</b><span>Electronics &amp; power</span></div>
+      <div class="member"><b>Gokul</b><span>Code</span></div>
+      <div class="member"><b>Lakshanya</b><span>Mini-lab &amp; testing</span></div>
+      <div class="member"><b>Jude Mugalian</b><span>Outreach &amp; notebook</span></div>
+      <div class="member" style="background:var(--ink);color:var(--paper)"><b>You?</b><span style="color:#B9C4B5">Ecologists — talk to us</span></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="big" id="footBig">Canopy Keepers · eDNA Collector · </div>
+  <div class="row"><span>Facts: National Geographic · Conservation International / WRI · rainwash eDNA study, French Guiana (bioRxiv 2025)</span><span>Demo results are fictional and labelled.</span><a href="console.html">Console</a></div>
+</footer>
 <div id="toasts" aria-live="polite"></div>
-<div id="printArea" aria-hidden="true"></div>
-
-<script type="module" src="js/main.js"></script>
+<script type="module" src="js/site.js"></script>
 </body>
 </html>
