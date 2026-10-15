@@ -1,9 +1,9 @@
 tube_id,species,common_name,reads
-MM-T002,Periophthalmus waltoni,Walton's mudskipper,3120
-MM-T002,Austruca sp.,Fiddler crab,1840
-MM-T002,Planiliza klunzingeri,Klunzinger's mullet,960
-MM-T003,Acanthopagrus arabicus,Arabian yellowfin seabream,2210
-MM-T003,Scylla serrata,Mud crab,700
-MM-T003,Phoenicopterus roseus,Greater flamingo,415
-MM-T004,Oreochromis sp.,Tilapia,530
-MM-T004,Periophthalmus waltoni,Walton's mudskipper,2650
+CK-T002,Choloepus didactylus,Two-toed sloth,3120
+CK-T002,Ramphastos toco,Toco toucan,1840
+CK-T002,Paracheirodon innesi,Neon tetra,960
+CK-T003,Atta cephalotes,Leaf-cutter ant,2210
+CK-T003,Anodorhynchus hyacinthinus,Hyacinth macaw,700
+CK-T003,Dendrobates tinctorius,Dyeing poison frog,415
+CK-T004,Lithobates catesbeianus,American bullfrog,530
+CK-T004,Pterophyllum scalare,Freshwater angelfish,2650

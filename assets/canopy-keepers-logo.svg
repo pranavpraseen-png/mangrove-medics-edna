@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Mangrove Medics logo: a mangrove tree whose roots reach into water holding a glowing DNA helix">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Canopy Keepers logo: a rainforest tree whose roots reach into a stream holding a glowing DNA helix">
 <defs>
 <filter id="mmGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 <clipPath id="mmClip"><circle cx="200" cy="200" r="172"/></clipPath>

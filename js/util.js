@@ -8,7 +8,7 @@ export function esc(v) {
 
 export const uid = (p = 'id') => `${p}_${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-3)}`;
 
-export const tubeId = n => `MM-T${String(n).padStart(3, '0')}`;
+export const tubeId = n => `CK-T${String(n).padStart(3, '0')}`;
 
 export function fmtTime(ts) {
   if (!ts) return '—';

@@ -162,7 +162,7 @@ function planner(root) {
         <h2>Sites <span class="tag" id="siteN">${state.sites.length}</span></h2>
         <div class="sites" id="sites"></div>
         <form class="form c2" id="addForm" style="margin-top:14px">
-          <label class="f" style="grid-column:1/-1">Site name<input type="text" name="name" placeholder="e.g. Mangrove channel C" required></label>
+          <label class="f" style="grid-column:1/-1">Site name<input type="text" name="name" placeholder="e.g. Forest stream C" required></label>
           <label class="f">Latitude<input type="number" step="0.00001" name="lat" placeholder="25.19" required></label>
           <label class="f">Longitude<input type="number" step="0.00001" name="lon" placeholder="55.32" required></label>
           <label class="row" style="grid-column:1/-1;font-size:14px;color:var(--muted)"><input type="checkbox" name="prot"> Protected area (written permission needed)</label>
@@ -189,10 +189,10 @@ function planner(root) {
           <label class="f">When<select name="mode">
             <option value="now" ${sch.mode === 'now' ? 'selected' : ''}>Start now</option>
             <option value="nightly" ${sch.mode === 'nightly' ? 'selected' : ''}>Every night at a set time</option>
-            <option value="tide" ${sch.mode === 'tide' ? 'selected' : ''}>At high tide (enter time)</option></select></label>
+            <option value="tide" ${sch.mode === 'tide' ? 'selected' : ''}>After rain (enter time)</option></select></label>
           <label class="f">Time<input type="time" name="time" value="${sch.time}"></label>
-          <label class="f">High tide (from a tide table)<input type="time" name="tide" value="${sch.tide}"></label>
-          <p class="dim" style="font-size:13px">Scheduled missions are stored on the collector so a fixed post can sample on its own.</p>
+          <label class="f">Rain-run time (after a shower)<input type="time" name="tide" value="${sch.tide}"></label>
+          <p class="dim" style="font-size:13px">Scheduled missions are stored on the collector so a fixed post can sample on its own — for example right after rain, when canopy DNA washes down.</p>
         </form>
       </div>
       <div class="card">
@@ -412,7 +412,7 @@ function printLabels(list) {
   area.innerHTML = list.map(s => {
     let qr = '';
     if (window.qrcode) { const q = qrcode(0, 'M'); q.addData(`EDNA|${s.id}|${s.siteName}|${new Date(s.ts).toISOString()}|${s.ml}mL${s.blank ? '|BLANK' : ''}`); q.make(); qr = q.createSvgTag({ cellSize: 3, margin: 0, scalable: true }); }
-    return `<div class="label">${qr}<div><b>${s.id}</b>${esc(s.siteName)}<br>${new Date(s.ts).toLocaleString()}<br>${s.ml} mL · pH ${s.ph} · ${s.ntu} NTU${s.blank ? '<br><b>FIELD BLANK</b>' : ''}<br>Mangrove Medics · eDNA Collector</div></div>`;
+    return `<div class="label">${qr}<div><b>${s.id}</b>${esc(s.siteName)}<br>${new Date(s.ts).toLocaleString()}<br>${s.ml} mL · pH ${s.ph} · ${s.ntu} NTU${s.blank ? '<br><b>FIELD BLANK</b>' : ''}<br>Canopy Keepers · eDNA Collector</div></div>`;
   }).join('');
   setTimeout(() => window.print(), 100);
 }
@@ -603,12 +603,12 @@ function help(root) {
           <li>Never mix bleach and ethanol. Rinse bleach-cleaned tools with distilled water.</li>
           <li>Keep ethanol sealed and away from the electronics box.</li>
           <li>Electronics stay in the sealed box above the waterline; know where the main switch is.</li>
-          <li>Protected areas such as Ras Al Khor need written permission before any sampling.</li>
+          <li>Protected forests, reserves and zoo or museum habitats need written permission before any sampling.</li>
           <li>No animals are caught or touched — only water is sampled.</li>
         </ul>
       </div>
       <div class="card">
-        <h2><img src="assets/mangrove-medics-logo.svg" alt="" width="40" height="40"> Made by Team Mangrove Medics</h2>
+        <h2><img src="assets/canopy-keepers-logo.svg" alt="" width="40" height="40"> Made by Team Canopy Keepers</h2>
         <div class="team">${team.map(([n, r]) => `<div class="member"><span class="av">${n[0]}</span><div><b>${n}</b><small>${r}</small></div></div>`).join('')}</div>
         <p class="dim" style="margin-top:12px;font-size:13px">FIRST LEGO League · BIOGLOW 2026–27 · Dubai, UAE. Demo results in this app are fictional.</p>
       </div>

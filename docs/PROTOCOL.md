@@ -25,7 +25,7 @@ The same messages travel over every link:
 | `read` | — | Replies `raw` with probe voltages (for calibration) |
 | `pump` | `which` (`S` sample / `R` rinse), `seconds` | Run a pump for calibration; replies `pumped` |
 | `setcal` | `ph {v7,v4}`, `ntuZeroV`, `mlPerS`, `gantry` | Store calibration; replies `ack` |
-| `schedule` | `mode` (`now`/`nightly`/`tide`), `time`, `tide`, `mission` | Store a mission to run on a timer; replies `ack` |
+| `schedule` | `mode` (`now`/`nightly`/`tide` = after rain), `time`, `tide` (after-rain run time), `mission` | Store a mission to run on a timer; replies `ack` |
 | `speed` | `value` | Simulator only: time multiplier |
 
 ### Mission object
@@ -33,7 +33,7 @@ The same messages travel over every link:
 ```json
 {
   "id": "m_ab12cd",
-  "sites": [{ "id": "site_a", "name": "Creek edge A", "lat": 25.1917, "lon": 55.3222 }],
+  "sites": [{ "id": "site_a", "name": "Rainforest stream", "lat": 25.2069, "lon": 55.2618 }],
   "rules": { "ntuMurky": 40, "clearMl": 1000, "murkyMl": 500, "maxPumpS": 600, "primeMl": 100, "rinseMl": 100, "blank": true },
   "tubeStart": 7,
   "mlPerS": 8.5,

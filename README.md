@@ -3,7 +3,7 @@
 **Find the animals nobody can see — from one bottle of water.**
 
 The eDNA Collector Console is the software that ships with the **eDNA Collector**, a plug-in sampling lab built by
-**Team Mangrove Medics** (Dubai, UAE) for the FIRST LEGO League **BIOGLOW** 2026–27 season. It runs in any modern
+**Team Canopy Keepers** (Dubai, UAE) for the FIRST LEGO League **BIOGLOW** 2026–27 season. It runs in any modern
 browser, works offline once loaded, and needs no install or account.
 
 ## What it does
@@ -12,7 +12,7 @@ browser, works offline once loaded, and needs no install or account.
 | --- | --- |
 | **Overview** | Live 3D twin of the collector, totals, recent samples and alerts |
 | **Connect** | Link to the collector by Bluetooth, USB cable or Wi-Fi — or practise with the built-in simulator |
-| **Mission planner** | Put sampling sites on a map, set the murky-water and volume rules, keep a field blank, schedule nightly or high-tide missions |
+| **Mission planner** | Put sampling sites on a map, set the murky-water and volume rules, keep a field blank, schedule nightly or after-rain missions |
 | **Live mission** | Watch every step in 3D: gantry, pumps, valves, tube rack; pH, turbidity, volume and battery gauges; drive pad; pause and safe-stop |
 | **Sample registry** | Chain of custody for every tube, QR labels to print, lab-manifest CSV export |
 | **Biodiversity** | Import the lab’s results, species per site, strongest DNA signals, watchlist alerts, blank-contamination alerts |

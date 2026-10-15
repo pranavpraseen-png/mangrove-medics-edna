@@ -1,5 +1,5 @@
 /*
-  eDNA Collector firmware — Team Mangrove Medics (FIRST LEGO League BIOGLOW 2026–27)
+  eDNA Collector firmware — Team Canopy Keepers (FIRST LEGO League BIOGLOW 2026–27)
 
   ESP32 DevKit. Talks to the eDNA Collector Console in newline-delimited JSON
   (docs/PROTOCOL.md) over USB serial, Bluetooth LE (Nordic UART Service) and
@@ -32,7 +32,7 @@
 // ───────────── Identity ─────────────
 #define FW_VERSION   "1.0.0"
 #define DEVICE_ID    "EDNA-01"           // BLE name + Wi-Fi network name
-#define WIFI_PASS    "mangrove2026"      // change before the event (8+ characters)
+#define WIFI_PASS    "canopy2026"      // change before the event (8+ characters)
 #define UTC_OFFSET_S (4 * 3600)          // Dubai, UTC+4
 
 // ───────────── Pin map (ESP32 DevKit) ─────────────

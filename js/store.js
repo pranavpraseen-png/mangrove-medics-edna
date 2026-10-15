@@ -2,7 +2,7 @@
 // Persisted in localStorage; export/import as JSON.
 import { uid, tubeId } from './util.js';
 
-const KEY = 'edna-console-v1';
+const KEY = 'edna-console-v2';
 const listeners = new Set();
 
 export const STATUSES = ['Collected', 'Shipped', 'At lab', 'Results in'];
@@ -22,14 +22,14 @@ function defaults() {
     rules: { ntuMurky: 40, clearMl: 1000, murkyMl: 500, maxPumpS: 600, primeMl: 100, rinseMl: 100, blank: true },
     schedule: { mode: 'now', time: '21:30', tide: '' },
     sites: [
-      { id: 'site_a', name: 'Creek edge A (demo)', lat: 25.1917, lon: 55.3222, protected: true, notes: 'Ras Al Khor — written permission needed' },
-      { id: 'site_b', name: 'Creek edge B (demo)', lat: 25.1952, lon: 55.3285, protected: true, notes: 'Mangrove channel — permission needed' },
-      { id: 'site_c', name: 'School test pond (demo)', lat: 25.2060, lon: 55.2700, protected: false, notes: 'Practice site' },
+      { id: 'site_a', name: 'Rainforest stream (demo)', lat: 25.20690, lon: 55.26180, protected: true, notes: 'Indoor rainforest — written permission needed' },
+      { id: 'site_b', name: 'Canopy rain catcher (demo)', lat: 25.20720, lon: 55.26210, protected: true, notes: 'Rain dripping through the canopy' },
+      { id: 'site_c', name: 'School test tank (demo)', lat: 25.23500, lon: 55.31700, protected: false, notes: 'Practice site' },
     ],
     samples: [],
     results: [],
     watchlist: [
-      { species: 'Oreochromis sp.', common: 'Tilapia (example entry)', kind: 'invasive', note: 'Example only — confirm your watchlist with experts' },
+      { species: 'Lithobates catesbeianus', common: 'American bullfrog (example entry)', kind: 'invasive', note: 'Example only — confirm your watchlist with experts' },
     ],
     missions: [],
     nextTube: 1,
@@ -113,10 +113,10 @@ export function importResults(rows) {
 // Fictional demo results for the samples currently in the registry.
 export function demoResults() {
   const pool = [
-    ['Periophthalmus waltoni', 'Walton’s mudskipper'], ['Acanthopagrus arabicus', 'Arabian yellowfin seabream'],
-    ['Planiliza klunzingeri', 'Klunzinger’s mullet'], ['Austruca sp.', 'Fiddler crab'],
-    ['Scylla serrata', 'Mud crab'], ['Phoenicopterus roseus', 'Greater flamingo'],
-    ['Chelonia mydas', 'Green turtle'], ['Oreochromis sp.', 'Tilapia'], ['Gerres sp.', 'Silver-biddy'],
+    ['Choloepus didactylus', 'Two-toed sloth'], ['Ramphastos toco', 'Toco toucan'],
+    ['Anodorhynchus hyacinthinus', 'Hyacinth macaw'], ['Coendou prehensilis', 'Prehensile-tailed porcupine'],
+    ['Atta cephalotes', 'Leaf-cutter ant'], ['Dendrobates tinctorius', 'Dyeing poison frog'],
+    ['Paracheirodon innesi', 'Neon tetra'], ['Lithobates catesbeianus', 'American bullfrog'], ['Pterophyllum scalare', 'Freshwater angelfish'],
   ];
   const rows = [];
   state.samples.forEach((s, i) => {
