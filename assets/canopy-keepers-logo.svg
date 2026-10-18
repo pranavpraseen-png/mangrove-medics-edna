@@ -1,30 +1,3 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Canopy Keepers logo: a rainforest tree whose roots reach into a stream holding a glowing DNA helix">
-<defs>
-<filter id="mmGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-<clipPath id="mmClip"><circle cx="200" cy="200" r="172"/></clipPath>
-</defs>
-<circle cx="200" cy="200" r="182" fill="#11262F" stroke="#3FE0B0" stroke-width="6"/>
-<g clip-path="url(#mmClip)">
-<rect x="0" y="245" width="400" height="160" fill="#15303A"/>
-<path d="M20 245 q12 -7 25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0 t25 0" fill="none" stroke="#3FE0B0" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
-</g>
-<path d="M196 150 L204 150 L206 214 L194 214 Z" fill="#F2F4EE"/>
-<g fill="none" stroke="#F2F4EE" stroke-width="6" stroke-linecap="round">
-<path d="M199 186 C 175 196, 150 215, 138 262"/><path d="M200 196 C 186 210, 170 228, 168 262"/><path d="M201 186 C 225 196, 250 215, 262 262"/><path d="M200 196 C 214 210, 230 228, 232 262"/><path d="M200 210 L 200 262"/>
-</g>
-<g fill="#3FE0B0" filter="url(#mmGlow)">
-<path transform="translate(200,150) rotate(-180)" d="M8 0 C 22 -16, 46 -14, 64 0 C 46 14, 22 16, 8 0 Z"/>
-<path transform="translate(200,150) rotate(-150)" d="M8 0 C 22 -16, 46 -14, 68 0 C 46 14, 22 16, 8 0 Z"/>
-<path transform="translate(200,150) rotate(-120)" d="M8 0 C 22 -16, 46 -14, 70 0 C 46 14, 22 16, 8 0 Z"/>
-<path transform="translate(200,150) rotate(-90)" d="M8 0 C 22 -16, 46 -14, 74 0 C 46 14, 22 16, 8 0 Z"/>
-<path transform="translate(200,150) rotate(-60)" d="M8 0 C 22 -16, 46 -14, 70 0 C 46 14, 22 16, 8 0 Z"/>
-<path transform="translate(200,150) rotate(-30)" d="M8 0 C 22 -16, 46 -14, 68 0 C 46 14, 22 16, 8 0 Z"/>
-<path transform="translate(200,150) rotate(0)" d="M8 0 C 22 -16, 46 -14, 64 0 C 46 14, 22 16, 8 0 Z"/>
-</g>
-<g filter="url(#mmGlow)" stroke-linecap="round">
-<path d="M110 310 C125 286 140 286 155 310 C170 334 185 334 200 310 C215 286 230 286 245 310 C260 334 275 334 290 310" fill="none" stroke="#3FE0B0" stroke-width="6"/>
-<path d="M110 310 C125 334 140 334 155 310 C170 286 185 286 200 310 C215 334 230 334 245 310 C260 286 275 286 290 310" fill="none" stroke="#F2F4EE" stroke-width="6"/>
-<g stroke="#3FE0B0" stroke-width="4" opacity="0.8"><line x1="132" y1="294" x2="132" y2="326"/><line x1="178" y1="294" x2="178" y2="326"/><line x1="222" y1="294" x2="222" y2="326"/><line x1="268" y1="294" x2="268" y2="326"/></g>
-</g>
-<g fill="#3FE0B0" filter="url(#mmGlow)"><circle cx="150" cy="358" r="4"/><circle cx="250" cy="352" r="3"/><circle cx="200" cy="364" r="5"/><circle cx="96" cy="282" r="3"/><circle cx="304" cy="280" r="4"/></g>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200" role="img" aria-label="Canopy Keepers logo: a rainforest leaf whose midrib is a DNA double helix"><circle cx="100" cy="100" r="100" fill="#0F2620"/><g transform="translate(18 18) scale(.82)"><g transform="rotate(-32 100 100)"><path d="M100 20 C152 54 154 140 100 176 C46 140 48 54 100 20 Z" fill="#B8E07A"/>
+<g fill="none" stroke="#0F2620" stroke-linecap="round"><path d="M91 46 C91 58 109 58 109 70 C109 82 91 82 91 94 C91 106 109 106 109 118 C109 130 91 130 91 142 C91 154 109 154 109 166" stroke-width="6"/><path d="M109 46 C109 58 91 58 91 70 C91 82 109 82 109 94 C109 106 91 106 91 118 C91 130 109 130 109 142 C109 154 91 154 91 166" stroke-width="6"/><path d="M111 70 L126 58 M89 70 L74 58 M111 94 L129 81 M89 94 L71 81 M111 118 L129 105 M89 118 L71 105 M111 142 L125 131 M89 142 L75 131" stroke-width="4"/></g>
+<path d="M100 176 Q101 188 95 196" fill="none" stroke="#B8E07A" stroke-width="7" stroke-linecap="round"/></g></g></svg>
