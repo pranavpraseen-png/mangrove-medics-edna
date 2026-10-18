@@ -191,6 +191,7 @@ bool raining() { return analogRead(PIN_RAIN) < 2000; }   // wet pad pulls AO low
 // ───────────── Mission state ─────────────
 enum St { IDLE, SELFCHECK, INDEX, TEST, PRIME, SAMPLE, PRESERVE, LOG, RINSE };
 const char *ST_NAME[] = { "IDLE", "SELFCHECK", "INDEX", "TEST", "PRIME", "SAMPLE", "PRESERVE", "LOG", "RINSE" };
+void enter(St s);                    // explicit prototype: Arduino's auto-generated one would come before enum St
 St st = IDLE;
 bool paused = false, placed = false, autoPlaced = false;
 JsonDocument mission;

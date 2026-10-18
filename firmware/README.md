@@ -8,7 +8,8 @@ USB serial, Bluetooth LE and Wi-Fi using the protocol in [`../docs/PROTOCOL.md`]
 
 ## Board and libraries
 
-- Board: **ESP32 Dev Module** (Arduino-ESP32 core 2.0.x or newer), Partition scheme: *Default 4MB with spiffs* (LittleFS uses it).
+- Board: **ESP32 Dev Module** (Arduino-ESP32 core 2.0.x or newer), Partition scheme: **No OTA (2MB APP/2MB SPIFFS)** (LittleFS uses the SPIFFS partition).
+  Wi-Fi + BLE + web server make the app about 1.38 MB, too big for the 1.2 MB app slot in *Default 4MB with spiffs*.
 - Install from Library Manager: **ArduinoJson 7**, **NimBLE-Arduino 1.4.x**, **ESPAsyncWebServer** + **AsyncTCP**,
   **AccelStepper**, **ESP32Servo**, **Adafruit INA219**, **OneWire**, **DallasTemperature**, **TinyGPSPlus**.
 
@@ -49,7 +50,11 @@ IRF520 modules only half switch on at 3.3 V; if a pump runs weak, swap to logic-
 
 Browsers block `ws://` connections from an `https://` page, so for Wi-Fi the console must be opened from the
 Pod itself. Copy `console.html`, `css/`, `js/`, `vendor/`, `assets/` and `docs/` into `edna_collector/data/` and
-upload them with the *ESP32 LittleFS Data Upload* tool. Then join the Wi-Fi network `EDNA-01` (the password you set in
+upload them with the *ESP32 LittleFS Data Upload* tool.
+The full folder is about 3 MB, more than the 2 MB data partition, so copy only what the console uses
+(`console.html`, `css/`, `js/`, `assets/`, `vendor/gsap`, `vendor/leaflet`, `vendor/qrcode`,
+`vendor/three/three.module.js` and `vendor/three/addons`) and gzip each file (`gzip -9 file`). The web server
+sends the `.gz` copy automatically, and the whole console is then about 410 KB. Then join the Wi-Fi network `EDNA-01` (the password you set in
 `secrets.h`; copy `secrets.example.h` to `secrets.h` first, it is never committed) and open `http://192.168.4.1`.
 
 ## Known limits
