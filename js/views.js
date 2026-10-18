@@ -7,6 +7,7 @@ import { siteMap } from './map.js';
 import { hbars, columns, missionRing } from './charts.js';
 import { startMission, scheduleMission } from './mission.js';
 import { schematicHTML, bindSchematic } from './schematic.js';
+import { tickerHTML } from './motion.js';
 
 const STEPS = [
   ['Self-check', 'Battery, sensors and GPS checked; the carousel finds seat 1.'],
@@ -47,6 +48,7 @@ function overview(root) {
       </div>
     </div>
   </section>
+  ${tickerHTML(['Every drop has a guest list', 'Filters finer than a bacterium', '8 sealed cartridges per trip', 'No traps. No cameras. Just water', 'Canopy Keepers · FLL BIOGLOW'])}
   <section class="ov-facts">
     <div class="ov-fact"><b id="sCount">${state.samples.length}</b><span>cartridges filled</span></div>
     <div class="ov-fact"><b id="siteCount">${state.sites.length}</b><span>sites in the plan</span></div>

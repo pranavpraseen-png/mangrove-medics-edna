@@ -1,9 +1,10 @@
 // App shell: router, status bar, ambient background, loader.
-import { $, $$, animateIn, spotlight, reducedMotion } from './util.js';
+import { $, $$, reducedMotion } from './util.js';
 import { VIEWS } from './views.js';
 import { link } from './device.js';
 import { alerts, onChange } from './store.js';
 import './mission.js';
+import { initMotion, pageIn } from './motion.js';
 
 const view = $('#view');
 let cleanup = null;
@@ -20,8 +21,7 @@ function route() {
   document.body.classList.remove('nav-open');
   $('#menuBtn').setAttribute('aria-expanded', 'false');
   cleanup = v.render(view);
-  animateIn(view);
-  spotlight(view);
+  pageIn(view, $('#viewTitle'));
   view.focus({ preventScroll: true });
   window.scrollTo({ top: 0 });
 }
@@ -83,8 +83,8 @@ function ambient() {
 
 addEventListener('hashchange', route);
 addEventListener('DOMContentLoaded', () => {});
-ambient();
 statusBar();
 bell();
+initMotion();
 route();
 setTimeout(() => $('#loader').classList.add('gone'), reducedMotion() ? 0 : 1300);
