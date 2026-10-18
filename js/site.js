@@ -42,14 +42,14 @@ function use(name) {
   const cam = collector.camera, ctl = collector.controls;
   if (name !== 'explode' && collector.root) collector.root.rotation.y = 0;
   if (name === 'hero') {
-    collector.setRain(true); collector.setInteractive(false); ctl.autoRotate = !RM; ctl.autoRotateSpeed = 0.5;
+    collector.setClean(true); collector.setInteractive(false); ctl.autoRotate = !RM; ctl.autoRotateSpeed = 0.5;
     cam.position.set(11.5, 6.2, 11.5); ctl.target.set(0, 1.5, 0); collector.setViewShift(innerWidth > 900 ? 0.2 : 0);
     collector.explode(0);
   } else if (name === 'explode') {
-    collector.setRain(false); collector.setInteractive(false); ctl.autoRotate = false;
+    collector.setClean(false); collector.setRain(false); collector.setInteractive(false); ctl.autoRotate = false;
     cam.position.set(12, 7, 12); ctl.target.set(0, 2.2, 0); collector.setViewShift(innerWidth > 900 ? 0.16 : 0);
   } else {
-    collector.setRain(false); collector.setInteractive(true); ctl.enableZoom = false; ctl.autoRotate = false;
+    collector.setClean(false); collector.setRain(false); collector.setInteractive(true); ctl.enableZoom = false; ctl.autoRotate = false;
     cam.position.set(8, 5.6, 8.2); ctl.target.set(0, 2.4, 0); collector.setViewShift(0);
     collector.explode(0);
   }
@@ -241,7 +241,7 @@ $$('[data-count]').forEach(el => {
     const max = Math.max(1, ...all.map(r => r.reads));
     const list = all.filter(r => (filter === 'all' || r.watch) && (!q || `${r.species} ${r.common} ${[...r.tubes].join(' ')} ${[...r.sites].join(' ')}`.toLowerCase().includes(q)));
     table.innerHTML = `<div class="db-row h"><span>Species</span><span class="hide-m">Sites</span><span class="hide-m">Cartridges</span><span>DNA reads</span><span class="hide-m">Signal</span></div>` +
-      (list.length ? list.map(r => `<div class="db-row"><span><b>${esc(r.common || r.species)}</b>${r.watch ? '<span class="w">WATCHLIST</span>' : ''}<br><i>${esc(r.species)}</i></span><span class="hide-m">${esc([...r.sites].join(', '))}</span><span class="hide-m mono">${[...r.tubes].join(' ')}</span><span class="mono">${r.reads.toLocaleString()}</span><span class="hide-m"><span class="db-bars"><span style="width:${(r.reads / max * 100).toFixed(1)}%"></span></span></span></div>`).join('')
+      (list.length ? list.map(r => `<div class="db-row"><span><b>${esc(r.common || r.species)}</b>${r.watch ? '<span class="w">WATCHLIST</span>' : ''}<br><i>${esc(r.species)}</i></span><span class="hide-m">${esc([...r.sites].join(', '))}</span><span class="hide-m mono">${esc([...r.tubes].join(' '))}</span><span class="mono">${r.reads.toLocaleString()}</span><span class="hide-m"><span class="db-bars"><span style="width:${(r.reads / max * 100).toFixed(1)}%"></span></span></span></div>`).join('')
         : `<div class="db-empty">${all.length ? 'No species match.' : state.samples.length ? 'Cartridges are filled — load the lab results to see who was there.' : 'No cartridges yet. Run the simulator above, then load the demo lab results.'}</div>`);
     $('#sTubes').textContent = state.samples.length;
     $('#sSpecies').textContent = all.length;

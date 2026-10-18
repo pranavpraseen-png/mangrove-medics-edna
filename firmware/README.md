@@ -49,8 +49,8 @@ IRF520 modules only half switch on at 3.3 V; if a pump runs weak, swap to logic-
 
 Browsers block `ws://` connections from an `https://` page, so for Wi-Fi the console must be opened from the
 Pod itself. Copy `console.html`, `css/`, `js/`, `vendor/`, `assets/` and `docs/` into `edna_collector/data/` and
-upload them with the *ESP32 LittleFS Data Upload* tool. Then join the Wi-Fi network `EDNA-01` (password in the
-sketch) and open `http://192.168.4.1`.
+upload them with the *ESP32 LittleFS Data Upload* tool. Then join the Wi-Fi network `EDNA-01` (the password you set in
+`secrets.h`; copy `secrets.example.h` to `secrets.h` first, it is never committed) and open `http://192.168.4.1`.
 
 ## Known limits
 

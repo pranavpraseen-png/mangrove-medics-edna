@@ -55,7 +55,7 @@ function overview(root) {
       <div class="card">
         <h2>Recent samples <a class="tag info" href="#/samples" style="margin-left:auto;text-decoration:none">Registry →</a></h2>
         ${recent.length ? `<div class="table-wrap"><table><thead><tr><th>Cartridge</th><th>Site</th><th>Volume</th><th>When</th></tr></thead><tbody>
-          ${recent.map(s => `<tr><td class="mono">${s.id}${s.blank ? ' <span class="tag info">blank</span>' : ''}</td><td>${esc(s.siteName)}</td><td>${s.ml} mL</td><td class="dim">${fmtTime(s.ts)}</td></tr>`).join('')}
+          ${recent.map(s => `<tr><td class="mono">${esc(s.id)}${s.blank ? ' <span class="tag info">blank</span>' : ''}</td><td>${esc(s.siteName)}</td><td>${s.ml} mL</td><td class="dim">${fmtTime(s.ts)}</td></tr>`).join('')}
         </tbody></table></div>` : '<div class="empty">No samples yet — run a mission to fill the carousel.</div>'}
       </div>
       <div class="card">
@@ -210,7 +210,7 @@ function planner(root) {
     $('#sites', root).innerHTML = state.sites.length ? state.sites.map((s, i) => `
       <div class="site"><span class="n ${s.protected ? 'prot' : ''}">${i + 1}</span>
         <div><b>${esc(s.name)}</b><small>${s.lat.toFixed(4)}, ${s.lon.toFixed(4)}</small>${s.protected ? ' <span class="tag warn">protected</span>' : ''}</div>
-        <div class="row" style="gap:4px"><button class="icon-btn" data-up="${s.id}" aria-label="Move up">${icons.up}</button><button class="icon-btn" data-down="${s.id}" aria-label="Move down">${icons.down}</button><button class="icon-btn" data-del="${s.id}" aria-label="Remove ${esc(s.name)}">${icons.x}</button></div>
+        <div class="row" style="gap:4px"><button class="icon-btn" data-up="${esc(s.id)}" aria-label="Move up">${icons.up}</button><button class="icon-btn" data-down="${esc(s.id)}" aria-label="Move down">${icons.down}</button><button class="icon-btn" data-del="${esc(s.id)}" aria-label="Remove ${esc(s.name)}">${icons.x}</button></div>
       </div>`).join('') : '<div class="empty">No sites yet. Click the map or use the form.</div>';
     $$('[data-up]', root).forEach(b => b.onclick = () => { moveSite(b.dataset.up, -1); drawSites(); });
     $$('[data-down]', root).forEach(b => b.onclick = () => { moveSite(b.dataset.down, 1); drawSites(); });
@@ -314,7 +314,7 @@ function live(root) {
   const seats = cur => {
     const base = Math.floor((state.nextTube - 1) / 8) * 8;
     $('#seatTag', root).textContent = `Seat ${cur || 1} of 8`;
-    $('#seatGrid', root).innerHTML = Array.from({ length: 8 }, (_, i) => { const s = state.samples.find(x => x.tube === base + i + 1); return `<span class="${s ? (s.blank ? 'blank' : 'used') : ''}" style="${(cur || 1) === i + 1 ? 'outline:2px solid var(--mint);outline-offset:1px' : ''}" title="${s ? s.id : `Seat ${i + 1}`}">${i + 1}</span>`; }).join('');
+    $('#seatGrid', root).innerHTML = Array.from({ length: 8 }, (_, i) => { const s = state.samples.find(x => x.tube === base + i + 1); return `<span class="${s ? (s.blank ? 'blank' : 'used') : ''}" style="${(cur || 1) === i + 1 ? 'outline:2px solid var(--mint);outline-offset:1px' : ''}" title="${s ? esc(s.id) : `Seat ${i + 1}`}">${i + 1}</span>`; }).join('');
   };
   seats(link.tele?.seat);
   const onStep = e => {
@@ -371,19 +371,19 @@ function samples(root) {
   const draw = () => {
     const L = list();
     $('#rows', root).innerHTML = L.length ? L.map(s => `<tr>
-      <td><input type="checkbox" data-sel="${s.tube}" ${sel.has(s.tube) ? 'checked' : ''} aria-label="Select ${s.id}"></td>
-      <td class="mono"><b>${s.id}</b></td><td>${esc(s.siteName)}</td><td class="dim">${fmtTime(s.ts)}</td>
+      <td><input type="checkbox" data-sel="${s.tube}" ${sel.has(s.tube) ? 'checked' : ''} aria-label="Select ${esc(s.id)}"></td>
+      <td class="mono"><b>${esc(s.id)}</b></td><td>${esc(s.siteName)}</td><td class="dim">${fmtTime(s.ts)}</td>
       <td>${s.ml}${s.target ? ` <span class="dim">/ ${s.target}</span>` : ''} mL ${s.clog ? '<span class="tag warn">clog</span>' : ''}</td>
       <td>${fmtNum(s.ph, 2)}</td><td>${fmtNum(s.ntu, 1)}</td><td>${s.blank ? '<span class="tag info">Field blank</span>' : '<span class="tag">Sample</span>'}</td>
-      <td><select data-status="${s.tube}" aria-label="Status of ${s.id}">${STATUSES.map(x => `<option ${x === s.status ? 'selected' : ''}>${x}</option>`).join('')}</select></td>
-      <td><button class="icon-btn" data-del="${s.tube}" aria-label="Delete ${s.id}">${icons.x}</button></td></tr>`).join('')
+      <td><select data-status="${s.tube}" aria-label="Status of ${esc(s.id)}">${STATUSES.map(x => `<option ${x === s.status ? 'selected' : ''}>${x}</option>`).join('')}</select></td>
+      <td><button class="icon-btn" data-del="${s.tube}" aria-label="Delete ${esc(s.id)}">${icons.x}</button></td></tr>`).join('')
       : `<tr><td colspan="10"><div class="empty">No samples${state.samples.length ? ' match' : ' yet — run a mission'}.</div></td></tr>`;
     $$('[data-sel]', root).forEach(c => c.onchange = () => { c.checked ? sel.add(+c.dataset.sel) : sel.delete(+c.dataset.sel); });
     $$('[data-status]', root).forEach(c => c.onchange = () => { state.samples.find(s => s.tube === +c.dataset.status).status = c.value; save(); });
     $$('[data-del]', root).forEach(b => b.onclick = () => { if (confirm('Delete this sample record?')) { state.samples = state.samples.filter(s => s.tube !== +b.dataset.del); save(); draw(); } });
     const used = new Map(state.samples.map(s => [s.tube - 1, s]));
     const rows = Math.max(1, Math.ceil(Math.max(state.nextTube - 1, state.samples.length) / 8));
-    $('#rack', root).innerHTML = Array.from({ length: rows * 8 }, (_, i) => { const s = used.get(i); return `<span class="${s ? (s.blank ? 'blank' : 'used') : ''}" title="${s ? s.id : `Carousel ${Math.floor(i / 8) + 1}, seat ${i % 8 + 1}`}">${i % 8 + 1}</span>`; }).join('');
+    $('#rack', root).innerHTML = Array.from({ length: rows * 8 }, (_, i) => { const s = used.get(i); return `<span class="${s ? (s.blank ? 'blank' : 'used') : ''}" title="${s ? esc(s.id) : `Carousel ${Math.floor(i / 8) + 1}, seat ${i % 8 + 1}`}">${i % 8 + 1}</span>`; }).join('');
   };
   draw();
   $('#q', root).oninput = draw; $('#st', root).onchange = draw;
@@ -403,7 +403,7 @@ function printLabels(list) {
   area.innerHTML = list.map(s => {
     let qr = '';
     if (window.qrcode) { const q = qrcode(0, 'M'); q.addData(`EDNA|${s.id}|${s.siteName}|${new Date(s.ts).toISOString()}|${s.ml}mL${s.blank ? '|BLANK' : ''}`); q.make(); qr = q.createSvgTag({ cellSize: 3, margin: 0, scalable: true }); }
-    return `<div class="label">${qr}<div><b>${s.id}</b>${esc(s.siteName)}<br>${new Date(s.ts).toLocaleString()}<br>${s.ml} mL · pH ${s.ph} · ${s.ntu} NTU${s.blank ? '<br><b>FIELD BLANK</b>' : ''}<br>Canopy Keepers · eDNA Pod</div></div>`;
+    return `<div class="label">${qr}<div><b>${esc(s.id)}</b>${esc(s.siteName)}<br>${new Date(s.ts).toLocaleString()}<br>${s.ml} mL · pH ${s.ph} · ${s.ntu} NTU${s.blank ? '<br><b>FIELD BLANK</b>' : ''}<br>Canopy Keepers · eDNA Pod</div></div>`;
   }).join('');
   setTimeout(() => window.print(), 100);
 }

@@ -1,6 +1,6 @@
 // App state: sites, mission rules, settings, samples, lab results, watchlist.
 // Persisted in localStorage; export/import as JSON.
-import { uid, tubeId } from './util.js';
+import { clean, uid, tubeId } from './util.js';
 
 const KEY = 'edna-console-v3';
 const listeners = new Set();
@@ -40,7 +40,7 @@ function load() {
   try {
     const raw = localStorage.getItem(KEY);
     if (raw) {
-      const s = JSON.parse(raw);
+      const s = clean(JSON.parse(raw)) || {};
       const d = defaults();
       return { ...d, ...s, settings: { ...d.settings, ...s.settings, carousel: { ...d.settings.carousel, ...(s.settings || {}).carousel } }, rules: { ...d.rules, ...s.rules } };
     }
@@ -65,7 +65,8 @@ export function resetAll() {
 
 export function exportJSON() { return JSON.stringify(state, null, 2); }
 export function importJSON(text) {
-  const s = JSON.parse(text);
+  if (text.length > 5_000_000) throw new Error('File is too large');
+  const s = clean(JSON.parse(text));
   if (!s || s.version !== 1) throw new Error('Not an eDNA Collector backup file');
   Object.keys(state).forEach(k => delete state[k]);
   Object.assign(state, defaults(), s);
@@ -101,7 +102,8 @@ export function addSample(msg) {
 // Lab results
 export function importResults(rows) {
   const clean = rows
-    .map(r => ({ tube: (r.tube_id || r.tube || '').toUpperCase(), species: r.species || '', common: r.common_name || r.common || '', reads: +(r.reads || r.count || 0) }))
+    .slice(0, 20000)
+    .map(r => clean({ tube: String(r.tube_id || r.tube || '').toUpperCase().replace(/[^A-Z0-9-]/g, ''), species: String(r.species || ''), common: String(r.common_name || r.common || ''), reads: Math.max(0, Math.min(1e9, Math.round(+(r.reads || r.count || 0)) || 0)) }))
     .filter(r => r.tube && r.species);
   const tubes = new Set(clean.map(r => r.tube));
   state.results = state.results.filter(r => !tubes.has(r.tube)).concat(clean);

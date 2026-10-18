@@ -6,6 +6,23 @@ export function esc(v) {
   return String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 
+// Make outside data safe: device messages, imported backups, lab CSVs and saved state.
+// Strips characters that could break out of HTML, blocks prototype-pollution keys, caps sizes.
+const BAD_KEYS = new Set(['__proto__', 'constructor', 'prototype']);
+export function clean(v, depth = 0) {
+  if (depth > 8) return null;
+  if (typeof v === 'string') return v.replace(/[<>"`\u0000-\u001f\u007f]/g, '').slice(0, 500);
+  if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+  if (typeof v === 'boolean' || v == null) return v;
+  if (Array.isArray(v)) return v.slice(0, 5000).map(x => clean(x, depth + 1));
+  if (typeof v === 'object') {
+    const o = {};
+    for (const k of Object.keys(v).slice(0, 200)) if (!BAD_KEYS.has(k)) o[clean(k)] = clean(v[k], depth + 1);
+    return o;
+  }
+  return null;
+}
+
 export const uid = (p = 'id') => `${p}_${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-3)}`;
 
 export const tubeId = n => `CK-T${String(n).padStart(3, '0')}`;

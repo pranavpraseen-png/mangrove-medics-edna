@@ -77,8 +77,8 @@ class CollectorScene {
 
     // ground: glowing ring + grid + a stream pool
     const ring = new THREE.Mesh(new THREE.RingGeometry(3.9, 4.0, 96), new THREE.MeshBasicMaterial({ color: MINT, transparent: true, opacity: 0.5, side: THREE.DoubleSide }));
-    ring.rotation.x = -Math.PI / 2; ring.position.y = 0.01; S.add(ring);
-    const grid = new THREE.GridHelper(16, 32, 0x1f3d47, 0x13262e); grid.material.transparent = true; grid.material.opacity = 0.55; S.add(grid);
+    ring.rotation.x = -Math.PI / 2; ring.position.y = 0.01; S.add(ring); this.ring = ring;
+    const grid = new THREE.GridHelper(16, 32, 0x1f3d47, 0x13262e); grid.material.transparent = true; grid.material.opacity = 0.55; S.add(grid); this.grid = grid;
     const water = this.water = new THREE.Mesh(new THREE.CircleGeometry(1.6, 64), new THREE.MeshStandardMaterial({ color: 0x0d4a52, emissive: 0x0b5f5a, emissiveIntensity: 0.6, metalness: 0.2, roughness: 0.1, transparent: true, opacity: 0.85 }));
     water.rotation.x = -Math.PI / 2; water.position.set(-3.9, 0.02, 0.4); S.add(water);
     const n = 380, pos = new Float32Array(n * 3);
@@ -205,6 +205,23 @@ class CollectorScene {
       this.scene.add(this.rain);
     }
     this.rain.visible = on;
+  }
+  // Clean backdrop for the opening page: soft gradient, no grid, particles or rain
+  setClean(on) {
+    if (!this.ready) return;
+    if (!this.cleanBg) {
+      const c = document.createElement('canvas'); c.width = c.height = 512;
+      const g = c.getContext('2d'), rg = g.createRadialGradient(256, 230, 20, 256, 256, 360);
+      rg.addColorStop(0, '#1d4537'); rg.addColorStop(0.55, '#123127'); rg.addColorStop(1, '#0c211b');
+      g.fillStyle = rg; g.fillRect(0, 0, 512, 512);
+      this.cleanBg = new THREE.CanvasTexture(c); this.cleanBg.colorSpace = THREE.SRGBColorSpace;
+      this.plainBg = this.scene.background;
+    }
+    this.scene.background = on ? this.cleanBg : this.plainBg;
+    this.scene.fog.density = on ? 0.045 : 0.03;
+    this.grid.visible = !on; this.motes.visible = !on;
+    this.ring.material.opacity = on ? 0.25 : 0.5;
+    if (on) this.setRain(false);
   }
   setViewShift(f) { this.viewShift = f; this.resize(); }
   setInteractive(on) { if (this.controls) { this.controls.enabled = on; this.controls.enableZoom = on; } }

@@ -43,7 +43,13 @@
 // ───────────── Identity ─────────────
 #define FW_VERSION   "2.0.0"
 #define DEVICE_ID    "EDNA-01"           // BLE name + Wi-Fi network name
-#define WIFI_PASS    "canopy2026"        // change before the event (8+ characters)
+// Wi-Fi password lives in secrets.h, which is never committed to GitHub.
+// Copy secrets.example.h to secrets.h and set your own password (8+ characters).
+#if __has_include("secrets.h")
+#include "secrets.h"
+#else
+#error "Missing secrets.h: copy secrets.example.h to secrets.h and set WIFI_PASS"
+#endif
 
 // ───────────── Pin map (matches the Flow doc) ─────────────
 // Analog sensors on ADC1 only (ADC2 stops working while Wi-Fi/Bluetooth is on)

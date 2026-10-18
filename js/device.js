@@ -1,5 +1,6 @@
 // Device link: newline-delimited JSON over Bluetooth LE, USB serial, Wi-Fi WebSocket,
 // or the built-in simulator. Every transport speaks the same protocol (docs/PROTOCOL.md).
+import { clean } from './util.js';
 import { SimDevice } from './sim.js';
 
 // Nordic UART Service — the ESP32 firmware exposes this.
@@ -149,7 +150,9 @@ class DeviceLink extends EventTarget {
   }
   handle(line) {
     let m;
-    try { m = JSON.parse(line); } catch (e) { this.addLog('raw', line); return; }
+    if (line.length > 4096) { this.addLog('err', 'Ignored an oversized message'); return; }
+    try { m = clean(JSON.parse(line)); } catch (e) { this.addLog('raw', line); return; }
+    if (!m || typeof m !== 'object' || Array.isArray(m)) return;
     if (m.t !== 'tele') this.addLog('out', line);
     switch (m.t) {
       case 'hello': this.info = m; this.emit('status'); break;
