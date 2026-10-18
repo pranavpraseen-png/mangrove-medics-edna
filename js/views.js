@@ -22,7 +22,7 @@ function stage(root, sel) {
   const el = $(sel, root);
   const ok = collector.attach(el);
   if (!ok) el.innerHTML = '<div class="webgl-fallback">3D view needs WebGL, which this browser has turned off.<br>Everything else works normally.</div>';
-  else collector.setFilled(state.samples);
+  else { collector.setFilled(state.samples); collector.setClean(true); }
   return () => collector.detach();
 }
 
