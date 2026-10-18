@@ -31,41 +31,46 @@ function overview(root) {
   const species = new Set(state.results.filter(r => r.reads > 0).map(r => r.species));
   const al = alerts();
   const recent = [...state.samples].sort((a, b) => b.ts - a.ts).slice(0, 5);
+  const base = Math.floor((Math.max(1, state.nextTube) - 1) / 8) * 8;
+  const seats = Array.from({ length: 8 }, (_, i) => state.samples.find(x => x.tube === base + i + 1));
+  const filled = seats.filter(Boolean).length;
   root.innerHTML = `
   <section class="grid">
-    <div class="card hero">
-      <div class="hero-copy">
-        <p class="eyebrow">eDNA Collector · Mission control</p>
-        <h2>Find the animals <em>nobody can see</em> — from one bottle of water.</h2>
-        <p>Plan sampling missions, watch the Pod work in real time, track every cartridge from the field to the lab, and see which species live in your water.</p>
-        <div class="row" style="margin-top:6px">
-          <a class="btn primary" href="#/planner">Plan a mission</a>
-          <button class="btn" id="quickSim">Run a demo mission</button>
+    <div class="ov-top">
+      <div class="card ov-pod">
+        <div class="ov-dial">${carouselDial(seats, state.nextTube - base)}</div>
+        <div class="ov-facts">
+          <h2 class="ov-title">Carousel ${base / 8 + 1}</h2>
+          <p class="ov-sub">${filled === 8 ? 'Full. Swap in a clean carousel before the next trip.' : filled ? `${8 - filled} clean cartridge${8 - filled === 1 ? '' : 's'} left for this trip.` : 'All 8 cartridges are clean and ready.'}</p>
+          <dl class="facts">
+            <div><dt>Cartridges filled</dt><dd id="sCount">${state.samples.length}</dd></div>
+            <div><dt>Sites in the plan</dt><dd id="siteCount">${state.sites.length}</dd></div>
+            <div><dt>Species detected</dt><dd id="spCount">${species.size}</dd></div>
+            <div><dt>Open alerts</dt><dd id="alCount" class="${al.length ? 'bad' : ''}">${al.length}</dd></div>
+          </dl>
+          <div class="row">
+            <a class="btn primary" href="#/planner">Plan a mission</a>
+            <button class="btn" id="quickSim">Run a demo mission</button>
+          </div>
         </div>
       </div>
-      <div class="stage" id="heroStage"><span class="stage-label">Live 3D twin · drag to orbit</span></div>
-    </div>
-    <div class="grid g4">
-      ${stat('tube', state.samples.length, 'Cartridges filled', 'sCount')}
-      ${stat('pin', state.sites.length, 'Sites in the plan', 'siteCount')}
-      ${stat('dna', species.size, 'Species detected', 'spCount')}
-      ${stat('bell', al.length, 'Open alerts', 'alCount')}
+      <div class="card ov-twin stage" id="heroStage"><span class="stage-label">3D model of the Pod. Drag to turn it.</span></div>
     </div>
     <div class="grid g2">
       <div class="card">
-        <h2>Recent samples <a class="tag info" href="#/samples" style="margin-left:auto;text-decoration:none">Registry →</a></h2>
+        <h2>Recent samples <a class="h-link" href="#/samples">Open registry</a></h2>
         ${recent.length ? `<div class="table-wrap"><table><thead><tr><th>Cartridge</th><th>Site</th><th>Volume</th><th>When</th></tr></thead><tbody>
           ${recent.map(s => `<tr><td class="mono">${esc(s.id)}${s.blank ? ' <span class="tag info">blank</span>' : ''}</td><td>${esc(s.siteName)}</td><td>${s.ml} mL</td><td class="dim">${fmtTime(s.ts)}</td></tr>`).join('')}
-        </tbody></table></div>` : '<div class="empty">No samples yet — run a mission to fill the carousel.</div>'}
+        </tbody></table></div>` : '<div class="empty">No samples yet. Run a mission to fill the carousel.</div>'}
       </div>
       <div class="card">
         <h2>Alerts <span class="tag ${al.length ? 'crit' : 'ok'}">${al.length ? `${al.length} open` : 'All clear'}</span></h2>
-        ${al.length ? al.slice(0, 4).map(alertRow).join('') : '<div class="empty">No alerts. Blanks are clean and no watchlist species detected.</div>'}
+        ${al.length ? al.slice(0, 4).map(alertRow).join('') : '<div class="empty">No alerts. Blanks are clean and no watchlist species were found.</div>'}
       </div>
     </div>
     <div class="card">
-      <h2>One clean loop at every site</h2>
-      <div class="grid g4">${STEPS.map((s, i) => `<div class="anim"><p class="eyebrow">Step ${i + 1}</p><b>${s[0]}</b><p class="muted" style="margin:4px 0 0;font-size:14px">${s[1]}</p></div>`).join('')}</div>
+      <h2>What the Pod does at every site</h2>
+      <ol class="loop">${STEPS.map(s => `<li><b>${s[0]}</b><span>${s[1]}</span></li>`).join('')}</ol>
     </div>
   </section>`;
   countUp($('#sCount', root), state.samples.length);
@@ -74,6 +79,23 @@ function overview(root) {
   countUp($('#alCount', root), al.length);
   $('#quickSim', root).onclick = async () => { if (await startMission()) location.hash = '#/live'; };
   return stage(root, '#heroStage');
+}
+// The carousel as it really is: 8 seats, filled / blank / next.
+function carouselDial(seats, next) {
+  const cx = 130, cy = 130, R = 92;
+  const seat = (s, i) => {
+    const a = -Math.PI / 2 + i * Math.PI / 4, x = cx + R * Math.cos(a), y = cy + R * Math.sin(a);
+    const cls = s ? (s.blank ? 'blank' : 'full') : (i + 1 === next ? 'next' : 'clean');
+    const tip = s ? `${s.id} · ${s.siteName} · ${s.ml} mL${s.blank ? ' · blank' : ''}` : (i + 1 === next ? `Seat ${i + 1}: next to fill` : `Seat ${i + 1}: clean`);
+    return `<g class="seat ${cls}"><title>${esc(tip)}</title><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="24"/><text x="${x.toFixed(1)}" y="${(y + 5).toFixed(1)}" text-anchor="middle">${i + 1}</text></g>`;
+  };
+  return `<svg viewBox="0 0 260 260" role="img" aria-label="Carousel: ${seats.filter(Boolean).length} of 8 cartridges filled">
+    <circle class="plate" cx="${cx}" cy="${cy}" r="124"/><circle class="hub" cx="${cx}" cy="${cy}" r="34"/>
+    <path class="nozzle" d="M${cx - 10} 2h20l-6 14h-8z"/>
+    ${seats.map(seat).join('')}
+    <text class="hub-n" x="${cx}" y="${cy + 3}" text-anchor="middle">${seats.filter(Boolean).length}/8</text>
+    <text class="hub-l" x="${cx}" y="${cy + 19}" text-anchor="middle">filled</text>
+  </svg>`;
 }
 const stat = (ic, v, l, id) => `<div class="card stat"><span class="ic">${icons[ic]}</span><span class="v" id="${id}">${v}</span><span class="l">${l}</span></div>`;
 const alertRow = a => `<div class="alert ${a.level}"><span class="dot"></span><div><b>${esc(a.title)}</b><small>${esc(a.text)}</small></div></div>`;
@@ -433,7 +455,7 @@ function results(root) {
     </div>
     <div class="grid g2">
       <div class="card chart"><h2>Species per site</h2>${columns([...bySite].map(([k, v]) => ({ label: k, value: v.size })))}</div>
-      <div class="card chart"><h2>Strongest DNA signals <span class="tag">total reads</span></h2>${hbars(top.map(t => ({ label: t.common || t.species, value: t.reads, color: inv.has(t.species.toLowerCase()) ? '#F5A524' : '#B8E07A', note: inv.has(t.species.toLowerCase()) ? 'watchlist' : '' })))}</div>
+      <div class="card chart"><h2>Strongest DNA signals <span class="tag">total reads</span></h2>${hbars(top.map(t => ({ label: t.common || t.species, value: t.reads, color: inv.has(t.species.toLowerCase()) ? 'var(--amber)' : 'var(--moss)', note: inv.has(t.species.toLowerCase()) ? 'watchlist' : '' })))}</div>
     </div>
     <div class="grid g2">
       <div class="card"><h2>Species list by site</h2>${bySite.size ? [...bySite].map(([site, set]) => `<p class="eyebrow" style="margin-top:12px">${esc(site)}</p><div class="species">${[...set].map(sp => { const r = reads.get(sp); const bad = inv.has(sp.toLowerCase()); return `<div class="sp"><div><b>${esc(r?.common || sp)}</b> <i>${esc(sp)}</i></div>${bad ? '<span class="tag crit">Watchlist</span>' : '<span class="tag ok">Detected</span>'}</div>`; }).join('') || '<div class="dim">No detections</div>'}</div>`).join('') : '<div class="empty">Import results to see species.</div>'}</div>

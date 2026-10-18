@@ -11,9 +11,9 @@ export function hbars(data, { unit = '', max } = {}) {
   ${data.map((d, i) => {
     const y = i * rowH + 6, w = Math.max(3, (d.value / m) * barW);
     return `<g class="hb" style="--d:${i * 60}ms">
-      <text x="0" y="${y + 17}" fill="#EEF3EF" style="font-size:13px">${esc(d.label)}</text>
-      <rect x="${labelW}" y="${y + 4}" width="${barW}" height="18" rx="9" fill="#1F3D47" opacity=".6"/>
-      <rect class="hb-bar" x="${labelW}" y="${y + 4}" width="${w}" height="18" rx="9" fill="${d.color || '#B8E07A'}"/>
+      <text x="0" y="${y + 17}" style="font-size:13px;fill:var(--ink)">${esc(d.label)}</text>
+      <rect x="${labelW}" y="${y + 4}" width="${barW}" height="18" rx="3" style="fill:var(--rule)"/>
+      <rect class="hb-bar" x="${labelW}" y="${y + 4}" width="${w}" height="18" rx="3" style="fill:${d.color || 'var(--moss)'}"/>
       <text x="${labelW + w + 8}" y="${y + 17}" style="font-size:12px">${esc(String(d.value))}${unit}${d.note ? ` · ${esc(d.note)}` : ''}</text>
     </g>`;
   }).join('')}
@@ -28,14 +28,13 @@ export function columns(data, { unit = '' } = {}) {
   const step = (W - pad * 2) / data.length;
   const ticks = [0, Math.ceil(m / 2), m];
   return `<svg viewBox="0 0 ${W} ${H + 40}" role="img" aria-label="Column chart">
-    ${ticks.map(t => { const y = H - (t / m) * (H - 20); return `<line x1="${pad}" x2="${W - 10}" y1="${y}" y2="${y}" stroke="#1F3D47"/><text x="${pad - 8}" y="${y + 4}" text-anchor="end">${t}</text>`; }).join('')}
+    ${ticks.map(t => { const y = H - (t / m) * (H - 20); return `<line x1="${pad}" x2="${W - 10}" y1="${y}" y2="${y}" style="stroke:var(--rule)"/><text x="${pad - 8}" y="${y + 4}" text-anchor="end">${t}</text>`; }).join('')}
     ${data.map((d, i) => {
       const h = (d.value / m) * (H - 20), x = pad + i * step + (step - bw) / 2;
-      return `<rect class="col-bar" x="${x}" y="${H - h}" width="${bw}" height="${h}" rx="8" fill="url(#cg)"/>
-      <text x="${x + bw / 2}" y="${H - h - 8}" text-anchor="middle" fill="#EEF3EF" style="font-size:14px;font-weight:700">${d.value}${unit}</text>
+      return `<rect class="col-bar" x="${x}" y="${H - h}" width="${bw}" height="${h}" rx="3" style="fill:var(--moss)"/>
+      <text x="${x + bw / 2}" y="${H - h - 8}" text-anchor="middle" style="font-size:14px;font-weight:700;fill:var(--ink)">${d.value}${unit}</text>
       <text x="${x + bw / 2}" y="${H + 20}" text-anchor="middle">${esc(d.label.length > 16 ? d.label.slice(0, 15) + '…' : d.label)}</text>`;
     }).join('')}
-    <defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#B8E07A"/><stop offset="1" stop-color="#1f8e7a"/></linearGradient></defs>
   </svg>`;
 }
 
@@ -52,13 +51,13 @@ export function missionRing(active = 0, done = 0) {
     const a0 = -Math.PI / 2 + i * (Math.PI / 4) + gap, a1 = a0 + Math.PI / 4 - gap * 2;
     const cls = i + 1 === active ? 'on' : (i + 1 < active || i + 1 <= done ? 'done' : '');
     const am = (a0 + a1) / 2, lx = cx + (r + 0) * Math.cos(am), ly = cy + (r + 0) * Math.sin(am);
-    return `<path class="seg ${cls}" d="${arc(a0, a1)}"/><text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:700;fill:${cls === 'on' ? '#13231B' : '#EEF3EF'}">${i + 1}</text>`;
+    return `<path class="seg ${cls}" d="${arc(a0, a1)}"/><text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:700;fill:${cls === 'on' ? 'var(--surface)' : 'var(--ink)'}">${i + 1}</text>`;
   }).join('');
   const label = active ? names[active - 1] : 'Ready';
   return `<svg class="ring" viewBox="0 0 300 300" role="img" aria-label="Mission step ${active || 0} of 8: ${label}">
-    <circle cx="150" cy="150" r="78" fill="rgba(184,224,122,.06)" stroke="#1F3D47"/>
+    <circle cx="150" cy="150" r="78" style="fill:var(--paper);stroke:var(--rule)"/>
     ${segs}
-    <text x="150" y="140" text-anchor="middle" style="font-size:12px;fill:#A9C2C8;letter-spacing:.15em">STEP ${active || '–'} / 8</text>
+    <text x="150" y="140" text-anchor="middle" style="font-size:13px;fill:var(--ink-2)">Step ${active || '–'} of 8</text>
     <text x="150" y="170" text-anchor="middle" style="font-size:22px;font-weight:700">${label}</text>
   </svg>`;
 }

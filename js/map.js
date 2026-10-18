@@ -17,13 +17,13 @@ export function siteMap(el, sites, { onAdd, onSelect } = {}) {
     if (tileErrors === 4) { note.textContent = 'Map tiles offline — sites shown on a grid. Click to add a site.'; el.querySelector('.leaflet-tile-pane').style.display = 'none'; el.classList.add('fallback-map'); }
   });
   const layer = L.layerGroup().addTo(map);
-  const line = L.polyline([], { color: '#B8E07A', weight: 2, dashArray: '6 6', opacity: .8 }).addTo(map);
+  const line = L.polyline([], { color: '#24704A', weight: 2, dashArray: '6 6', opacity: .8 }).addTo(map);
   function draw(list) {
     layer.clearLayers();
     list.forEach((s, i) => {
       const icon = L.divIcon({ className: '', html: `<div class="site-pin ${s.protected ? 'prot' : ''}"><b>${i + 1}</b></div>`, iconSize: [28, 28], iconAnchor: [14, 28] });
       L.marker([s.lat, s.lon], { icon }).addTo(layer)
-        .bindPopup(`<b>${esc(s.name)}</b><br><span style="font-family:var(--mono);font-size:12px">${s.lat.toFixed(4)}, ${s.lon.toFixed(4)}</span>${s.protected ? '<br><span style="color:#F5A524">Protected — written permission needed</span>' : ''}`)
+        .bindPopup(`<b>${esc(s.name)}</b><br><span style="font-family:var(--mono);font-size:12px">${s.lat.toFixed(4)}, ${s.lon.toFixed(4)}</span>${s.protected ? '<br><span style="color:#B36B12">Protected — written permission needed</span>' : ''}`)
         .on('click', () => onSelect?.(s));
     });
     line.setLatLngs(list.map(s => [s.lat, s.lon]));
