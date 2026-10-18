@@ -493,3 +493,64 @@ tbody tr:hover{background:#F6F9F5}
   .loop{grid-template-columns:1fr}
   .loop li{padding-right:0}
 }
+
+/* ───── Inside the Pod: live water-path schematic ───── */
+.sx-card h2{margin-bottom:6px}
+.sx-live{margin-left:auto;font-size:13px;font-weight:600;color:var(--ink-2);display:inline-flex;align-items:center;gap:6px}
+.sx-live::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--rule-2)}
+.sx-live.on{color:var(--moss-2)} .sx-live.on::before{background:var(--moss);animation:sxBlink 1.2s steps(2) infinite}
+@keyframes sxBlink{50%{opacity:.25}}
+.sx{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:24px;align-items:center}
+.sx-svg{width:100%;height:auto;display:block;overflow:visible}
+.sx-lbl{font:500 12px var(--body);fill:var(--ink-2)}
+.sx-stream{fill:#CFE2E8} .sx-wave{fill:none;stroke:#7FA9B8;stroke-width:2}
+.sx-strainer{fill:var(--surface);stroke:var(--ink-2);stroke-width:2;stroke-dasharray:2 2}
+.sx-pipe{fill:none;stroke:var(--rule-2);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
+.sx-flow{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:6 10;opacity:0;transition:opacity .3s}
+.sx-f-sample{stroke:#3E8FB0} .sx-f-eth{stroke:var(--amber)} .sx-f-drain{stroke:#3E8FB0}
+.sx.s-on .sx-f-sample,.sx.e-on .sx-f-eth,.sx.draining .sx-f-drain,.sx.s-on.pressed .sx-f-drain{opacity:1;animation:sxFlow .6s linear infinite}
+@keyframes sxFlow{to{stroke-dashoffset:-16}}
+.sx-body{fill:var(--surface);stroke:var(--ink);stroke-width:2.5}
+.sx-ring{fill:none;stroke:var(--rule-2);stroke-width:2}
+.sx-rotor circle:not(.sx-ring){fill:var(--ink)}
+.sx-rotor{transform-box:fill-box;transform-origin:center}
+.sx.s-on #sxPumpS .sx-rotor{animation:sxSpin .9s linear infinite}
+.sx.e-on #sxPumpE .sx-rotor{animation:sxSpin .7s linear infinite}
+.sx.s-on #sxPumpS .sx-body,.sx.e-on #sxPumpE .sx-body{stroke:var(--moss)}
+@keyframes sxSpin{to{transform:rotate(360deg)}}
+.sx-bottle{fill:var(--surface);stroke:var(--ink-2);stroke-width:2}
+.sx-eth{fill:#E9C27D}
+.sx-nozzle{transition:transform .5s cubic-bezier(.3,.7,.3,1)}
+.sx-nozzle rect,.sx-nozzle path{fill:var(--ink)}
+.sx.pressed .sx-nozzle{transform:translateY(32px)}
+.sx-cart{fill:var(--surface);stroke:var(--ink);stroke-width:2.5}
+.sx-water{fill:#9CCBDC;transition:y .3s,height .3s}
+.sx.e-on .sx-water{fill:#E6C88C}
+.sx-filter{stroke:var(--moss);stroke-width:3;stroke-dasharray:3 2}
+.sx.clog .sx-filter{stroke:var(--red)}
+.sx.clog .sx-cart{stroke:var(--red)}
+.sx-waste{fill:#DCE7EA;stroke:var(--ink-2);stroke-width:2}
+.sx-carousel{transition:transform 1.1s cubic-bezier(.45,.05,.2,1)}
+.sx-plate{fill:var(--paper);stroke:var(--rule-2);stroke-width:2}
+.sx-seat circle{fill:var(--surface);stroke:var(--rule-2);stroke-width:2}
+.sx-seat text{font:600 12px var(--body);fill:var(--ink-2)}
+.sx-seat.full circle{fill:var(--moss);stroke:var(--moss-2)} .sx-seat.full text{fill:#fff}
+.sx-seat.blank circle{fill:var(--blue-soft);stroke:var(--blue)} .sx-seat.blank text{fill:var(--blue)}
+.sx-seat.on circle{stroke:var(--amber);stroke-width:3.5}
+.sx-marker{fill:var(--ink)}
+.sx-hub{fill:var(--surface);stroke:var(--rule-2);stroke-width:2}
+.sx-hub-n{font:600 15px var(--body);fill:var(--ink)} .sx-hub-l{font:500 10px var(--body);fill:var(--ink-2)}
+.sx-rain line{stroke:#3E8FB0;stroke-width:2;stroke-linecap:round;opacity:0}
+.sx.raining .sx-rain line{animation:sxRain .8s linear infinite;opacity:1}
+.sx-rain line:nth-child(2n){animation-delay:.25s!important} .sx-rain line:nth-child(3n){animation-delay:.5s!important}
+@keyframes sxRain{from{transform:translateY(-6px);opacity:0}30%{opacity:1}to{transform:translateY(14px);opacity:0}}
+.sx-read{display:grid;gap:0;border-top:1px solid var(--rule)}
+.sx-read div{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 0;border-bottom:1px solid var(--rule)}
+.sx-read span{color:var(--ink-2);font-size:13px}
+.sx-read b{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.sx-read b span{color:inherit;font-size:inherit}
+.sx-read small{font-size:12px;color:var(--ink-2);font-weight:500}
+.sx.clog #sxCur{color:var(--red)}
+@media (max-width:1000px){.sx{grid-template-columns:1fr}.sx-read{grid-template-columns:1fr 1fr;column-gap:20px}}
+@media (prefers-reduced-motion:reduce){.sx *{animation:none!important;transition:none!important}}
+.sx-tube{font-family:var(--mono);fill:var(--ink)}

@@ -6,6 +6,7 @@ import { collector } from './scene.js';
 import { siteMap } from './map.js';
 import { hbars, columns, missionRing } from './charts.js';
 import { startMission, scheduleMission } from './mission.js';
+import { schematicHTML, bindSchematic } from './schematic.js';
 
 const STEPS = [
   ['Self-check', 'Battery, sensors and GPS checked; the carousel finds seat 1.'],
@@ -56,6 +57,10 @@ function overview(root) {
       </div>
       <div class="card ov-twin stage" id="heroStage"><span class="stage-label">3D model of the Pod. Drag to turn it.</span></div>
     </div>
+    <div class="card sx-card">
+      <h2>Inside the Pod <span class="sx-live" id="sxLive">Idle</span></h2>
+      ${schematicHTML()}
+    </div>
     <div class="grid g2">
       <div class="card">
         <h2>Recent samples <a class="h-link" href="#/samples">Open registry</a></h2>
@@ -78,7 +83,8 @@ function overview(root) {
   countUp($('#spCount', root), species.size);
   countUp($('#alCount', root), al.length);
   $('#quickSim', root).onclick = async () => { if (await startMission()) location.hash = '#/live'; };
-  return stage(root, '#heroStage');
+  const offS = stage(root, '#heroStage'), offX = bindSchematic(root);
+  return () => { offS(); offX(); };
 }
 // The carousel as it really is: 8 seats, filled / blank / next.
 function carouselDial(seats, next) {
@@ -305,6 +311,10 @@ function live(root) {
         </div>
       </div>
     </div>
+    <div class="card sx-card">
+      <h2>Inside the Pod <span class="sx-live" id="sxLive">Idle</span></h2>
+      ${schematicHTML()}
+    </div>
     <div class="grid g2">
       <div class="card"><h2>Mission log</h2><div class="term" id="term"></div></div>
       <div class="card"><h2>Carousel <span class="tag" id="seatTag">Seat 1 of 8</span></h2>
@@ -316,6 +326,7 @@ function live(root) {
     </div>
   </section>`;
   const off = stage(root, '#liveStage');
+  const offX = bindSchematic(root);
   const offT = termBind($('#term', root));
   const onTele = e => {
     const t = e.detail;
@@ -357,7 +368,7 @@ function live(root) {
   $('#arrived', root).onclick = () => { link.send({ cmd: 'placed' }); $('#arrived', root).disabled = true; };
   $('#pause', root).onclick = () => { if (!link.connected) return; link.send({ cmd: link.tele?.paused ? 'resume' : 'pause' }); };
   $('#abort', root).onclick = () => { if (link.busy && confirm('Abort the mission? Pumps stop and the nozzle lifts.')) link.send({ cmd: 'abort' }); };
-  return () => { off(); offT(); link.removeEventListener('tele', onTele); link.removeEventListener('step', onStep); link.removeEventListener('done', onEnd); link.removeEventListener('aborted', onEnd); link.removeEventListener('status', onStatus); };
+  return () => { off(); offT(); offX(); link.removeEventListener('tele', onTele); link.removeEventListener('step', onStep); link.removeEventListener('done', onEnd); link.removeEventListener('aborted', onEnd); link.removeEventListener('status', onStatus); };
 }
 const gauge = (k, l, unit, max, amber) => `<div class="gauge" id="g-${k}" data-unit="${unit}"><div class="gl">${l}</div><div class="gv">—<small> ${unit}</small></div><div class="bar ${amber ? 'amber' : ''}"><i></i></div></div>`;
 
