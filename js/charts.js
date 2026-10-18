@@ -55,7 +55,7 @@ export function missionRing(active = 0, done = 0) {
   }).join('');
   const label = active ? names[active - 1] : 'Ready';
   return `<svg class="ring" viewBox="0 0 300 300" role="img" aria-label="Mission step ${active || 0} of 8: ${label}">
-    <circle cx="150" cy="150" r="78" style="fill:var(--paper);stroke:var(--rule)"/>
+    <circle cx="150" cy="150" r="78" style="fill:var(--surface);stroke:var(--rule)"/>
     ${segs}
     <text x="150" y="140" text-anchor="middle" style="font-size:13px;fill:var(--ink-2)">Step ${active || '–'} of 8</text>
     <text x="150" y="170" text-anchor="middle" style="font-size:22px;font-weight:700">${label}</text>

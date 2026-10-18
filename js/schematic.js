@@ -54,7 +54,7 @@ export function schematicHTML() {
     <rect class="sx-cart" x="330" y="166" width="54" height="72" rx="4"/>
     <g clip-path="url(#sxCart)"><rect class="sx-water" id="sxWater" x="330" y="238" width="54" height="0"/></g>
     <line class="sx-filter" x1="333" y1="226" x2="381" y2="226"/>
-    <text class="sx-lbl sx-tube" x="394" y="206" id="sxTube">${tubeId(state.nextTube)}</text>
+    <text class="sx-lbl sx-tube" x="322" y="206" text-anchor="end" id="sxTube">${tubeId(state.nextTube)}</text>
     <!-- drain → waste -->
     <path class="sx-pipe" d="M357 238 V 270 H 430"/>
     <path class="sx-flow sx-f-drain" d="M357 238 V 270 H 430"/>
@@ -66,9 +66,9 @@ export function schematicHTML() {
       ${seats}
     </g>
     <path class="sx-marker" d="M512 40 h16 l-8 14z"/>
-    <circle class="sx-hub" cx="520" cy="160" r="30"/>
+    <circle class="sx-hub" cx="520" cy="160" r="34"/>
     <text class="sx-hub-n" x="520" y="157" text-anchor="middle" id="sxSeat">Seat 1</text>
-    <text class="sx-hub-l" x="520" y="173" text-anchor="middle">under nozzle</text>
+    <text class="sx-hub-l" x="520" y="173" text-anchor="middle">at nozzle</text>
     <!-- rain -->
     <g class="sx-rain" id="sxRain">${Array.from({ length: 7 }, (_, i) => `<line x1="${430 + i * 30}" y1="${4 + (i % 3) * 6}" x2="${426 + i * 30}" y2="${16 + (i % 3) * 6}"/>`).join('')}</g>
   </svg>

@@ -23,7 +23,7 @@ function stage(root, sel) {
   const el = $(sel, root);
   const ok = collector.attach(el);
   if (!ok) el.innerHTML = '<div class="webgl-fallback">3D view needs WebGL, which this browser has turned off.<br>Everything else works normally.</div>';
-  else { collector.setFilled(state.samples); collector.setClean(true); }
+  else { collector.setFilled(state.samples); collector.setClean(true); collector.setViewShift(0); }
   return () => collector.detach();
 }
 
@@ -36,27 +36,24 @@ function overview(root) {
   const seats = Array.from({ length: 8 }, (_, i) => state.samples.find(x => x.tube === base + i + 1));
   const filled = seats.filter(Boolean).length;
   root.innerHTML = `
-  <section class="grid">
-    <div class="ov-top">
-      <div class="card ov-pod">
-        <div class="ov-dial">${carouselDial(seats, state.nextTube - base)}</div>
-        <div class="ov-facts">
-          <h2 class="ov-title">Carousel ${base / 8 + 1}</h2>
-          <p class="ov-sub">${filled === 8 ? 'Full. Swap in a clean carousel before the next trip.' : filled ? `${8 - filled} clean cartridge${8 - filled === 1 ? '' : 's'} left for this trip.` : 'All 8 cartridges are clean and ready.'}</p>
-          <dl class="facts">
-            <div><dt>Cartridges filled</dt><dd id="sCount">${state.samples.length}</dd></div>
-            <div><dt>Sites in the plan</dt><dd id="siteCount">${state.sites.length}</dd></div>
-            <div><dt>Species detected</dt><dd id="spCount">${species.size}</dd></div>
-            <div><dt>Open alerts</dt><dd id="alCount" class="${al.length ? 'bad' : ''}">${al.length}</dd></div>
-          </dl>
-          <div class="row">
-            <a class="btn primary" href="#/planner">Plan a mission</a>
-            <button class="btn" id="quickSim">Run a demo mission</button>
-          </div>
-        </div>
+  <section class="ov-hero" aria-label="Pod status">
+    <div class="stage ov-stage" id="heroStage"></div>
+    <div class="ov-meta"><span>Mission control</span><span>${link.connected ? esc(link.label) : 'Pod not connected'}</span></div>
+    <div class="ov-copy">
+      <h2 class="ov-h"><span class="ln"><span>Carousel ${base / 8 + 1}</span></span><span class="ln"><span>${filled} of 8</span></span><span class="ln"><span><em>${filled === 8 ? 'full.' : 'filled.'}</em></span></span></h2>
+      <div class="ov-side">
+        <p>${filled === 8 ? 'Swap in a clean carousel before the next trip.' : filled ? `${8 - filled} clean cartridge${8 - filled === 1 ? '' : 's'} left for this trip.` : 'All 8 cartridges are clean. Plan a trip, or run a demo to watch the Pod work.'}</p>
+        <div class="ov-btns"><a class="btn primary" href="#/planner">Plan a mission</a><button class="btn" id="quickSim">Run a demo mission</button></div>
       </div>
-      <div class="card ov-twin stage" id="heroStage"><span class="stage-label">3D model of the Pod. Drag to turn it.</span></div>
     </div>
+  </section>
+  <section class="ov-facts">
+    <div class="ov-fact"><b id="sCount">${state.samples.length}</b><span>cartridges filled</span></div>
+    <div class="ov-fact"><b id="siteCount">${state.sites.length}</b><span>sites in the plan</span></div>
+    <div class="ov-fact"><b id="spCount">${species.size}</b><span>species detected</span></div>
+    <div class="ov-fact ${al.length ? 'hot' : ''}"><b id="alCount">${al.length}</b><span>${al.length ? 'alerts to check' : 'alerts. All clear'}</span></div>
+  </section>
+  <section class="grid">
     <div class="card sx-card">
       <h2>Inside the Pod <span class="sx-live" id="sxLive">Idle</span></h2>
       ${schematicHTML()}
@@ -73,8 +70,8 @@ function overview(root) {
         ${al.length ? al.slice(0, 4).map(alertRow).join('') : '<div class="empty">No alerts. Blanks are clean and no watchlist species were found.</div>'}
       </div>
     </div>
-    <div class="card">
-      <h2>What the Pod does at every site</h2>
+    <div class="ov-loop">
+      <h2 class="big-h">What the Pod does at every site</h2>
       <ol class="loop">${STEPS.map(s => `<li><b>${s[0]}</b><span>${s[1]}</span></li>`).join('')}</ol>
     </div>
   </section>`;
@@ -84,6 +81,11 @@ function overview(root) {
   countUp($('#alCount', root), al.length);
   $('#quickSim', root).onclick = async () => { if (await startMission()) location.hash = '#/live'; };
   const offS = stage(root, '#heroStage'), offX = bindSchematic(root);
+  if (collector.camera && collector.controls) {
+    collector.camera.position.set(11.5, 6.2, 11.5); collector.controls.target.set(0, 1.6, 0);
+    collector.controls.autoRotate = !matchMedia('(prefers-reduced-motion: reduce)').matches; collector.controls.autoRotateSpeed = 0.6;
+    collector.controls.enableZoom = false; collector.setViewShift(innerWidth > 900 ? 0.24 : 0); collector.controls.update();
+  }
   return () => { offS(); offX(); };
 }
 // The carousel as it really is: 8 seats, filled / blank / next.
