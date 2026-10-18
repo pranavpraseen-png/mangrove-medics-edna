@@ -49,8 +49,9 @@ function use(name) {
     collector.setClean(false); collector.setRain(false); collector.setInteractive(false); ctl.autoRotate = false;
     cam.position.set(12, 7, 12); ctl.target.set(0, 2.2, 0); collector.setViewShift(innerWidth > 900 ? 0.16 : 0);
   } else {
-    collector.setClean(false); collector.setRain(false); collector.setInteractive(true); ctl.enableZoom = false; ctl.autoRotate = false;
-    cam.position.set(8, 5.6, 8.2); ctl.target.set(0, 2.4, 0); collector.setViewShift(0);
+    collector.setClean(true); collector.setRain(false); collector.setInteractive(true); ctl.enableZoom = false; ctl.autoRotate = false;
+    const narrow = innerWidth < 900;
+    cam.position.set(narrow ? 13.5 : 11, narrow ? 8.4 : 7, narrow ? 13.5 : 11.2); ctl.target.set(0, narrow ? 1.2 : 2.1, 0); collector.setViewShift(0);
     collector.explode(0);
   }
   ctl.update();

@@ -214,3 +214,28 @@ img,svg{display:block}
 }
 .map-note{position:absolute;z-index:500;left:12px;bottom:12px;background:var(--paper);border:2px solid var(--ink);padding:6px 10px;font-size:13px;font-weight:700}
 .fallback-map{background-image:linear-gradient(#C9C2AE 1px,transparent 1px),linear-gradient(90deg,#C9C2AE 1px,transparent 1px);background-size:40px 40px}
+
+/* ── Simulator view fixes ── */
+.sim{--surface:#0F2620;--rule:#2E4D40;--ink-2:#A9B8A6}
+.sim .btn.line{color:var(--paper);border-color:var(--paper)}
+.sim .btn.line:hover{color:var(--ink);background:var(--paper)}
+.sim-stage{min-height:640px;background:radial-gradient(ellipse at 50% 55%,#1d4537 0%,#123127 55%,#0c211b 100%)}
+.sim-hud span{font-size:12px;letter-spacing:.06em}
+.sim-hud #hudTube{background:var(--leaf)}
+.sim-ctrl{align-items:center}
+.sim-side .ring{display:grid;place-items:center;padding:28px}
+.sim-side .ring svg{max-width:280px}
+.sim-side .ring text{fill:var(--paper)}
+.readings{padding-top:18px!important;padding-bottom:18px!important}
+.readings div:nth-child(odd){padding-right:16px;border-right:1px solid rgba(243,238,226,.16)}
+.readings div:nth-child(even){padding-left:16px}
+.readings div:nth-child(-n+2){border-bottom:1px solid rgba(243,238,226,.16)}
+.readings b{font-variant-numeric:tabular-nums;line-height:1.1;display:block;margin-top:4px}
+.simlog{border-top:0;background:#0A1C17}
+@media (max-width:900px){
+  .sim-stage{min-height:520px}
+  .sim-ctrl{left:16px;right:16px;bottom:16px;gap:8px;flex-wrap:nowrap}
+  .sim-ctrl .btn{flex:1;justify-content:center;padding:13px 6px;font-size:13px;border-width:2px;white-space:nowrap}
+  .sim-hud{left:16px;top:16px}
+  .readings b{font-size:28px}
+}
