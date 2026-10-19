@@ -601,7 +601,7 @@ let calRaw = null;
 
 /* ─────────────────────────── Help ─────────────────────────── */
 function help(root) {
-  const team = [['Pranav', 'Team Captain'], ['Araav', 'Project Manager'], ['Arnav', 'Researcher'], ['Atharv', 'Builder'], ['Dipayan', 'Material Manager · electronics'], ['Gokul', 'Coder'], ['Lakshanya', 'Creative Designer · testing'], ['Jude Mugalian', 'Communicator']];
+  const team = [['Pranav Praseen', 'Team Captain'], ['Aarav Muralidharan', 'Project Manager'], ['Arnav', 'Researcher'], ['Atharv', 'Builder'], ['Dipayan Saha', 'Builder · Coder'], ['Gokul Charan Chetty Umapathi', 'Core Values · Robot Design'], ['Lakshanya Devidas Mehatkar', 'Coder'], ['Mugilan G Srinivasan', 'Core Values'], ['Jude Raphael Peter', 'Innovation Project']];
   root.innerHTML = `
   <section class="grid g2">
     <div class="card prose">

@@ -46,15 +46,16 @@ Bluetooth and USB links need Chrome or Edge. The simulator works everywhere.
 
 ## Team
 
-| Member | Engineering Notebook role |
+| Member | Role |
 | --- | --- |
-| Pranav | Team Captain |
-| Araav | Project Manager |
+| Pranav Praseen | Team Captain |
+| Aarav Muralidharan | Project Manager |
 | Arnav | Researcher |
 | Atharv | Builder |
-| Dipayan | Material Manager · electronics |
-| Gokul | Coder |
-| Lakshanya | Creative Designer · testing |
-| Jude Mugalian | Communicator |
+| Dipayan Saha | Builder · Coder |
+| Gokul Charan Chetty Umapathi | Core Values · Robot Design |
+| Lakshanya Devidas Mehatkar | Coder |
+| Mugilan G Srinivasan | Core Values |
+| Jude Raphael Peter | Innovation Project |
 
 Map data © OpenStreetMap contributors. Libraries under their own licences (MIT / BSD-2 / GreenSock standard licence).
