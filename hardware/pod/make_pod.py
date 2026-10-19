@@ -29,7 +29,7 @@ P = dict(
     boss_r=11.0, hub_z0=3.0, hub_z1=22.0, bore_r=2.6, flat=2.15, insert_r=2.0, screw_z=17.0,
     flange_r=70.0, bolt_r=50.0,
     bed=210.0,                       # largest part that fits a 220 x 220 bed with a margin
-    magnet_r=3.15, magnet_d=3.2, magnet_off=22.0,
+    magnet_r=4.15, magnet_d=4.0, magnet_off=22.0,   # 8 x 5 mm disc: 4 mm pocket keeps a 1 mm floor, magnet stands 1 mm proud underneath
     slot_w=6.0,
     # nozzle
     blk=26.0, blk_h=22.0, gasket_r=8.2, gasket_d=2.0, gasket_out=1.0,
@@ -159,7 +159,7 @@ def make_deck():
         s.rotation_euler[2] = a; s.location = (rm * ca, rm * sa, 0)
         bpy.context.view_layer.objects.active = s; bpy.ops.object.transform_apply(location=True, rotation=True)
         boolean(deck, s, 'DIFFERENCE')
-    # home magnet (6 x 3 mm) under seat 1, pressed in from below
+    # home magnet (8 x 5 mm disc) under seat 1, glued in from below; pocket 8.3 x 4.0 mm leaves a 1 mm floor
     x, y = seat_xy(0)
     boolean(deck, cyl('mag', P['magnet_r'], z0 - 1, z0 + P['magnet_d'], x, y + P['magnet_off'], seg=48), 'DIFFERENCE')
     return deck

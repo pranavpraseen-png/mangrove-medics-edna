@@ -17,7 +17,7 @@ gives 8 samples per trip. This repository is the software that ships with it.
 | **Overview** | Live 3D twin of the Pod, totals, recent samples and alerts |
 | **Connect** | Link to the Pod by Bluetooth, USB cable or Wi-Fi — or practise with the built-in simulator |
 | **Mission planner** | Put sampling sites on a map, set the murky-water and volume rules, keep a field blank, schedule nightly, after-rain or rain-sensor missions |
-| **Live mission** | Watch every step in 3D: carousel, sealing nozzle, both pumps; pH, turbidity, volume, battery, pump current and temperature; "Pod in place" button; pause and safe-stop |
+| **Live mission** | Watch every step in 3D: carousel, sealing nozzle, both pumps; pH, turbidity, volume, battery, pump current and temperature; "Pod in place" button; pause and safe-stop; **Demo run (judges)** runs one 100 mL cartridge in about 2 minutes, on the Pod or the simulator |
 | **Sample registry** | Chain of custody for every cartridge, carousel map, QR labels, lab-manifest CSV export |
 | **Biodiversity** | Import the lab's results, species per site, strongest DNA signals, watchlist and blank-contamination alerts |
 | **Calibration** | Pump wizard (5 runs, ±5 % check), pH two-point, turbidity zero, carousel steps, backup and restore |

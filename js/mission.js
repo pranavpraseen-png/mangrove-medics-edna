@@ -32,6 +32,37 @@ export async function startMission({ useSimIfDisconnected = true } = {}) {
   return true;
 }
 
+// Judging demo: one short site, no field blank, ~1.5–2 min, every step visible on the schematic.
+let demoActive = false;
+export async function startDemo() {
+  if (!link.connected) {
+    await link.connect('sim', { speed: 1.5 });
+    toast('Simulator connected', 'ok', 'No Pod found, so the demo runs on the digital twin.');
+  }
+  if (link.busy) { toast('A mission is already running', 'warn'); return false; }
+  const base = state.sites[0] || { lat: 25.2048, lon: 55.2708 };
+  const m = {
+    id: uid('m'),
+    sites: [{ id: 'DEMO', name: 'Demo stream', lat: base.lat, lon: base.lon }],
+    rules: { ...state.rules, blank: false, clearMl: 100, murkyMl: 100, primeMl: 10, rinseMl: 10, ethanolMl: 1, maxPumpS: 90 },
+    tubeStart: state.nextTube,
+    mlPerS: state.settings.pumpMlPerS,
+    carousel: state.settings.carousel,
+  };
+  state.missions.push({ id: m.id, start: Date.now(), sites: 1, status: 'running', via: link.kind, demo: true });
+  save();
+  demoActive = true;
+  if (link.kind === 'sim') link.send({ cmd: 'speed', value: 1.5 });
+  link.send({ cmd: 'start', mission: m });
+  toast('Demo run started', 'ok', 'One cartridge, about 2 minutes. Watch each step light up.');
+  return true;
+}
+link.addEventListener('step', e => {
+  if (demoActive && e.detail.n === 2) setTimeout(() => { if (demoActive) link.send({ cmd: 'placed' }); }, 2500);
+});
+link.addEventListener('done', () => { demoActive = false; });
+link.addEventListener('aborted', () => { demoActive = false; });
+
 export function scheduleMission() {
   if (!link.connected) { toast('Connect to the Pod to store a schedule', 'warn'); return; }
   link.send({ cmd: 'schedule', ...state.schedule, mission: buildMission() });

@@ -47,7 +47,7 @@ These are the printed parts around the test cartridges in [`../cartridge`](../ca
 | M3 × 16 screws | 2 (arm into the nozzle block; they cut their own thread in the PETG) |
 | M3 × 6 screws | 4 (motor under the base plate) |
 | M3 heat-set insert (4 mm hole) + M3 × 6 grub screw | 1 + 1 (locks the hub on the flat side of the shaft) |
-| 6 × 3 mm neodymium magnet | 1 |
+| 8 × 5 mm neodymium disc magnet (TechMaze, AED 2.10) | 1 |
 | Hall sensor module (A3144 or KY-003) | 1 |
 | 3 mm silicone sheet, cut a 16 mm disc with a 4 mm hole | 1 small piece |
 | 6 mm inside-diameter silicone tube | about 1 m |
@@ -58,8 +58,8 @@ These are the printed parts around the test cartridges in [`../cartridge`](../ca
 
 1. Screw the motor under the base plate. Push the hub onto the shaft, with the insert facing the flat side, and tighten the grub screw.
 2. Bolt the 4 quarters onto the hub flange.
-3. Every quarter has a magnet pocket underneath, but **glue the magnet into one pocket only**. The seat next to it is **seat 1**.
-4. Mount the Hall sensor on its two holes, with spacers, so it sits 2–3 mm under the magnet.
+3. Every quarter has a magnet pocket underneath (8.3 mm wide, 4 mm deep), but **glue the 8 × 5 mm magnet into one pocket only**. It stands 1 mm proud of the underside, which is fine. The seat next to it is **seat 1**.
+4. Mount the Hall sensor on its two holes, with spacers, so it sits 2–3 mm under the magnet (remember the magnet sticks out 1 mm).
 5. Bolt the tower to the base plate *before* fitting the servo, because the servo covers the screws. Then bolt the servo through the window.
 6. Screw the arm onto the servo horn and the nozzle block. Push the gasket into the recess and fit the two tubes onto the barbs.
 

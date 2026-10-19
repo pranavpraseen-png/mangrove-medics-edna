@@ -5,7 +5,7 @@ import { link, support } from './device.js';
 import { collector } from './scene.js';
 import { siteMap } from './map.js';
 import { hbars, columns, missionRing } from './charts.js';
-import { startMission, scheduleMission } from './mission.js';
+import { startMission, startDemo, scheduleMission } from './mission.js';
 import { schematicHTML, bindSchematic } from './schematic.js';
 import { tickerHTML } from './motion.js';
 
@@ -44,7 +44,7 @@ function overview(root) {
       <h2 class="ov-h"><span class="ln"><span>Carousel ${base / 8 + 1}</span></span><span class="ln"><span>${filled} of 8</span></span><span class="ln"><span><em>${filled === 8 ? 'full.' : 'filled.'}</em></span></span></h2>
       <div class="ov-side">
         <p>${filled === 8 ? 'Swap in a clean carousel before the next trip.' : filled ? `${8 - filled} clean cartridge${8 - filled === 1 ? '' : 's'} left for this trip.` : 'All 8 cartridges are clean. Plan a trip, or run a demo to watch the Pod work.'}</p>
-        <div class="ov-btns"><a class="btn primary" href="#/planner">Plan a mission</a><button class="btn" id="quickSim">Run a demo mission</button></div>
+        <div class="ov-btns"><a class="btn primary" href="#/planner">Plan a mission</a><button class="btn" id="quickSim">Run a demo mission</button><button class="btn" id="demoRun">Demo run (judges)</button></div>
       </div>
     </div>
   </section>
@@ -82,6 +82,7 @@ function overview(root) {
   countUp($('#spCount', root), species.size);
   countUp($('#alCount', root), al.length);
   $('#quickSim', root).onclick = async () => { if (await startMission()) location.hash = '#/live'; };
+  $('#demoRun', root).onclick = async () => { if (await startDemo()) location.hash = '#/live'; };
   const offS = stage(root, '#heroStage'), offX = bindSchematic(root);
   if (collector.camera && collector.controls) {
     collector.camera.position.set(11.5, 6.2, 11.5); collector.controls.target.set(0, 1.6, 0);
@@ -295,6 +296,7 @@ function live(root) {
         <div class="live-hud"><span class="tag ok" id="hState">IDLE</span><span class="tag" id="hSite">No site</span><span class="tag info" id="hTube">Next ${tubeId(state.nextTube)}</span></div>
         <div class="live-ctrl">
           <button class="btn primary" id="start">Start mission</button>
+          <button class="btn" id="demo">Demo run (judges)</button>
           <button class="btn" id="pause">Pause</button>
           <button class="btn danger" id="abort">Abort</button>
           <span class="spacer"></span>
@@ -368,6 +370,7 @@ function live(root) {
   link.addEventListener('done', onEnd); link.addEventListener('aborted', onEnd); link.addEventListener('status', onStatus);
   if (link.tele) onTele({ detail: link.tele });
   $('#start', root).onclick = () => startMission();
+  $('#demo', root).onclick = () => startDemo();
   $('#arrived', root).disabled = link.step?.n !== 2;
   $('#arrived', root).onclick = () => { link.send({ cmd: 'placed' }); $('#arrived', root).disabled = true; };
   $('#pause', root).onclick = () => { if (!link.connected) return; link.send({ cmd: link.tele?.paused ? 'resume' : 'pause' }); };
