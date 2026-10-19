@@ -42,7 +42,7 @@ IRF520 modules only half switch on at 3.3 V; if a pump runs weak, swap to logic-
 2. **Pumps:** `{"cmd":"pump","which":"S","seconds":3}` then `{"cmd":"pump","which":"E","seconds":3}`.
 3. **Sensors:** `{"cmd":"read"}` returns probe voltages and temperature. Calibrate in the console (Calibration page).
 4. **Carousel:** `{"cmd":"home"}` — it turns until the magnet reaches the switch. Then check `STEPS_PER_SEAT` lands every seat under the nozzle (test 3: 80 moves).
-5. **Servo:** tune `SERVO_UP` / `SERVO_DOWN` so the nozzle presses 6–8 mm into the gasket without stalling.
+5. **Servo:** tune `SERVO_DOWN` so the gasket just squashes without stalling, then set `SERVO_UP` about 20° higher (start at 95 / 75). PRIME and RINSE turn half a seat to a waste slot before flushing (see `hardware/pod/README.md`).
 6. **Clog detection:** run a muddy sample and note the pump current in telemetry (`cur`); adjust `CLOG_AMPS_RISE`.
 7. Connect the console by **USB** (Chrome/Edge → Connect → USB cable) and run a one-site mission over a bucket.
 

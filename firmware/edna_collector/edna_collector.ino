@@ -1,7 +1,7 @@
 /*
   eDNA Pod firmware — Team Canopy Keepers (FIRST LEGO League BIOGLOW 2026–27)
 
-  ESP32 DevKit inside the eDNA Pod: a 22 cm canister with an 8-seat filter carousel.
+  ESP32 DevKit inside the eDNA Pod: an IP67 box (about 300 × 260 × 160 mm inside) with an 8-seat filter carousel.
   Talks to the eDNA Collector Console in newline-delimited JSON (docs/PROTOCOL.md)
   over USB serial, Bluetooth LE (Nordic UART Service) and Wi-Fi (access point +
   WebSocket; it also serves the console from LittleFS).
@@ -73,7 +73,7 @@
 // ───────────── Mechanics (calibrate on the real build) ─────────────
 int   SEATS = 8;
 int   STEPS_PER_SEAT = 400;              // 200-step motor × 16 microsteps ÷ 8 seats
-const int SERVO_UP = 20, SERVO_DOWN = 95; // nozzle lifted / pressed onto the cartridge
+const int SERVO_UP = 75, SERVO_DOWN = 95; // nozzle lifted ~20° (clears the caps) / pressed onto the cartridge
 const float ETHANOL_ML_S = 0.5f;          // ethanol pump at low PWM, calibrate
 const float CLOG_AMPS_RISE = 0.25f;       // stop when pump current rises this much above its start value
 const int   PUMP_PWM = 255;               // full speed; lower for gentler flow
@@ -206,13 +206,17 @@ JsonObject site() { return siteIdx >= 0 ? mission["sites"][siteIdx].as<JsonObjec
 const char *siteId() { return siteIdx >= 0 ? (const char *)site()["id"] : "BLANK"; }
 const char *siteName() { return siteIdx >= 0 ? (const char *)site()["name"] : "Field blank"; }
 int seatFor(int t) { return (t - 1) % SEATS + 1; }
+// Waste slots sit between seats 8&1, 2&3, 4&5, 6&7: odd seats flush half a seat back, even seats half a seat forward
+long wasteOffset(int seat) { return (seat % 2 ? -1L : 1L) * (STEPS_PER_SEAT / 2); }
+int flushStage = 0;                  // PRIME/RINSE: 0 = move over waste slot, 1 = flushing, 2 = moving back
+void stepBy(long steps) { digitalWrite(EN_PIN, LOW); carousel.move(steps); }
 
 void enter(St s) {
   st = s; phaseT = millis();
   JsonDocument d; d["t"] = "step"; d["n"] = (int)s; d["name"] = ST_NAME[s]; d["site"] = siteId(); d["siteName"] = siteName(); d["tube"] = tube; emit(d);
 }
 void finishMission(bool aborted, const char *msg = "") {
-  allStop(); st = IDLE; paused = false;
+  allStop(); st = IDLE; paused = false; flushStage = 0;
   JsonDocument d; d["t"] = aborted ? "aborted" : "done"; d["mission"] = mission["id"]; if (aborted) d["msg"] = msg; else d["tubes"] = tubesDone; emit(d);
 }
 void goIndex() {
@@ -267,9 +271,18 @@ void missionTick() {
       else { targetMl = ntuNow >= rules.ntuMurky ? rules.murkyMl : rules.clearMl; logMsg(String(ntuNow >= rules.ntuMurky ? "Water MURKY" : "Water clear") + " (" + String(ntuNow, 1) + " NTU) → target " + (int)targetMl + " mL"); }
       enter(PRIME);
       break;
-    case PRIME:
-      press(false); setPumps(true, false);
-      if (el >= (unsigned long)(rules.primeMl / cal.mlPerS * 1000)) { setPumps(false, false); sampledMl = 0; pumpMsAcc = 0; clogged = false; enter(SAMPLE); }
+    case PRIME:                            // flush the hose over a waste slot, never onto a clean cartridge
+      press(false);
+      if (flushStage == 0) { stepBy(wasteOffset(seatFor(tube))); flushStage = 1; phaseT = millis(); return; }
+      if (flushStage == 1) {
+        if (carousel.distanceToGo() != 0) { phaseT = millis(); return; }
+        setPumps(true, false);
+        if (el >= (unsigned long)(rules.primeMl / cal.mlPerS * 1000)) { setPumps(false, false); stepBy(-wasteOffset(seatFor(tube))); flushStage = 2; }
+        return;
+      }
+      if (carousel.distanceToGo() != 0) return;
+      digitalWrite(EN_PIN, HIGH); flushStage = 0;
+      sampledMl = 0; pumpMsAcc = 0; clogged = false; enter(SAMPLE);
       break;
     case SAMPLE: {
       if (el < 1200) { press(true); return; }         // servo seals first
@@ -308,10 +321,12 @@ void missionTick() {
       tubesDone++; enter(RINSE);
       break;
     }
-    case RINSE:
+    case RINSE:                            // lift, move over a waste slot, flush the hose for the next site
       if (el < 800) { press(false); return; }
+      if (flushStage == 0) { stepBy(wasteOffset(seatFor(tube))); flushStage = 1; phaseT = millis() - 800; return; }
+      if (carousel.distanceToGo() != 0) { phaseT = millis() - 800; return; }
       setPumps(true, false);
-      if (el >= 800 + (unsigned long)(rules.rinseMl / cal.mlPerS * 1000)) { setPumps(false, false); tube++; nextSiteOrDone(); }
+      if (el >= 800 + (unsigned long)(rules.rinseMl / cal.mlPerS * 1000)) { setPumps(false, false); flushStage = 0; tube++; nextSiteOrDone(); }
       break;
     default: break;
   }
