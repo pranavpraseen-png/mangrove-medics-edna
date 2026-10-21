@@ -248,7 +248,7 @@ $$('[data-count]').forEach(el => {
     $('#sSpecies').textContent = all.length;
     $('#sSites').textContent = new Set(state.samples.filter(s => !s.blank).map(s => s.site)).size;
     $('#sAlerts').textContent = alerts().length;
-    if (animate && G && !RM) G.from('#dbTable .db-row:not(.h)', { y: 24, opacity: 0, stagger: 0.04, duration: 0.6, ease: 'power3.out' });
+    if (animate && G && !RM && table.querySelector('.db-row:not(.h)')) G.from('#dbTable .db-row:not(.h)', { y: 24, opacity: 0, stagger: 0.04, duration: 0.6, ease: 'power3.out' });
   }
   $('#dbSearch').addEventListener('input', () => render(false));
   $$('.chip').forEach(c => c.onclick = () => { filter = c.dataset.f; $$('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === c))); render(true); });
@@ -271,6 +271,10 @@ if (G && ST && !RM) {
   $$('.sec-head').forEach(h => G.from(h.children, { y: 50, opacity: 0, duration: 1, stagger: 0.08, ease: 'expo.out', scrollTrigger: { trigger: h, start: 'top 80%' } }));
   G.from('.fact', { y: 60, opacity: 0, duration: 1, stagger: 0.12, ease: 'expo.out', scrollTrigger: { trigger: '.facts', start: 'top 85%' } });
   G.from('.member', { y: 40, opacity: 0, duration: 0.8, stagger: 0.06, ease: 'power3.out', scrollTrigger: { trigger: '.team', start: 'top 85%' } });
+  G.from('.seat-c', { y: 30, opacity: 0, duration: 0.7, stagger: 0.05, ease: 'power3.out', scrollTrigger: { trigger: '.seatbar', start: 'top 85%' } });
+  G.from('.num-c', { y: 50, opacity: 0, duration: 0.9, stagger: 0.07, ease: 'expo.out', scrollTrigger: { trigger: '.nums', start: 'top 85%' } });
+  G.from('.tl li', { y: 40, opacity: 0, duration: 0.8, stagger: 0.07, ease: 'power3.out', scrollTrigger: { trigger: '.tl', start: 'top 85%' } });
+  G.from('.sponsor', { y: 40, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out', scrollTrigger: { trigger: '.sponsors', start: 'top 90%' } });
 }
 if (ST) {
   ST.create({ trigger: '.hero', start: 'top bottom', end: 'bottom top', onToggle: s => s.isActive && use('hero') });

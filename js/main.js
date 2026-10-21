@@ -2,10 +2,11 @@
 import { $, $$, reducedMotion } from './util.js';
 import { VIEWS } from './views.js';
 import { link } from './device.js';
-import { alerts, onChange } from './store.js';
-import './mission.js';
+import { alerts, onChange, storageOK } from './store.js';
+import { ui, waiting } from './mission.js';
 import { initMotion, pageIn } from './motion.js';
 
+ui.confirm = true; // this page asks the operator to scan each label before the Pod samples
 const view = $('#view');
 let cleanup = null;
 
@@ -31,9 +32,13 @@ function statusBar() {
   p.dataset.state = link.connected ? (link.busy ? 'busy' : 'on') : 'off';
   p.querySelector('span').textContent = link.connected ? `${link.info?.id || 'Collector'} · ${link.label}` : 'Not connected';
   const mp = $('#missionPill');
-  if (link.busy && link.step) {
+  if (waiting.kind) {
     mp.hidden = false; mp.dataset.state = 'busy';
-    mp.querySelector('span').textContent = `Step ${link.step.n}/8 · ${link.step.name.toLowerCase()}`;
+    const L = { BLANK_WATER: 'blank bottle + scan', SITE: `new site ${waiting.site || ''}`, EMPTY_BOTTLE: 'empty the bottle', WATER: 'intake in water?', AIR: 'intake out of water', SCAN: `scan ${waiting.entry?.id || 'label'}` };
+    mp.querySelector('span').textContent = `Pod waiting · ${L[waiting.kind] || waiting.kind.toLowerCase()}`;
+  } else if (link.busy && link.step) {
+    mp.hidden = false; mp.dataset.state = 'busy';
+    mp.querySelector('span').textContent = `${String(link.step.name || '').toLowerCase().replace('_', ' ')}${link.step.seat ? ` · seat ${link.step.seat}` : ''}`;
   } else mp.hidden = true;
 }
 function bell() {
@@ -46,7 +51,22 @@ link.addEventListener('status', statusBar);
 link.addEventListener('step', statusBar);
 link.addEventListener('done', statusBar);
 link.addEventListener('aborted', statusBar);
+link.addEventListener('await', statusBar);
 onChange(bell);
+
+// Offline: the console keeps working with no internet; everything is saved on this device.
+function netPill() {
+  const p = $('#netPill'); if (!p) return;
+  const off = !navigator.onLine, store = storageOK();
+  p.hidden = !off && store;
+  p.dataset.state = store ? 'busy' : 'off';
+  p.querySelector('span').textContent = !store ? 'Not saving — export a backup' : 'Offline · saved on this device';
+}
+addEventListener('online', netPill); addEventListener('offline', netPill); onChange(netPill);
+// Cache the console for offline use (needs https or localhost; silently skipped elsewhere).
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || ['localhost', '127.0.0.1'].includes(location.hostname))) {
+  addEventListener('load', () => { navigator.serviceWorker.register('console-sw.js', { scope: './console' }).catch(() => {}); });
+}
 
 $('#menuBtn').onclick = () => {
   const open = document.body.classList.toggle('nav-open');
@@ -85,6 +105,7 @@ addEventListener('hashchange', route);
 addEventListener('DOMContentLoaded', () => {});
 statusBar();
 bell();
+netPill();
 initMotion();
 route();
 setTimeout(() => $('#loader').classList.add('gone'), reducedMotion() ? 0 : 1300);

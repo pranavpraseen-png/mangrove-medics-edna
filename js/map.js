@@ -23,7 +23,7 @@ export function siteMap(el, sites, { onAdd, onSelect } = {}) {
     list.forEach((s, i) => {
       const icon = L.divIcon({ className: '', html: `<div class="site-pin ${s.protected ? 'prot' : ''}"><b>${i + 1}</b></div>`, iconSize: [28, 28], iconAnchor: [14, 28] });
       L.marker([s.lat, s.lon], { icon }).addTo(layer)
-        .bindPopup(`<b>${esc(s.name)}</b><br><span style="font-family:var(--mono);font-size:12px">${s.lat.toFixed(4)}, ${s.lon.toFixed(4)}</span>${s.protected ? '<br><span style="color:#B36B12">Protected — written permission needed</span>' : ''}`)
+        .bindPopup(`<b>${esc(s.name)}</b>${s.code ? ` <span style="font-family:var(--mono);font-size:12px">${esc(s.code)}</span>` : ''}<br><span style="font-family:var(--mono);font-size:12px">${s.lat.toFixed(4)}, ${s.lon.toFixed(4)}</span>${s.protected ? '<br><span style="color:#B36B12">Protected — written permission needed</span>' : ''}`)
         .on('click', () => onSelect?.(s));
     });
     line.setLatLngs(list.map(s => [s.lat, s.lon]));
@@ -48,7 +48,7 @@ function fallback(el, sites, onAdd) {
       const p = document.createElement('div');
       p.style.cssText = `position:absolute;left:${x}%;top:${y}%;transform:translate(-50%,-100%)`;
       p.innerHTML = `<div class="site-pin ${s.protected ? 'prot' : ''}"><b>${i + 1}</b></div>`;
-      p.title = s.name;
+      p.title = s.code ? `${s.code} · ${s.name}` : s.name;
       el.appendChild(p);
     });
   }

@@ -1,71 +1,136 @@
-# eDNA Pod protocol (v2)
+# eDNA Pod protocols
 
-The console and the eDNA Pod exchange **one JSON object per line** (UTF-8, `\n` terminated).
-The same messages travel over every link:
+This file has two parts:
 
-| Link | Details |
-| --- | --- |
-| USB serial | 115200 baud, 8N1 |
-| Bluetooth LE | Nordic UART Service `6e400001-b5a3-f393-e0a9-e50e24dcca9e`; app writes to RX `6e400002-…`, device notifies on TX `6e400003-…`. Device name starts with `EDNA`. Writes are chunked to 20 bytes; the device re-assembles lines. |
-| Wi-Fi | WebSocket at `ws://<pod>/ws`. Browsers block `ws://` from an `https://` page, so in Wi-Fi mode open the console from the Pod itself (`http://192.168.4.1`), which serves the same app from LittleFS. |
-| Simulator | In-browser twin (`js/sim.js`) — speaks exactly this protocol. |
+1. **[Field protocol](#1-field-protocol)** — what the team does, step by step, on a sampling trip.
+2. **[Console ↔ Pod messages](#2-console--pod-messages-protocol-v3)** — a short summary; the full protocol is in [`firmware/README.md`](../firmware/README.md#console-protocol).
 
-v2 replaces the v1 rover protocol (drive, gantry, arm, 50-tube rack) with the Pod's 8-seat carousel.
+All numbers come from [`DECISIONS.md`](DECISIONS.md). If anything here disagrees with that file, `DECISIONS.md` wins.
+"Approx." means estimated, not measured yet. The prototype is being built; tests run 8 Nov–15 Dec 2026.
 
-## App → Pod (`cmd`)
+---
 
-| Command | Fields | Effect |
+## 1. Field protocol
+
+### Mission layout (every mission)
+
+| Seat | Use |
+|---|---|
+| 1 | **Field blank** — 1 L distilled water through the full water path. The console forces it first. |
+| 2–7 | **6 real samples** — default 2 sites × 3 replicates (or 1 site × 6) |
+| 8 | **Empty flush seat** — 250 mL of site water flushed to waste before the first sample at each site |
+
+A mission is **1 blank + 6 samples + 1 flush seat**. Never call it "8 samples".
+
+**Water path (pull-through):** intake → cartridge (filter) → pump → waste bottle on the load cell. The pump only sees filtered water, and a clog cannot burst a tube.
+
+**Sample ID:** `CK-YYYYMMDD-SITE-SEAT` (for example `CK-20261206-AQ01-S3`; the field blank is `CK-20261206-BLANK-S1`), printed as a QR label.
+
+### Before leaving (at school)
+
+1. Clean the cartridges, funnels and tubing sets: 10% bleach for 10 min (no long soak), rinse 3× with distilled water, air-dry. Bag each set and label it with a site number.
+2. With fresh gloves, fit a new sterile 47 mm, 0.45 µm MCE filter into each cartridge (1.2 µm if the water is known to be very muddy). Cap and bag them. Seat 8 stays empty.
+3. Pack:
+   - nitrile gloves (at least 3 pairs per sample; 10+ pairs per mission)
+   - a bottle of fresh 10% bleach, labelled with the date it was made
+   - distilled water for rinsing, plus 1 L for the field blank
+   - ≥95% ethanol for the Pod's preservation pump (silica-gel tubes only for the paired test on 6 Dec)
+   - one spare pre-bleached, bagged intake tube + funnel **per site**
+   - the stainless mesh pre-filter and mesh bag for the intake
+   - a cool box with ice packs
+   - QR labels, tamper-evident seals, the custody form and a pencil datasheet
+   - a bin bag for waste
+4. Charge the Pod (approx. 2 missions per charge; take the spare pack for more). Load the mission and site list into the console and save it for offline use. Check the GPS fix and that the clock is set.
+5. No fish or meat in lunches. Pets stay home. Wash boots and clothes.
+
+### At the site
+
+6. Approach from **downstream**. Choose flowing water mid-channel, below a confluence where possible. Write down upstream villages and farms on the datasheet.
+7. **Stop rule:** do not sample in rising water or very muddy water (over about 300 NTU). Tether the Pod to the bank.
+8. Spray the outside of the Pod and the nozzle with 10% bleach, wait 10 min, rinse with distilled water. Fit the **new bagged intake tube and funnel** for this site, with the mesh pre-filter.
+9. Change gloves. At the first site only, run the **field blank** (seat 1): 1 L of distilled water through the full water path.
+10. Flush **250 mL of site water** through the empty flush seat (seat 8) to waste. This replaces the about 7 mL of tube volume more than 30 times.
+
+### Per sample (seats 2–7)
+
+11. Change gloves. Place the intake just below the surface, away from the mud. Stand downstream of it.
+12. Start the sample. The Pod stops at **1 L**, at **20 minutes**, or when flow drops below **20 mL/min**. A sample counts only if **at least 250 mL** went through. The load cell gives the real volume; write it down too.
+13. After pumping, the Pod adds ≥95% ethanol to the filter. Cap the cartridge (tethered caps).
+14. Scan the QR label so the console links the ID to GPS, time and sensor readings. Add the tamper-evident seal.
+15. Take 3 replicates per site, then move to site 2 and repeat steps 6–14 (new tube set, bleach, 250 mL flush). Write pencil notes as you go.
+
+### After (before leaving the site)
+
+16. Bag all waste and take it home. Spray the Pod with bleach and rinse it. Bag the used tubing set to be cleaned at school.
+17. Check that every sample ID is on both the datasheet and the console.
+
+### Transport
+
+18. Keep samples in the cool box, dark and out of the sun.
+19. Freeze at −20 °C on return if they will not reach the lab within 2 weeks.
+20. Ship the ethanol **with** the filter (some DNA leaks into it). Use Longmire's buffer instead if the lab asks.
+21. Sign the custody form at every hand-over. Ship with the sample manifest and the custody form.
+
+### Contamination rules
+
+- **Gloves:** change before every cartridge and after touching anything else (bank, bag, phone, bleach). Never touch the filter or the inside of a cartridge.
+- **Body:** stand downstream; don't talk or lean over an open cartridge.
+- **Food and pets:** no food near the sampling point; no fish or meat in lunches; pets stay home.
+- **Between sites:** new bagged, pre-bleached intake tube and funnel; 10% bleach on the nozzle for 10 min, then rinse; 250 mL site-water flush through seat 8.
+- **Bleach:** spray or wipe for 10 min and rinse. Never leave printed parts, seals or tubing soaking.
+- **Cartridges:** loaded at school, used once per mission, bleached and reused. The 20-cycle bleach test (by 8 Nov) decides how many times.
+- **Blanks:** one field blank per mission (seat 1). Ask the lab for an extraction blank and a PCR blank per batch.
+- **If the blank shows DNA:** flag every sample from that mission. A species found in the blank at a similar level is not counted. Find the cause (tubing, gloves, lab) before the next mission.
+- **Red flags:** a species that cannot live in that stream (for example tuna in a rainforest creek) points to contamination.
+
+### Reading results
+
+| Result | Rule |
+|---|---|
+| **Confirmed** | Found in 2 or 3 of 3 replicates, and the blank is clean |
+| **Possible** | Found in 1 of 3 replicates |
+| **Not detected** | Not found — this is **not** proof the species is absent |
+
+### Test schedule
+
+| Date | Test |
+|---|---|
+| by 8 Nov | Bleach durability (20 cycles) and flow calibration |
+| by 15 Nov | Usability test (5 classmates); lab partner and price locked; aquarium tank chosen |
+| 20–25 Nov | Waterproofing bucket test (3 × 30 min) |
+| 28 Nov–3 Dec | Dye leak / carry-over test (8 runs) |
+| 1–5 Dec | Battery life test |
+| 6 Dec | Aquarium test + dilution series + silica vs ethanol |
+| 10 Dec | The Green Planet Dubai indoor rainforest |
+| by 15 Dec | Ship 13 filters to the lab |
+
+---
+
+## 2. Console ↔ Pod messages (protocol v3)
+
+**The full, authoritative message list is in [`firmware/README.md` → Console protocol](../firmware/README.md#console-protocol).**
+If this summary and the firmware README disagree, the firmware README wins. The in-browser simulator (`js/sim.js`) speaks the same v3 protocol.
+
+**Links:** one JSON object per line (UTF-8, `\n`) over USB serial (115200 8N1), Bluetooth LE (Nordic UART service, device `EDNA-01`,
+20-byte chunks) or Wi-Fi (WebSocket `ws://192.168.4.1/ws`, open the console from the Pod).
+
+**How the console runs a mission**
+
+| Moment | Pod sends | Console does |
 | --- | --- | --- |
-| `hello` | — | Device replies `hello` |
-| `settime` | `ts` (ms since 1970) | Sets the clock (sent on every connect; GPS also sets it in the field) |
-| `placed` | — | Operator confirms the Pod is staked at the site; mission moves from INDEX to TEST (`arrived` still accepted) |
-| `start` | `mission` | Run a mission (see below) |
-| `pause` / `resume` | — | Pause stops both pumps; resume continues |
-| `abort` | — | Safe stop: pumps off, nozzle lifted; replies `aborted` |
-| `home` | — | Home the carousel to seat 1 (magnet + switch) |
-| `read` | — | Replies `raw` with probe voltages and temperature (for calibration) |
-| `pump` | `which` (`S` sample / `E` ethanol), `seconds` | Run a pump for calibration; replies `pumped` |
-| `setcal` | `ph {v7,v4}`, `ntuZeroV`, `mlPerS`, `carousel {seats, stepsPerSeat}` | Store calibration; replies `ack` |
-| `schedule` | `mode` (`now`/`nightly`/`tide` = after rain at a time/`rain` = when the rain sensor stays wet), `time`, `tide`, `mission` | Store a mission to run on its own; replies `ack` |
-| `speed` | `value` | Simulator only: time multiplier |
+| Connect | `hello` (`protocol: 3`, `layout {blank:1, flush:8, samples:[2..7]}`) | Sends `settime`; then `ping` every 2 min (over USB the Pod deep-sleeps after 10 idle minutes without it) |
+| Start | — | Sends `start` with `{id, sites:[{code, name, lat?, lon?}] (1–2), rules?, flowMlMin?}`. The Pod fixes the layout itself |
+| Field blank | `wait` `BLANK_WATER` | Shows the prompt; operator scans the blank label `CK-YYYYMMDD-BLANK-S1`; console sends `continue` |
+| New site | `wait` `SITE` | Shows the cleaning steps; optional typed location → `setloc` (otherwise `setloc {clear:true}`); `continue`. The Pod flushes 250 mL through seat 8 |
+| Before each sample | `step` `SEAL` | If that cartridge's label has not been scanned yet, the console sends `pause` and resumes after the scan (labels can be scanned ahead) |
+| No GPS fix | `tele.fix = 0` | Console asks for the position and sends `setloc {lat, lon, label}`; the record gets `loc_source: MANUAL`, `hdop: "manual"` |
+| Bottle / water / air | `wait` `EMPTY_BOTTLE` · `WATER` · `AIR` | Prompt + `continue` (or `continue {force:true}` if the sensor is wrong) |
+| Each filter and flush | `sample` (record: `sample_id`, `role`, `site`, `replicate`, `volume_mL`, `stop_reason`, `valid`, `lat`, `lon`, `hdop`, `loc_source`, …) | Saves it on the phone/laptop; FLUSH records are kept with the mission, not as samples |
+| End | `done` / `aborted` | Mission closed; samples ready for seals and a custody batch |
+| Afterwards | `record` lines, `records_end` | "Copy records from Pod" reads `samples.csv` from the SD card into the registry |
 
-### Mission object
+Errors arrive as `err {code, msg}` (`CLOG`, `AIR`, `SEAT`, `HOME`, `LOWBAT`, `HOT`, `LEAK`, `BLANK`, `MISSION`, `SAVE`, `SD`, `SCALE`, `NOPROBE`, `BUSY`, `CMD`, `PARSE`);
+the console shows each one as a warning, and `SAVE` asks for the record to be written on the paper sheet.
 
-```json
-{
-  "id": "m_ab12cd",
-  "sites": [{ "id": "site_a", "name": "Rainforest stream", "lat": 25.2069, "lon": 55.2618 }],
-  "rules": { "ntuMurky": 40, "clearMl": 1000, "murkyMl": 500, "maxPumpS": 900, "primeMl": 34, "rinseMl": 34, "ethanolMl": 2, "blank": true },
-  "tubeStart": 7,
-  "mlPerS": 1.7,
-  "carousel": { "seats": 8, "stepsPerSeat": 400 }
-}
-```
-
-## Pod → app (`t`)
-
-| Type | Fields |
-| --- | --- |
-| `hello` | `id`, `fw`, `seats`, `bat` |
-| `tele` (4 Hz) | `state`, `site`, `tube`, `seat` (1–8), `press` (nozzle sealed 0/1), `bat` V, `ph`, `ntu`, `temp` °C, `ml`, `target`, `flow` mL/s, `cur` pump A, `pumpS`, `pumpE`, `rain` (0/1), `paused` |
-| `step` | `n` (1–8), `name`, `site`, `siteName`, `tube` |
-| `sample` | `mission`, `tube`, `seat`, `site`, `name`, `lat`, `lon`, `ts` (ms), `ml`, `target`, `ph`, `ntu`, `temp`, `blank`, `clog` — also appended to `samples.jsonl` on the SD card |
-| `mission` | `id`, `sites`, `blank` — mission accepted |
-| `done` | `mission`, `tubes` |
-| `aborted` | `mission`, `msg` |
-| `err` | `code` (`CLOG`, `BUSY`, `CMD`, `PARSE`, `HOME`, `LOWBAT`), `msg` |
-| `log` | `msg` |
-| `raw` | `phV`, `ntuV`, `temp` |
-| `pumped` | `which`, `seconds` |
-| `ack` | `cmd`, `ok`, `msg` |
-
-## Mission steps
-
-1 `SELFCHECK` → 2 `INDEX` → 3 `TEST` → 4 `PRIME` → 5 `SAMPLE` → 6 `PRESERVE` → 7 `LOG` → 8 `RINSE`, repeated per site.
-
-- **INDEX** turns cartridge `tube` to seat `(tube − 1) % 8 + 1` under the nozzle and waits for `placed` (scheduled and rain missions skip the wait).
-- **SAMPLE** presses the nozzle down, then pumps. It stops at the target volume, at `maxPumpS`, or when pump current rises 0.25 A above its steady value (filter clogging). The real volume is always reported.
-- **PRESERVE** drains for 3 s, then runs the ethanol pump for `ethanolMl`.
-
-When `rules.blank` is true, a field blank (bottled water, 250 mL) goes into its own cartridge first.
-Volume is time-based: `ml = seconds × mlPerS` (from the pump calibration).
+**Sample ID** (made by the Pod, printed as QR by the console): `CK-YYYYMMDD-SITE-S#` — the field blank uses `BLANK` as its site code
+(`CK-20261206-BLANK-S1`); samples use the site code (`CK-20261206-AQ01-S3`). The date is the day the filter was taken, so print labels for the day you sample.

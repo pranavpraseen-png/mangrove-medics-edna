@@ -25,11 +25,42 @@ export function clean(v, depth = 0) {
 
 export const uid = (p = 'id') => `${p}_${Math.random().toString(36).slice(2, 8)}${Date.now().toString(36).slice(-3)}`;
 
-export const tubeId = n => `CK-T${String(n).padStart(3, '0')}`;
+// Cartridge counter → label. Once a mission is planned, each cartridge number is
+// mapped to its real sample ID (CK-YYYYMMDD-SITE-SEAT) so every screen shows the same name.
+// Firmware v3 reports `tube` = seat (1–8); older messages used a running cartridge number. The store
+// registers a resolver that turns either into the real sample ID of the current mission.
+const tubeNames = new Map();
+let tubeResolver = null;
+export const nameTube = (tube, id) => { if (tube && id) tubeNames.set(+tube, id); };
+export const setTubeResolver = fn => { tubeResolver = fn; };
+export const tubeId = n => (tubeResolver && tubeResolver(+n)) || tubeNames.get(+n) || `Seat ${(((+n || 1) - 1) % 8) + 1}`;
+
+// Sample IDs: CK-YYYYMMDD-SITE-SEAT, e.g. CK-20261206-AQ01-S3 (docs/DECISIONS.md).
+export const ymd = (d = new Date()) => {
+  if (typeof d === 'string' && /^\d{4}-\d{2}-\d{2}/.test(d)) return d.slice(0, 10).replace(/-/g, '');
+  const x = new Date(d); return `${x.getFullYear()}${String(x.getMonth() + 1).padStart(2, '0')}${String(x.getDate()).padStart(2, '0')}`;
+};
+export const todayISO = () => { const x = new Date(); return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`; };
+export const siteCode = c => String(c || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8) || 'SITE';  // firmware: letters/digits, max 8
+export const sampleId = (date, code, seat) => `CK-${ymd(date)}-${siteCode(code)}-S${seat}`;
+export const SAMPLE_ID_RE = /CK-\d{8}-[A-Z0-9]{1,8}-S[1-8]/;
+// Pull a sample ID out of whatever a scanner or keyboard gives us.
+export const parseSampleId = text => (String(text || '').toUpperCase().replace(/\s+/g, '').match(SAMPLE_ID_RE) || [''])[0];
+
+// Coordinates for sensitive species are shown on a ~10 km grid (0.1°), per GBIF guidance (Q147).
+export const roundCoord = (v, dp = 1) => (v == null || v === '' || !Number.isFinite(+v)) ? null : +(+v).toFixed(dp);
+
+// localStorage that never throws (private mode, blocked storage, quota).
+export const ls = {
+  get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+  set(k, v) { try { localStorage.setItem(k, v); return true; } catch (e) { return false; } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } },
+};
 
 export function fmtTime(ts) {
   if (!ts) return '—';
   const d = new Date(ts);
+  if (Number.isNaN(d.getTime())) return '—';
   return d.toLocaleString(undefined, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 }
 
@@ -69,6 +100,9 @@ export function toCSV(rows, cols) {
 }
 
 export function parseCSV(text) {
+  text = String(text || '').replace(/^\uFEFF/, '');
+  // Lines starting with # are comments (used to label demo files).
+  text = text.split(/\r?\n/).filter(l => !/^\s*#/.test(l)).join('\n');
   const rows = [];
   let row = [], cell = '', inQ = false;
   for (let i = 0; i < text.length; i++) {

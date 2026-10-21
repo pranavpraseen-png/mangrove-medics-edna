@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>eDNA Collector Console · Canopy Keepers</title>
-<meta name="description" content="Mission control for the eDNA Collector: plan sampling missions, watch the collector live in 3D, track every tube from field to lab, and see which species live in the water.">
+<meta name="description" content="Mission control for the eDNA Collector: plan a field blank plus 6 samples, label and scan every cartridge, track chain of custody, and see which species were detected — online or offline.">
 <meta name="theme-color" content="#0F2620">
 <meta property="og:title" content="eDNA Collector Console">
 <meta property="og:description" content="Find the animals nobody can see — from one bottle of water. By Team Canopy Keepers, FIRST LEGO League BIOGLOW.">
@@ -43,7 +43,7 @@
       <a href="#/connect" data-route="connect"><svg viewBox="0 0 24 24"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M10 12h4"/></svg><span>Connect</span></a>
       <a href="#/planner" data-route="planner"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/></svg><span>Mission planner</span></a>
       <a href="#/live" data-route="live"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M5 12a7 7 0 0 1 14 0M2 12a10 10 0 0 1 20 0"/></svg><span>Live mission</span></a>
-      <a href="#/samples" data-route="samples"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v13a2 2 0 0 0 4 0V3M7 21h10"/></svg><span>Sample registry</span></a>
+      <a href="#/samples" data-route="samples"><svg viewBox="0 0 24 24"><path d="M9 3h6M10 3v13a2 2 0 0 0 4 0V3M7 21h10"/></svg><span>Samples &amp; custody</span></a>
       <a href="#/results" data-route="results"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Biodiversity</span></a>
       <a href="#/calibrate" data-route="calibrate"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><span>Calibration</span></a>
       <a href="#/help" data-route="help"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7M12 17h.01"/></svg><span>Help &amp; safety</span></a>
@@ -57,7 +57,8 @@
       <h1 id="viewTitle">Overview</h1>
       <div class="top-right">
         <span class="pill" id="connPill" data-state="off"><i></i><span>Not connected</span></span>
-        <span class="pill" id="missionPill" hidden><i></i><span></span></span>
+        <span class="pill" id="netPill" data-state="busy" hidden><i></i><span>Offline · saved on this device</span></span>
+        <a class="pill" id="missionPill" href="#/live" hidden><i></i><span></span></a>
         <a class="bell" href="#/results" id="bell" aria-label="Alerts"><svg viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><b id="bellCount" hidden>0</b></a>
       </div>
     </header>

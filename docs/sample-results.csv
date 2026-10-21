@@ -1,9 +1,26 @@
-tube_id,species,common_name,reads
-CK-T002,Choloepus didactylus,Two-toed sloth,3120
-CK-T002,Ramphastos toco,Toco toucan,1840
-CK-T002,Paracheirodon innesi,Neon tetra,960
-CK-T003,Atta cephalotes,Leaf-cutter ant,2210
-CK-T003,Anodorhynchus hyacinthinus,Hyacinth macaw,700
-CK-T003,Dendrobates tinctorius,Dyeing poison frog,415
-CK-T004,Lithobates catesbeianus,American bullfrog,530
-CK-T004,Pterophyllum scalare,Freshwater angelfish,2650
+# DEMO DATA - fictional, for training and judging demos only. Not real lab results.
+# One row per detection; a row with no species means the lab tested that sample and found nothing.
+# Mission CK-20261210-M1: 2 sites x 3 replicates with a clean field blank. Mission CK-20261129-M1: practice run whose blank shows DNA (contaminated).
+data_type,sample_id,mission,role,site_code,site_name,replicate,seat,collected_utc,lat,lon,manual_location,loc_source,volume_mL,target_mL,stop_reason,valid,pH,turbidity_NTU,temp_C,seal,species,common_name,reads
+DEMO,CK-20261210-BLANK-S1,CK-20261210-M1,blank,BLANK,Field blank (at GP01),,1,2026-12-10T06:12:40Z,25.18413,55.25561,no,GPS,1000,1000,VOLUME,yes,,,,CK-SEAL-0101,,,0
+DEMO,CK-20261210-GP01-S2,CK-20261210-M1,sample,GP01,Green Planet stream (demo),1,2,2026-12-10T06:41:05Z,25.18412,55.25564,no,GPS,1000,1000,VOLUME,yes,7.62,8.4,26.1,CK-SEAL-0102,Arapaima gigas,Arapaima,4120
+DEMO,CK-20261210-GP01-S2,CK-20261210-M1,sample,GP01,Green Planet stream (demo),1,2,2026-12-10T06:41:05Z,25.18412,55.25564,no,GPS,1000,1000,VOLUME,yes,7.62,8.4,26.1,CK-SEAL-0102,Pygocentrus nattereri,Red-bellied piranha,1630
+DEMO,CK-20261210-GP01-S2,CK-20261210-M1,sample,GP01,Green Planet stream (demo),1,2,2026-12-10T06:41:05Z,25.18412,55.25564,no,GPS,1000,1000,VOLUME,yes,7.62,8.4,26.1,CK-SEAL-0102,Choloepus didactylus,Linnaeus's two-toed sloth,412
+DEMO,CK-20261210-GP01-S3,CK-20261210-M1,sample,GP01,Green Planet stream (demo),2,3,2026-12-10T06:58:51Z,25.18414,55.25562,no,GPS,1000,1000,VOLUME,yes,7.60,9.1,26.2,CK-SEAL-0103,Arapaima gigas,Arapaima,3380
+DEMO,CK-20261210-GP01-S3,CK-20261210-M1,sample,GP01,Green Planet stream (demo),2,3,2026-12-10T06:58:51Z,25.18414,55.25562,no,GPS,1000,1000,VOLUME,yes,7.60,9.1,26.2,CK-SEAL-0103,Pygocentrus nattereri,Red-bellied piranha,980
+DEMO,CK-20261210-GP01-S3,CK-20261210-M1,sample,GP01,Green Planet stream (demo),2,3,2026-12-10T06:58:51Z,25.18414,55.25562,no,GPS,1000,1000,VOLUME,yes,7.60,9.1,26.2,CK-SEAL-0103,Potamotrygon motoro,Ocellate river stingray,95
+DEMO,CK-20261210-GP01-S4,CK-20261210-M1,sample,GP01,Green Planet stream (demo),3,4,2026-12-10T07:14:20Z,25.18411,55.25565,no,GPS,610,1000,CLOG,yes,7.58,11.7,26.2,CK-SEAL-0104,Arapaima gigas,Arapaima,2210
+DEMO,CK-20261210-GP01-S4,CK-20261210-M1,sample,GP01,Green Planet stream (demo),3,4,2026-12-10T07:14:20Z,25.18411,55.25565,no,GPS,610,1000,CLOG,yes,7.58,11.7,26.2,CK-SEAL-0104,Choloepus didactylus,Linnaeus's two-toed sloth,268
+DEMO,CK-20261210-GP02-S5,CK-20261210-M1,sample,GP02,Green Planet pool (demo),1,5,2026-12-10T07:52:33Z,25.1843,55.2559,yes,MANUAL,1000,1000,VOLUME,yes,7.21,24.8,26.8,CK-SEAL-0105,Dendrobates tinctorius,Dyeing poison frog,1540
+DEMO,CK-20261210-GP02-S5,CK-20261210-M1,sample,GP02,Green Planet pool (demo),1,5,2026-12-10T07:52:33Z,25.1843,55.2559,yes,MANUAL,1000,1000,VOLUME,yes,7.21,24.8,26.8,CK-SEAL-0105,Ramphastos toco,Toco toucan,720
+DEMO,CK-20261210-GP02-S5,CK-20261210-M1,sample,GP02,Green Planet pool (demo),1,5,2026-12-10T07:52:33Z,25.1843,55.2559,yes,MANUAL,1000,1000,VOLUME,yes,7.21,24.8,26.8,CK-SEAL-0105,Paracheirodon innesi,Neon tetra,310
+DEMO,CK-20261210-GP02-S6,CK-20261210-M1,sample,GP02,Green Planet pool (demo),2,6,2026-12-10T08:03:10Z,25.1843,55.2559,yes,MANUAL,180,1000,CLOG,no,7.19,38.2,26.9,CK-SEAL-0106,Dendrobates tinctorius,Dyeing poison frog,205
+DEMO,CK-20261210-GP02-S7,CK-20261210-M1,sample,GP02,Green Planet pool (demo),3,7,2026-12-10T08:26:44Z,25.1843,55.2559,yes,MANUAL,940,1000,TIME,yes,7.22,27.5,26.9,CK-SEAL-0107,Dendrobates tinctorius,Dyeing poison frog,1105
+DEMO,CK-20261210-GP02-S7,CK-20261210-M1,sample,GP02,Green Planet pool (demo),3,7,2026-12-10T08:26:44Z,25.1843,55.2559,yes,MANUAL,940,1000,TIME,yes,7.22,27.5,26.9,CK-SEAL-0107,Ramphastos toco,Toco toucan,388
+DEMO,CK-20261210-GP02-S7,CK-20261210-M1,sample,GP02,Green Planet pool (demo),3,7,2026-12-10T08:26:44Z,25.1843,55.2559,yes,MANUAL,940,1000,TIME,yes,7.22,27.5,26.9,CK-SEAL-0107,Lithobates catesbeianus,American bullfrog,142
+DEMO,CK-20261129-BLANK-S1,CK-20261129-M1,blank,BLANK,Field blank (at AQ01),,1,2026-11-29T05:30:12Z,25.23502,55.31698,no,GPS,1000,1000,VOLUME,yes,,,,CK-SEAL-0091,Paracheirodon innesi,Neon tetra,265
+DEMO,CK-20261129-AQ01-S2,CK-20261129-M1,sample,AQ01,School test tank (demo),1,2,2026-11-29T05:52:40Z,25.23499,55.31701,no,GPS,1000,1000,VOLUME,yes,7.85,3.2,25.4,CK-SEAL-0092,Paracheirodon innesi,Neon tetra,5120
+DEMO,CK-20261129-AQ01-S2,CK-20261129-M1,sample,AQ01,School test tank (demo),1,2,2026-11-29T05:52:40Z,25.23499,55.31701,no,GPS,1000,1000,VOLUME,yes,7.85,3.2,25.4,CK-SEAL-0092,Pterophyllum scalare,Freshwater angelfish,2290
+DEMO,CK-20261129-AQ01-S3,CK-20261129-M1,sample,AQ01,School test tank (demo),2,3,2026-11-29T06:10:02Z,25.23501,55.31700,no,GPS,1000,1000,VOLUME,yes,7.84,3.0,25.4,CK-SEAL-0093,Paracheirodon innesi,Neon tetra,4870
+DEMO,CK-20261129-AQ01-S3,CK-20261129-M1,sample,AQ01,School test tank (demo),2,3,2026-11-29T06:10:02Z,25.23501,55.31700,no,GPS,1000,1000,VOLUME,yes,7.84,3.0,25.4,CK-SEAL-0093,Pterophyllum scalare,Freshwater angelfish,1760
+DEMO,CK-20261129-AQ01-S4,CK-20261129-M1,sample,AQ01,School test tank (demo),3,4,2026-11-29T06:27:55Z,25.23500,55.31699,no,GPS,1000,1000,VOLUME,yes,7.86,3.4,25.5,CK-SEAL-0094,Paracheirodon innesi,Neon tetra,4400

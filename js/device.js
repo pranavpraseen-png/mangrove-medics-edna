@@ -133,18 +133,22 @@ class DeviceLink extends EventTarget {
     this.emit('status');
     this.send({ cmd: 'hello' });
     this.send({ cmd: 'settime', ts: Date.now() });
+    // Keep-alive: over USB the Pod deep-sleeps after 10 idle minutes unless it hears from the console
+    // at least every 5 minutes (protocol v3). Harmless on the other links.
+    clearInterval(this.pinger);
+    this.pinger = setInterval(() => { if (this.t) this.send({ cmd: 'ping' }, { quiet: true }); }, 120000);
   }
   async disconnect() {
     if (!this.t) return;
-    const t = this.t; this.t = null; this.busy = false; this.info = null;
+    const t = this.t; this.t = null; this.busy = false; this.info = null; clearInterval(this.pinger);
     await t.disconnect();
     this.addLog('sys', 'Disconnected');
     this.emit('status');
   }
-  send(obj) {
+  send(obj, { quiet = false } = {}) {
     if (!this.t) return false;
     const text = JSON.stringify(obj);
-    this.addLog('in', text);
+    if (!quiet) this.addLog('in', text);
     this.t.send(text).catch(e => this.addLog('err', `Send failed: ${e.message}`));
     return true;
   }
@@ -153,11 +157,15 @@ class DeviceLink extends EventTarget {
     if (line.length > 4096) { this.addLog('err', 'Ignored an oversized message'); return; }
     try { m = clean(JSON.parse(line)); } catch (e) { this.addLog('raw', line); return; }
     if (!m || typeof m !== 'object' || Array.isArray(m)) return;
-    if (m.t !== 'tele') this.addLog('out', line);
+    if (m.t !== 'tele' && m.t !== 'pong') this.addLog('out', line);
     switch (m.t) {
       case 'hello': this.info = m; this.emit('status'); break;
+      case 'mission': this.busy = true; this.emit('mission', m); this.emit('status'); break;
       case 'tele': this.tele = m; this.emit('tele', m); break;
-      case 'step': this.step = m; this.busy = true; this.emit('step', m); this.emit('status'); break;
+      case 'step':
+        // v3: IDLE (n 0) is also sent as a step; only the other states mean a mission is running.
+        if (m.name === 'IDLE' || m.n === 0) { this.step = null; this.emit('step', m); this.emit('status'); break; }
+        this.step = m; this.busy = true; this.emit('step', m); this.emit('status'); break;
       case 'done': this.busy = false; this.step = null; this.emit('done', m); this.emit('status'); break;
       case 'aborted': this.busy = false; this.step = null; this.emit('aborted', m); this.emit('status'); break;
       default: this.emit(m.t, m);
