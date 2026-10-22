@@ -695,3 +695,8 @@ input[type=date],input[type=datetime-local]{color-scheme:dark}
   html,body{background:#fff!important;color:#000!important}
   .mx-cursor,.mx-progress,.mx-wipe{display:none!important}
 }
+
+/* 3D on demand (js/scene.js): button on phones, short placeholder until pressed */
+.stage .show3d{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;white-space:nowrap}
+.stage-loading::after{content:'Loading 3D model…';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:var(--muted);font-size:14px;z-index:2}
+@media (max-width:860px){ .ov-stage.stage-off,.ov-stage.stage-loading{height:110px} }

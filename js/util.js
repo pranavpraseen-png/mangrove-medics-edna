@@ -162,3 +162,17 @@ export const icons = {
   x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   edit: '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>',
 };
+
+// Load a vendor script/stylesheet once, on demand (keeps the console's first load small).
+const loaded = {};
+export function loadScript(src) {
+  if (!loaded[src]) loaded[src] = new Promise((res, rej) => {
+    const s = document.createElement('script'); s.src = src; s.async = true;
+    s.onload = res; s.onerror = () => { delete loaded[src]; rej(new Error(`Could not load ${src}`)); };
+    document.head.appendChild(s);
+  });
+  return loaded[src];
+}
+export function loadCSS(href) {
+  if (!document.querySelector(`link[href="${href}"]`)) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = href; document.head.appendChild(l); }
+}

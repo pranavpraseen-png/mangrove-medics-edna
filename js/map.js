@@ -1,9 +1,22 @@
 // Sampling-site map: Leaflet with OpenStreetMap tiles; if tiles can't load (offline
 // in the field), sites still show on a coordinate grid.
-import { esc } from './util.js';
+// Leaflet is loaded on demand: the grid fallback shows at once and is swapped for the
+// real map as soon as leaflet.js arrives.
+import { esc, loadScript, loadCSS } from './util.js';
 
-export function siteMap(el, sites, { onAdd, onSelect } = {}) {
-  if (!window.L) return fallback(el, sites, onAdd);
+export function siteMap(el, sites, opts = {}) {
+  if (window.L) return leafletMap(el, sites, opts);
+  let cur = fallback(el, sites, opts.onAdd), last = sites, gone = false;
+  loadCSS('vendor/leaflet/leaflet.css');
+  loadScript('vendor/leaflet/leaflet.js').then(() => {
+    if (gone || !el.isConnected || !window.L) return;
+    cur.destroy(); el.innerHTML = ''; el.classList.remove('fallback-map');
+    cur = leafletMap(el, last, opts);
+  }).catch(() => {});
+  return { draw: list => { last = list; cur.draw(list); }, destroy: () => { gone = true; cur.destroy(); } };
+}
+
+function leafletMap(el, sites, { onAdd, onSelect } = {}) {
   el.style.position = 'relative';
   const map = L.map(el, { zoomControl: true, attributionControl: true }).setView([25.2, 55.3], 12);
   let tileErrors = 0;

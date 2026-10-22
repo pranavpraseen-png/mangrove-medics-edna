@@ -1,5 +1,5 @@
 // Public website: scroll story, exploded 3D machine, live simulator, map and species database.
-import { collector } from './scene.js';
+import { collector } from './scene3d.js';
 import { link } from './device.js';
 import { state, save, onChange, demoResults, alerts } from './store.js';
 import { startMission } from './mission.js';

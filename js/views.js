@@ -1,5 +1,5 @@
 // All screens of the console. Each view renders into #view and returns a cleanup function.
-import { $, $$, esc, fmtTime, fmtNum, toast, download, toCSV, parseCSV, countUp, icons, tubeId, todayISO, siteCode, parseSampleId } from './util.js';
+import { $, $$, esc, loadScript, fmtTime, fmtNum, toast, download, toCSV, parseCSV, countUp, icons, tubeId, todayISO, siteCode, parseSampleId } from './util.js';
 import {
   state, save, STATUSES, STOP_REASONS, addSite, updateSite, removeSite, moveSite, importResults, demoResults, alerts, exportJSON, importJSON, resetAll,
   siteById, planLayout, runOrder, freshCarouselStart, activeMission, blankDone, sampleRows, sampleCols, siteResults, displayCoords,
@@ -26,12 +26,13 @@ const STEPS = [
 const ROLE_LABEL = e => e.role === 'blank' ? 'Field blank' : e.role === 'flush' ? 'Flush (no filter)' : `${e.siteCode || ''} rep ${e.rep ?? e.replicate}`;
 const LOC_LABEL = { gps: 'GPS', pod: 'Pod', manual: 'Manual', plan: 'Planned site', none: 'None' };
 
-function stage(root, sel) {
-  const el = $(sel, root);
-  const ok = collector.attach(el);
-  if (!ok) el.innerHTML = '<div class="webgl-fallback">3D view needs WebGL, which this browser has turned off.<br>Everything else works normally.</div>';
-  else { collector.setFilled(state.samples.filter(s => s.tube > 0)); collector.setClean(true); collector.setViewShift(0); }
-  return () => collector.detach();
+// The 3D Pod loads on demand (see scene.js): on wide screens when the stage is visible,
+// on phones only after "Show 3D model" is pressed. `setup` runs once it is attached.
+function stage(root, sel, setup) {
+  return collector.mount($(sel, root), c => {
+    c.setFilled(state.samples.filter(s => s.tube > 0)); c.setClean(true); c.setViewShift(0);
+    if (setup) setup(c);
+  });
 }
 const lastMission = () => [...state.missions].reverse().find(m => m.layout) || null;
 const validTag = s => s.role === 'blank' ? '<span class="tag info">blank</span>' : s.valid ? '<span class="tag ok">valid</span>' : '<span class="tag crit">not valid</span>';
@@ -94,12 +95,11 @@ function overview(root) {
   countUp($('#alCount', root), al.length);
   $('#quickSim', root).onclick = async () => { if (await startMission()) location.hash = '#/live'; };
   $('#demoRun', root).onclick = async () => { if (await startDemo()) location.hash = '#/live'; };
-  const offS = stage(root, '#heroStage'), offX = bindSchematic(root);
-  if (collector.camera && collector.controls) {
-    collector.camera.position.set(11.5, 6.2, 11.5); collector.controls.target.set(0, 1.6, 0);
-    collector.controls.autoRotate = !matchMedia('(prefers-reduced-motion: reduce)').matches; collector.controls.autoRotateSpeed = 0.6;
-    collector.controls.enableZoom = false; collector.setViewShift(innerWidth > 900 ? 0.24 : 0); collector.controls.update();
-  }
+  const offS = stage(root, '#heroStage', c => {
+    c.camera.position.set(11.5, 6.2, 11.5); c.controls.target.set(0, 1.6, 0);
+    c.controls.autoRotate = !matchMedia('(prefers-reduced-motion: reduce)').matches; c.controls.autoRotateSpeed = 0.6;
+    c.controls.enableZoom = false; c.setViewShift(innerWidth > 900 ? 0.24 : 0); c.controls.update();
+  }), offX = bindSchematic(root);
   return () => { offS(); offX(); };
 }
 
@@ -745,8 +745,9 @@ function qrSvg(text) {
   return q.createSvgTag({ cellSize: 3, margin: 0, scalable: true });
 }
 // QR label sheet. The QR holds only the sample ID, so any scanner gives the same string the lab uses.
-function printLabels(list) {
+async function printLabels(list) {
   if (!list.length) return toast('No samples to label', 'warn');
+  if (!window.qrcode) { try { await loadScript('vendor/qrcode/qrcode.js'); } catch (e) { toast('QR codes could not load', 'warn', 'Labels will print with the ID as text only.'); } }
   const area = document.getElementById('printArea');
   area.className = 'labels';
   area.innerHTML = list.map(s => `<div class="label">${qrSvg(s.id)}<div><b>${esc(s.id)}</b>${s.role === 'blank' ? `<b class="lb-role">FIELD BLANK</b>seat 1 · run first` : `${esc(s.siteCode || '')} · rep ${esc(s.rep ?? s.replicate)} · seat ${esc(s.seat)}`}<br>${esc(s.role === 'blank' ? '1 L distilled water' : (s.siteName || ''))}<br>${esc(s.date || '')}${s.ml ? ` · ${s.ml} mL` : ' · Vol: ______ mL'}<br>Canopy Keepers · eDNA Pod</div></div>`).join('');

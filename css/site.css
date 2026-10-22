@@ -36,6 +36,8 @@ img,svg{display:block}
 .nav nav a{text-decoration:none;position:relative}
 .nav nav a::after{content:'';position:absolute;left:0;right:0;bottom:-4px;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .3s}
 .nav nav a:hover::after{transform:scaleX(1)}
+.nav .home{font-weight:700;font-size:14px;text-decoration:none;white-space:nowrap}
+.nav .home:hover{text-decoration:underline}
 .nav .cta{padding:10px 16px;border:2px solid currentColor;text-decoration:none;font-weight:800;font-size:14px}
 
 /* hero */
@@ -260,6 +262,7 @@ img,svg{display:block}
 
 @media (max-width:900px){
   .nav nav{display:none}
+  .nav .home{margin-left:auto}
   .tag3d small{display:none}
   .tag3d span{font-size:11px;padding:4px 7px}
   .tag3d::after{height:14px}
