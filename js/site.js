@@ -11,6 +11,7 @@ const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAl
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const G = window.gsap, ST = window.ScrollTrigger;
 const NARROW = matchMedia('(max-width: 700px)').matches;
+const STACKED = matchMedia('(max-width: 900px)').matches; // CSS stacks text above the scenes at this width
 if (G && ST) G.registerPlugin(ST);
 
 /* ── smooth scroll ─────────────────────────────────────────── */
@@ -89,7 +90,8 @@ $$('[data-count]').forEach(el => {
 (function dropStory() {
   const steps = $$('.drop .step'), bars = $$('.drop .prog b');
   // phones: crop the scene to where the action is (drop, filter, tube, species) and keep it below the text
-  if (NARROW) { const sv = $('.drop svg.scene'); sv.setAttribute('viewBox', '930 180 510 720'); sv.setAttribute('preserveAspectRatio', 'xMidYMax meet'); }
+  // tablets: show the right-hand part of the scene whole, below the text
+  if (STACKED) { const sv = $('.drop svg.scene'); sv.setAttribute('viewBox', NARROW ? '930 180 510 720' : '560 0 880 900'); sv.setAttribute('preserveAspectRatio', 'xMidYMax meet'); }
   let shown = -1;
   const show = i => {
     if (i === shown) return; shown = i;
@@ -144,7 +146,7 @@ $$('[data-count]').forEach(el => {
   const box = $('#explodeStage'), head = $('.explode .head');
   function place() {
     if (current === 'explode') {
-      const W = box.clientWidth, top = NARROW ? head.offsetTop + head.offsetHeight + 8 : 76, placed = [];
+      const W = box.clientWidth, top = STACKED ? head.offsetTop + head.offsetHeight + 8 : 76, placed = [];
       tags.map(el => ({ el, p: collector.partScreen(el.dataset.part), w: el.offsetWidth, h: el.offsetHeight }))
         .filter(o => o.p).sort((a, b) => a.p.y - b.p.y)
         .forEach(o => {
@@ -224,7 +226,7 @@ $$('[data-count]').forEach(el => {
     $('#siteList').innerHTML = state.sites.map((s, i) => {
       const b = bySite[s.id];
       return `<div class="row"><span class="i">${i + 1}</span><div><b>${esc(s.name)}</b><small>${s.lat.toFixed(4)}, ${s.lon.toFixed(4)}${s.protected ? ' · permission needed' : ''}</small></div><span class="s">${b ? (b.sp.size ? `${b.sp.size} species` : `${b.tubes} tube${b.tubes > 1 ? 's' : ''}`) : 'Planned'}</span></div>`;
-    }).join('') + `<div style="padding:22px"><a class="btn dark" href="console.html#/planner">Plan a mission <span class="arr">→</span></a></div>`;
+    }).join('') + `<div class="map-cta"><a class="btn dark" href="console.html#/planner">Plan a mission <span class="arr">→</span></a></div>`;
   };
   const init = () => {
     if (map) return;
@@ -257,8 +259,8 @@ $$('[data-count]').forEach(el => {
     const all = rows();
     const max = Math.max(1, ...all.map(r => r.reads));
     const list = all.filter(r => (filter === 'all' || r.watch) && (!q || `${r.species} ${r.common} ${[...r.tubes].join(' ')} ${[...r.sites].join(' ')}`.toLowerCase().includes(q)));
-    table.innerHTML = `<div class="db-row h"><span>Species</span><span class="hide-m">Sites</span><span class="hide-m">Cartridges</span><span>DNA reads</span><span class="hide-m">Signal</span></div>` +
-      (list.length ? list.map(r => `<div class="db-row"><span><b>${esc(r.common || r.species)}</b>${r.watch ? '<span class="w">WATCHLIST</span>' : ''}<br><i>${esc(r.species)}</i></span><span class="hide-m">${esc([...r.sites].join(', '))}</span><span class="hide-m mono">${esc([...r.tubes].join(' '))}</span><span class="mono">${r.reads.toLocaleString()}</span><span class="hide-m"><span class="db-bars"><span style="width:${(r.reads / max * 100).toFixed(1)}%"></span></span></span></div>`).join('')
+    table.innerHTML = `<div class="db-row h"><span>Species</span><span class="hide-m">Sites</span><span class="hide-m">Cartridges</span><span class="num">DNA reads</span><span class="hide-m">Signal</span></div>` +
+      (list.length ? list.map(r => `<div class="db-row"><span><b>${esc(r.common || r.species)}</b>${r.watch ? '<span class="w">WATCHLIST</span>' : ''}<br><i>${esc(r.species)}</i></span><span class="hide-m">${esc([...r.sites].join(', '))}</span><span class="hide-m mono">${esc([...r.tubes].join(' '))}</span><span class="mono num">${r.reads.toLocaleString()}</span><span class="hide-m"><span class="db-bars"><span style="width:${(r.reads / max * 100).toFixed(1)}%"></span></span></span></div>`).join('')
         : `<div class="db-empty">${all.length ? 'No species match.' : state.samples.length ? 'Cartridges are filled — load the lab results to see who was there.' : 'No cartridges yet. Run the simulator above, then load the demo lab results.'}</div>`);
     $('#sTubes').textContent = state.samples.length;
     $('#sSpecies').textContent = all.length;

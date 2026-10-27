@@ -36,8 +36,6 @@ img,svg{display:block}
 .nav nav a{text-decoration:none;position:relative}
 .nav nav a::after{content:'';position:absolute;left:0;right:0;bottom:-4px;height:2px;background:currentColor;transform:scaleX(0);transform-origin:left;transition:transform .3s}
 .nav nav a:hover::after{transform:scaleX(1)}
-.nav .home{font-weight:700;font-size:14px;text-decoration:none;white-space:nowrap}
-.nav .home:hover{text-decoration:underline}
 .nav .cta{padding:10px 16px;border:2px solid currentColor;text-decoration:none;font-weight:800;font-size:14px}
 
 /* hero */
@@ -270,7 +268,6 @@ img,svg{display:block}
 
 @media (max-width:900px){
   .nav nav{display:none}
-  .nav .home{margin-left:auto}
   .tag3d small{display:none}
   .tag3d span{font-size:11px;padding:4px 7px}
   .tag3d::after{height:14px}
@@ -365,4 +362,66 @@ img,svg{display:block}
   .hero::after{display:none}
   .hero .scroll{display:none}
   .sec-head h2{font-size:40px}
+}
+
+/* ── Neatness pass: one content column, one rhythm (layout only) ── */
+:root{--sec-y:clamp(60px,8vw,110px)}
+/* headings never end on a lonely word; short paragraphs avoid widows */
+.sec-head h2,.explode .head h2,.loop-top h2,.cta-band h2,.drop .step h3,.panel h3,.tl b,.member b,.sponsor .wordmark,.num-c b{text-wrap:balance}
+.sec-head p,.drop .step p,.explode .head p,.panel p,.tl p,.num-c p,.rule-c p,.sponsor p,.fact p,.hero .side p{text-wrap:pretty}
+/* nav: links and button share one centre line */
+.nav nav a,.nav .cta{display:inline-flex;align-items:center;line-height:1.2}
+.nav .cta{gap:6px}
+/* same section rhythm everywhere */
+.tl{padding-bottom:var(--sec-y)}
+.rules{padding-bottom:var(--sec-y)}
+.sponsors-sec{padding-bottom:var(--sec-y)}
+/* buttons: one height, centred labels and arrows */
+.btn{justify-content:center;line-height:1.2}
+.hero-btns .btn{flex:1 1 auto}
+.db-bar{align-items:stretch}
+.db-bar .chip,.db-bar .btn{display:inline-flex;align-items:center;justify-content:center;padding-top:0;padding-bottom:0;min-height:56px}
+.db-bar input{min-height:56px}
+/* team names start on the same line as the fact numbers above */
+.member{padding:28px 28px 28px var(--pad)}
+.tl b{display:block}
+.db-row .num{padding-right:16px}
+/* database: numbers right-aligned and tabular */
+.db-row .num{text-align:right;font-variant-numeric:tabular-nums}
+.db-stats b,.fact .v,.num-c b,.seat-c b,.tl time{font-variant-numeric:tabular-nums}
+/* verdict badges: one width, one line */
+.verdicts li{grid-template-columns:150px 1fr}
+.verdicts .v{white-space:nowrap}
+/* simulator controls line up with the section's left edge */
+.sim-hud{left:var(--pad);top:24px}
+.sim-ctrl{left:var(--pad);right:var(--pad)}
+.map-cta{padding:22px}
+@media (max-width:900px){
+  .nav .cta{margin-left:auto}
+  .hero .side{padding-top:16px}
+  .map-side .row{padding-left:var(--pad);padding-right:var(--pad)}
+  .map-cta{padding:22px var(--pad)}
+  .sim-hud{left:var(--pad);top:16px}
+  .sim-ctrl{left:var(--pad);right:var(--pad)}
+  .member{padding:20px var(--pad);border-right:0}
+  .verdicts li{grid-template-columns:150px 1fr}
+}
+@media (min-width:601px) and (max-width:900px){
+  .nums{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .sponsors{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:600px){
+  .nav{padding-left:var(--pad);padding-right:var(--pad)}
+  .hero .copy{margin-top:20px}
+  .nav .brand,.nav .cta{min-height:44px}
+  .foot-links{flex-wrap:wrap;gap:4px 24px}
+  .foot-links a{display:inline-flex;align-items:center;min-height:44px}
+  .verdicts li{grid-template-columns:132px 1fr;gap:12px}
+  .verdicts .v{font-size:12px;letter-spacing:.04em;padding:5px 6px}
+  .db-bar .chip{min-height:48px}
+  .db-bar .btn{min-height:48px}
+}
+@media (min-width:701px) and (max-width:900px){
+  /* tablets: the drop scene gets its own band under the step text */
+  .drop svg.scene{top:260px;height:calc(100% - 260px)}
 }

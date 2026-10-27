@@ -42,8 +42,8 @@ which species left their DNA behind. This repository holds the website, the cons
 
 ## In this repository
 
-- **Home page** (`index.html`, live at [canopy-keepers.vercel.app](https://canopy-keepers.vercel.app)): a short, fast page for judges and sponsors — the problem, how the Pod works, why it is different, the test plan, experts we asked, the team and sponsors. No JavaScript, one web font.
-- **Full story** (`story.html`): the long scroll page — scroll animation, the Pod taken apart in 3D, the mission in numbers, the testing timeline, a live simulator, the sampling-site map and the species database.
+- **Home page** (`index.html`, live at [canopy-keepers.vercel.app](https://canopy-keepers.vercel.app)): the long scroll page — scroll animation, the Pod taken apart in 3D, the mission in numbers, the testing timeline, a live simulator, the sampling-site map and the species database.
+- **One-page summary** (`summary.html`): a short, fast version for judges and sponsors — no JavaScript, one web font. Linked from the home page footer.
 - **Console** (`console.html`): the app that runs the Pod. The 3D model loads only when needed: on wide screens when it scrolls into view, on phones after **Show 3D model** is pressed. Leaflet and the QR library also load on demand.
 
 ## Console screens
@@ -71,7 +71,7 @@ Bluetooth and USB links need Chrome or Edge. The simulator works everywhere.
 
 ## Inside
 
-- `index.html` (+ `css/home.css`), `story.html`, `console.html`, `css/`, `js/` — plain ES modules, no build step
+- `index.html` (+ `css/site.css`, `js/site.js`), `summary.html` (+ `css/home.css`), `console.html`, `css/`, `js/` — plain ES modules, no build step
   - `device.js` — Bluetooth / USB / Wi-Fi / simulator links, one JSON-lines protocol
   - `sim.js` — software twin of the Pod (same protocol as the firmware)
   - `scene3d.js` — Three.js model of the Pod driven by live telemetry; `scene.js` — light stand-in that loads it on demand

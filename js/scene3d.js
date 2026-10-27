@@ -1,7 +1,7 @@
 // Real-time 3D twin of the eDNA Pod (Three.js). One renderer, moved between
 // the Overview hero and the Live mission stage. Driven by device telemetry.
 // Heavy (three.js is ~1.2 MB): the console loads it on demand through scene.js;
-// the story page imports it directly.
+// the home page imports it directly.
 import * as THREE from 'three';
 import { _register, webglOK } from './scene.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';

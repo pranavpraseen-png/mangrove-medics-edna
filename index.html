@@ -3,216 +3,272 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>eDNA Pod · Canopy Keepers · FIRST LEGO League</title>
-<meta name="description" content="The eDNA Pod filters rainforest stream water and keeps the DNA animals leave behind, so a lab can tell which species live there. Built by Team Canopy Keepers, The Indian High School, Dubai, for FIRST LEGO League BIOGLOW 2026–27.">
+<title>eDNA Collector · Canopy Keepers</title>
+<meta name="description" content="The eDNA Pod samples rainforest streams and catches the DNA every animal leaves behind, so a lab can tell which species live there. Built by Team Canopy Keepers, Dubai, for FIRST LEGO League BIOGLOW.">
 <meta name="theme-color" content="#0F2620">
-<meta property="og:title" content="eDNA Pod: every drop has a guest list">
-<meta property="og:description" content="A hand-carried eDNA sampler for rainforest streams, about AED 1,710 in parts. By Team Canopy Keepers, Dubai. Tests 8 Nov–15 Dec 2026.">
+<meta property="og:title" content="eDNA Pod — every drop has a guest list">
+<meta property="og:description" content="A low-cost, hand-carried sampler that collects animal DNA from rainforest streams. By Team Canopy Keepers, Dubai.">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Archivo+Black&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="vendor/lenis/lenis.css">
+<link rel="stylesheet" href="css/site.css">
+<script type="importmap">
+{ "imports": { "three": "./vendor/three/three.module.js", "three/addons/": "./vendor/three/addons/" } }
+</script>
+<script src="vendor/gsap/gsap.min.js" defer></script>
+<script src="vendor/gsap/ScrollTrigger.min.js" defer></script>
+<script src="vendor/lenis/lenis.min.js" defer></script>
+<script src="vendor/leaflet/leaflet.js" defer></script>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+<div id="pre" aria-hidden="true"><span class="n" id="preN">000</span><span class="t">Waking the collector — Canopy Keepers · FLL BIOGLOW</span></div>
 
-<header class="top">
-  <div class="wrap top-in">
-    <a class="brand" href="index.html">
-      <svg class="logo" viewBox="0 0 200 200" width="36" height="36" aria-hidden="true" focusable="false"><circle cx="100" cy="100" r="100" fill="#0F2620"/><g transform="translate(18 18) scale(.82)"><g transform="rotate(-32 100 100)"><path d="M100 20 C152 54 154 140 100 176 C46 140 48 54 100 20 Z" fill="#B8E07A"/><g fill="none" stroke="#0F2620" stroke-linecap="round"><path d="M91 46 C91 58 109 58 109 70 C109 82 91 82 91 94 C91 106 109 106 109 118 C109 130 91 130 91 142 C91 154 109 154 109 166" stroke-width="6"/><path d="M109 46 C109 58 91 58 91 70 C91 82 109 82 109 94 C109 106 91 106 91 118 C91 130 109 130 109 142 C109 154 91 154 91 166" stroke-width="6"/><path d="M111 70 L126 58 M89 70 L74 58 M111 94 L129 81 M89 94 L71 81 M111 118 L129 105 M89 118 L71 105 M111 142 L125 131 M89 142 L75 131" stroke-width="4"/></g><path d="M100 176 Q101 188 95 196" fill="none" stroke="#B8E07A" stroke-width="7" stroke-linecap="round"/></g></g></svg>
-      <span>Canopy Keepers</span>
-    </a>
-    <nav aria-label="Main">
-      <a href="story.html">Full story</a>
-      <a href="console.html">Console</a>
-    </nav>
-  </div>
+<header class="nav">
+  <a class="brand" href="#top" aria-label="eDNA Collector · back to top"><img src="assets/canopy-keepers-logo.svg" alt="" width="34" height="34"><span class="brand-t">eDNA Collector</span></a>
+  <nav aria-label="Main">
+    <a href="#drop">How it works</a>
+    <a href="#explode">The machine</a>
+    <a href="#testing">Testing</a>
+    <a href="#sim">Simulator</a>
+    <a href="#map">Map</a>
+    <a href="#db">Database</a>
+    <a href="#team">Team</a>
+  </nav>
+  <a class="cta" href="console.html">Console&nbsp;→</a>
 </header>
 
-<main id="main">
-  <section class="hero" aria-labelledby="h-hero">
-    <div class="wrap hero-in">
-      <div>
-        <p class="team-line">Team Canopy Keepers, Dubai · FIRST LEGO League <span class="nw">BIOGLOW 2026–27</span></p>
-        <h1 id="h-hero">Every drop has a guest list.</h1>
-        <p class="lede">The eDNA Pod is a hand-carried canister that filters rainforest stream water and keeps the DNA animals leave behind, so a lab can tell which species live there.</p>
-        <p class="status"><span class="dot" aria-hidden="true"></span><span>Prototype being built · <span class="nw">tests 8 Nov–15 Dec 2026</span></span></p>
-        <div class="btns">
-          <a class="btn btn-leaf" href="console.html#/live?demo">Try the simulator</a>
-          <a class="btn btn-line" href="console.html">Open console</a>
-          <a class="btn btn-text" href="mailto:canopykeepers123@gmail.com">Contact us</a>
-        </div>
-      </div>
-      <svg class="hero-logo" viewBox="0 0 200 200" width="260" height="260" role="img" aria-label="Canopy Keepers logo: a rainforest leaf whose midrib is a DNA double helix"><circle cx="100" cy="100" r="100" fill="#163A2F"/><g transform="translate(18 18) scale(.82)"><g transform="rotate(-32 100 100)"><path d="M100 20 C152 54 154 140 100 176 C46 140 48 54 100 20 Z" fill="#B8E07A"/><g fill="none" stroke="#0F2620" stroke-linecap="round"><path d="M91 46 C91 58 109 58 109 70 C109 82 91 82 91 94 C91 106 109 106 109 118 C109 130 91 130 91 142 C91 154 109 154 109 166" stroke-width="6"/><path d="M109 46 C109 58 91 58 91 70 C91 82 109 82 109 94 C109 106 91 106 91 118 C91 130 109 130 109 142 C109 154 91 154 91 166" stroke-width="6"/><path d="M111 70 L126 58 M89 70 L74 58 M111 94 L129 81 M89 94 L71 81 M111 118 L129 105 M89 118 L71 105 M111 142 L125 131 M89 142 L75 131" stroke-width="4"/></g><path d="M100 176 Q101 188 95 196" fill="none" stroke="#B8E07A" stroke-width="7" stroke-linecap="round"/></g></g></svg>
-    </div>
-  </section>
-
-  <section class="band" aria-labelledby="h-problem">
-    <div class="wrap">
-      <h2 id="h-problem">Rainforest animals are vanishing faster than anyone can count them.</h2>
-      <div class="stats">
-        <div class="stat">
-          <p class="big">95%</p>
-          <p>average fall in monitored wildlife populations in Latin America and the Caribbean, 1970–2020.</p>
-          <a class="src" href="https://www.worldwildlife.org/press-releases/catastrophic-73-decline-in-the-average-size-of-global-wildlife-populations-in-just-50-years-reveals-a-system-in-peril">Source: WWF Living Planet Report 2024</a>
-        </div>
-        <div class="stat">
-          <p class="big">35 <span>vs</span> 29</p>
-          <p>mammal types found by stream eDNA versus 57 camera traps in the same area of Canada.</p>
-          <a class="src" href="https://www.worldwildlife.org/news/press-releases/environmental-dna-is-as-effective-as-camera-traps-for-monitoring-terrestrial-mammal-diversity/">Source: WWF, Lyet et al. 2021</a>
-        </div>
-        <div class="stat">
-          <p class="big">1 million</p>
-          <p>species are threatened with extinction worldwide.</p>
-          <a class="src" href="https://www.unep.org/news-and-stories/press-release/natures-dangerous-decline-unprecedented-species-extinction-rates">Source: UNEP, IPBES 2019</a>
-        </div>
+<main id="top">
+  <section class="hero" aria-label="Introduction">
+    <div class="stage3d" id="heroStage" data-autorotate="on"></div>
+    <div class="meta"><span>FIRST LEGO League · BIOGLOW 2026–27</span><span class="meta-team">Team Canopy Keepers · Dubai</span></div>
+    <div class="copy">
+      <h1><span class="ln"><span>Every drop</span></span><span class="ln"><span>has a</span></span><span class="ln"><span><em>guest list.</em></span></span></h1>
+      <div class="side">
+        <p>The eDNA Pod is a canister you carry to a rainforest stream. It filters the water and keeps the invisible DNA every animal leaves behind, so a lab can read who lives there.</p>
+        <p class="status"><b>Status:</b> prototype being built. Tests run 8 Nov–15 Dec 2026.</p>
+        <div class="hero-btns"><a class="btn solid" href="#sim">Run the simulator <span class="arr">↓</span></a><a class="btn line" href="console.html">Open console <span class="arr">→</span></a></div>
       </div>
     </div>
+    <div class="scroll" aria-hidden="true"><i></i></div>
   </section>
 
-  <section class="band band-rule" aria-labelledby="h-how">
-    <div class="wrap">
-      <h2 id="h-how">How it works</h2>
-      <ol class="steps">
-        <li>
-          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M8 8h32L28 24v12l-8 4V24z"/><path d="M14 14h20M17 18h14" class="thin"/></svg>
-          <h3>Filter the water</h3>
-          <p>Up to 1&nbsp;L through a 0.45&nbsp;µm filter.</p>
-        </li>
-        <li>
-          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M17 6h14M19 6v30a5 5 0 0 0 10 0V6"/><path d="M19 22h10" class="thin"/><path d="M24 26c-2 3-3 4-3 6a3 3 0 0 0 6 0c0-2-1-3-3-6z" class="fill"/></svg>
-          <h3>Seal and preserve</h3>
-          <p>≥95% ethanol on every filter.</p>
-        </li>
-        <li>
-          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M24 43s-13-12-13-22a13 13 0 0 1 26 0c0 10-13 22-13 22z"/><circle cx="24" cy="21" r="5"/></svg>
-          <h3>Log the details</h3>
-          <p>GPS, time, turbidity and a QR sample ID.</p>
-        </li>
-        <li>
-          <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M16 4c0 10 16 10 16 20S16 34 16 44M32 4c0 10-16 10-16 20s16 10 16 20"/><path d="M19 10h10M18 17h12M18 31h12M19 38h10" class="thin"/></svg>
-          <h3>Lab reads the DNA</h3>
-          <p>Species named from DNA barcodes.</p>
-        </li>
-      </ol>
-      <div class="carousel">
-        <p class="seats-title">One trip, one 8-seat carousel</p>
-        <div class="seats" role="img" aria-label="The 8-seat carousel: seat 1 is the field blank, seats 2 to 7 hold 6 samples, seat 8 is an empty flush seat">
-          <span class="seat s-blank">1</span><span class="seat">2</span><span class="seat">3</span><span class="seat">4</span><span class="seat">5</span><span class="seat">6</span><span class="seat">7</span><span class="seat s-flush">8</span>
-        </div>
-        <ul class="seats-key">
-          <li><i class="k-blank" aria-hidden="true"></i>Seat 1: field blank</li>
-          <li><i class="k-sample" aria-hidden="true"></i>Seats 2–7: 6 samples</li>
-          <li><i class="k-flush" aria-hidden="true"></i>Seat 8: flush, no filter</li>
-        </ul>
+  <div class="kicker"><span>The problem</span><span>Why rainforests</span></div>
+  <section class="facts" aria-label="Key facts">
+    <div class="fact"><div class="v"><span data-count="6">0</span>%</div><p>of Earth’s surface is rainforest.</p><small>National Geographic</small></div>
+    <div class="fact"><div class="v"><span data-count="50">0</span>%+</div><p>of all plant and animal species live there.</p><small>National Geographic</small></div>
+    <div class="fact"><div class="v"><span data-count="18">0</span></div><p>football fields of mature rainforest lost every minute in 2024.</p><small>Conservation International, citing WRI</small></div>
+  </section>
+
+  <section class="drop dark" id="drop" aria-label="How it works: follow one drop">
+    <div class="drop-pin">
+      <svg class="scene" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Animation: a raindrop washes DNA off a leaf into a stream, the Pod pumps it through a filter and seals it in a tube">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0F2620"/><stop offset="1" stop-color="#14352A"/></linearGradient>
+          <pattern id="mesh" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M10 0H0V10" fill="none" stroke="#F3EEE2" stroke-width="1" opacity=".45"/></pattern>
+        </defs>
+        <rect width="1440" height="900" fill="url(#sky)"/>
+        <g id="leaves">
+          <path d="M760 -40C900 60 1000 150 1060 250C960 260 840 210 760 120Z" fill="#2F5A3C"/>
+          <path d="M1060 250C1000 150 900 60 760 -40" stroke="#6E8B3D" stroke-width="4" fill="none"/>
+          <path d="M1440 40C1320 120 1240 210 1210 320C1300 300 1400 230 1460 140Z" fill="#244B33"/>
+          <path d="M620 80C700 150 760 230 790 330C710 310 640 250 600 170Z" fill="#1E4430"/>
+          <path d="M880 230C960 250 1040 300 1080 360C1000 380 920 350 870 300Z" fill="#6E8B3D"/>
+        </g>
+        <g id="bits">
+          <circle cx="930" cy="290" r="5" fill="#B8E07A"/><circle cx="960" cy="305" r="4" fill="#B8E07A"/><circle cx="990" cy="300" r="5" fill="#E8A23A"/><circle cx="1010" cy="320" r="4" fill="#B8E07A"/><circle cx="945" cy="320" r="4" fill="#F3EEE2"/><circle cx="975" cy="330" r="5" fill="#B8E07A"/><circle cx="1030" cy="335" r="4" fill="#E8A23A"/>
+        </g>
+        <path id="raindrop" d="M0 -34C0 -34 -20 -6 -20 8a20 20 0 0 0 40 0C20 -6 0 -34 0 -34Z" fill="#9FD8DF" stroke="#F3EEE2" stroke-width="2" transform="translate(980 40)"/>
+        <g id="stream">
+          <path d="M-20 660C200 630 400 690 620 660S1000 620 1200 660S1400 690 1460 670V900H-20Z" fill="#1D5A6A"/>
+          <path d="M-20 660C200 630 400 690 620 660S1000 620 1200 660S1400 690 1460 670" fill="none" stroke="#9FD8DF" stroke-width="3" opacity=".6"/>
+        </g>
+        <circle id="ripple" cx="980" cy="655" r="10" fill="none" stroke="#F3EEE2" stroke-width="3" opacity="0"/>
+        <path id="pipe" d="M1000 690C1010 600 1040 520 1110 470S1190 420 1190 380" fill="none" stroke="#F3EEE2" stroke-width="10" stroke-linecap="round" opacity=".9"/>
+        <g id="filter" transform="translate(1130 300)">
+          <rect width="120" height="80" fill="#13231B" stroke="#F3EEE2" stroke-width="3"/>
+          <rect x="10" y="10" width="100" height="60" fill="url(#mesh)"/>
+          <rect id="filterGlow" x="10" y="10" width="100" height="60" fill="#B8E07A" opacity="0"/>
+          <text x="60" y="-12" text-anchor="middle" fill="#F3EEE2" font-family="JetBrains Mono, monospace" font-size="14">0.45 µm FILTER</text>
+        </g>
+        <g id="tube" transform="translate(1290 250)">
+          <path d="M0 0H44V170A22 22 0 0 1 0 170Z" fill="none" stroke="#F3EEE2" stroke-width="3"/>
+          <rect id="fill" x="3" y="40" width="38" height="150" fill="#B8E07A" transform-origin="22px 190px"/>
+          <g id="label" opacity="0"><rect x="-96" y="210" width="236" height="58" fill="#F3EEE2"/><text x="22" y="236" text-anchor="middle" fill="#13231B" font-family="Archivo Black, sans-serif" font-size="14">CK-20261206-AQ01-S3</text><text x="22" y="256" text-anchor="middle" fill="#13231B" font-family="JetBrains Mono, monospace" font-size="12">960 mL · pH 7.9 · 21:42</text></g>
+        </g>
+        <g id="species" font-family="Archivo, sans-serif" font-size="20" font-weight="800">
+          <g class="sp"><rect x="1060" y="560" width="210" height="40" fill="#F3EEE2"/><text x="1076" y="587" fill="#13231B">Two-toed sloth</text></g>
+          <g class="sp"><rect x="1100" y="610" width="190" height="40" fill="#F3EEE2"/><text x="1116" y="637" fill="#13231B">Toco toucan</text></g>
+          <g class="sp"><rect x="1040" y="660" width="230" height="40" fill="#F3EEE2"/><text x="1056" y="687" fill="#13231B">Poison dart frog</text></g>
+          <g class="sp"><rect x="1080" y="710" width="250" height="40" fill="#C2562B"/><text x="1096" y="737" fill="#F3EEE2">Bullfrog · watchlist</text></g>
+        </g>
+      </svg>
+      <div class="steps">
+        <div class="step"><span class="k">01 / SHED</span><h3>Animals leave DNA everywhere</h3><p>Skin, hair and saliva rub off on leaves high in the canopy — monkeys, sloths, frogs.</p></div>
+        <div class="step"><span class="k">02 / RAIN</span><h3>Rain washes it down</h3><p>Every shower carries that DNA off the leaves and into the streams. In French Guiana, canopy rain revealed 562 kinds of life.</p></div>
+        <div class="step"><span class="k">03 / CATCH</span><h3>We filter the water</h3><p>The Pod pulls up to 1 litre through a 0.45 µm filter — finer than a hair. If the filter clogs it stops early; 250 mL is the minimum that counts.</p></div>
+        <div class="step"><span class="k">04 / KEEP</span><h3>Preserved and logged</h3><p>≥95% ethanol keeps the DNA safe. A QR label like CK-20261206-AQ01-S3 links the filter to its place, time and volume.</p></div>
+        <div class="step"><span class="k">05 / READ</span><h3>A lab reads the guest list</h3><p>DNA barcodes are matched to species. We call a species “confirmed” only when 2 of 3 replicates agree and the blank is clean.</p></div>
+      </div>
+      <div class="prog" aria-hidden="true"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+    </div>
+  </section>
+
+  <section class="explode" id="explode" aria-label="The machine, taken apart">
+    <div class="explode-pin">
+      <div class="stage3d" id="explodeStage" data-autorotate="off"></div>
+      <div class="head"><h2>The Pod, taken apart</h2><p>About 2.5 kg, carried by hand to the stream bank. Wet parts sit low over a drip tray; the electronics stay in a sealed dry zone with silica gel and a vent.</p></div>
+      <div class="tag3d" data-part="funnel"><span>Rain funnel</span><small>rain sensor starts a sample</small></div>
+      <div class="tag3d" data-part="brain"><span>Electronics box</span><small>ESP32, GPS, clock, SD, 3S 18650 (dry zone)</small></div>
+      <div class="tag3d" data-part="pumps"><span>2 peristaltic pumps</span><small>pull-through sampling + ethanol</small></div>
+      <div class="tag3d" data-part="vessels"><span>Ethanol bottle</span><small>≥95% ethanol for every filter</small></div>
+      <div class="tag3d" data-part="nozzle"><span>Servo nozzle</span><small>presses down to seal</small></div>
+      <div class="tag3d" data-part="carousel"><span>8-seat carousel</span><small>blank + 6 samples + flush seat</small></div>
+      <div class="tag3d" data-part="stepper"><span>Stepper + seat magnets</span><small>checks its seat after every move</small></div>
+      <div class="tag3d" data-part="sensors"><span>Sensor probes</span><small>turbidity + temperature</small></div>
+    </div>
+  </section>
+
+  <section class="loop" aria-label="The mission loop">
+    <div class="loop-pin">
+      <div class="loop-top"><h2>One clean loop.<br>Every site.</h2><span class="mono loop-hint">SCROLL →</span></div>
+      <div class="loop-track">
+        <div class="panel"><span class="n">01</span><div><h3>Self-check</h3><p>Battery, sensors, GPS and clock. The carousel finds seat 1 by its double magnet.</p></div></div>
+        <div class="panel hot"><span class="n">02</span><div><h3>Field blank</h3><p>Seat 1 always goes first: 1 L of distilled water through the whole water path. A clean blank proves nothing leaked in.</p></div></div>
+        <div class="panel"><span class="n">03</span><div><h3>Clean the site</h3><p>New bagged intake tube and funnel. Bleach the nozzle for 10 minutes, rinse. Then flush 250 mL of site water through empty seat 8.</p></div></div>
+        <div class="panel"><span class="n">04</span><div><h3>Test</h3><p>Turbidity check. Rising or very muddy water (over about 300 NTU) means no sampling today.</p></div></div>
+        <div class="panel on"><span class="n">05</span><div><h3>Filter</h3><p>Water is pulled through the filter, then the pump. Stops at 1 L, 20 minutes or flow under 20 mL/min. Counts only if ≥250 mL.</p></div></div>
+        <div class="panel"><span class="n">06</span><div><h3>Preserve</h3><p>≥95% ethanol onto the filter, then the cartridge is capped.</p></div></div>
+        <div class="panel"><span class="n">07</span><div><h3>Log</h3><p>QR sample ID, seat, GPS, time, weighed volume, turbidity, temperature.</p></div></div>
+        <div class="panel"><span class="n">08</span><div><h3>Repeat</h3><p>3 replicates per site, 2 sites: 6 real samples per mission. Cartridges are bleached and reloaded at school.</p></div></div>
       </div>
     </div>
   </section>
 
-  <section class="band dark" aria-labelledby="h-why">
-    <div class="wrap">
-      <h2 id="h-why">Why it is different</h2>
-      <div class="tiles">
-        <div class="tile">
-          <p class="big">≈ AED 1,710</p>
-          <p>in parts for our Pod. Commercial eDNA samplers cost about USD 7,500–11,000.</p>
-        </div>
-        <div class="tile">
-          <p class="big">Blank first</p>
-          <p>Every trip starts with 1&nbsp;L of distilled water. A clean blank proves the Pod did not contaminate the samples.</p>
-        </div>
-        <div class="tile">
-          <p class="big">No traps</p>
-          <p>No cameras either. Carried by hand (about 2.5&nbsp;kg) to the stream bank; no animal is touched.</p>
-        </div>
+  <section class="numbers" id="numbers" aria-label="The Pod in numbers">
+    <div class="sec-head"><span class="num">03 · IN NUMBERS</span><h2>One mission, honestly counted.</h2><p>Our agreed design values. “Approx.” means estimated — not measured yet. Tests in November and December will check each one.</p></div>
+    <div class="seatbar" aria-label="Carousel layout: seat 1 field blank, seats 2 to 7 real samples, seat 8 flush seat">
+      <div class="seat-c blank"><b>1</b><span>Field blank</span></div>
+      <div class="seat-c"><b>2</b><span>Site A · rep 1</span></div>
+      <div class="seat-c"><b>3</b><span>Site A · rep 2</span></div>
+      <div class="seat-c"><b>4</b><span>Site A · rep 3</span></div>
+      <div class="seat-c"><b>5</b><span>Site B · rep 1</span></div>
+      <div class="seat-c"><b>6</b><span>Site B · rep 2</span></div>
+      <div class="seat-c"><b>7</b><span>Site B · rep 3</span></div>
+      <div class="seat-c flush"><b>8</b><span>Flush seat · empty</span></div>
+    </div>
+    <div class="nums">
+      <div class="num-c"><small>Per mission</small><b>1 + 6 + 1</b><p>1 field blank, 6 real samples (2 sites × 3 replicates) and 1 empty flush seat.</p></div>
+      <div class="num-c"><small>Water per filter</small><b>1 L</b><p>Target. Stops at 1 L, 20 minutes or flow under 20 mL/min. A sample counts only if ≥250 mL went through.</p></div>
+      <div class="num-c"><small>Water path</small><b>Suction</b><p>Pull-through: intake → cartridge (filter) → pump → waste. The pump only sees filtered water, and a clog can’t burst a tube.</p></div>
+      <div class="num-c"><small>Preservation</small><b>≥95%</b><p>Ethanol on every filter, shipped with it. Longmire’s buffer if the lab asks. Silica gel is tested side by side on 6 Dec.</p></div>
+      <div class="num-c"><small>Battery · approx.</small><b>2</b><p>Missions per charge (about 12 Wh each from 26 Wh usable); about 4 with a spare pack. Battery test 1–5 Dec.</p></div>
+      <div class="num-c hi"><small>Cost · approx.</small><b>AED 1,710</b><p>For our Pod (47 parts). Commercial eDNA samplers cost about USD 7,500–11,000.</p></div>
+    </div>
+    <div class="rules">
+      <div class="rule-c"><small>Between sites</small><p>New bagged, pre-bleached intake tube and funnel. 10% bleach on the nozzle for 10 minutes, then rinse. 250 mL of site water flushed through seat 8 before the first sample.</p></div>
+      <div class="rule-c"><small>Reading results</small><ul class="verdicts"><li><span class="v ok">Confirmed</span>2 or 3 of 3 replicates + a clean blank</li><li><span class="v maybe">Possible</span>1 of 3 replicates</li><li><span class="v none">Not detected</span>not proof the animal is absent</li></ul></div>
+    </div>
+  </section>
+
+  <section class="testing dark" id="testing" aria-label="Testing timeline">
+    <div class="sec-head"><span class="num">04 · TESTING</span><h2>Built now. Proven by December.</h2><p>The prototype is being built. Nothing has been lab-tested yet — this is our test plan, with what “success” means for each step.</p></div>
+    <ol class="tl">
+      <li><time>by 8 Nov</time><div><b>Bleach durability + flow calibration</b><p>20 bleach-and-rinse cycles on 2 cartridges; 5 timed runs to know the real flow rate (±10%).</p></div></li>
+      <li><time>by 15 Nov</time><div><b>Usability, lab and tank locked</b><p>5 classmates run a mission from the picture guide. Lab partner, price and aquarium chosen.</p></div></li>
+      <li><time>20–25 Nov</time><div><b>Waterproofing</b><p>Sealed box with tissue inside, 30 minutes in a bucket, 3 times. Tissue must stay dry.</p></div></li>
+      <li><time>28 Nov–3 Dec</time><div><b>Dye leak and carry&#8209;over</b><p>8 runs with coloured water. No dye may reach the next cartridge.</p></div></li>
+      <li><time>1–5 Dec</time><div><b>Battery life</b><p>Full missions in a loop with current logged. Goal: at least 2 missions per charge.</p></div></li>
+      <li class="key"><time>6 Dec</time><div><b>Aquarium test</b><p>Tank with known fish: blank + 3 Pod replicates, a dilution series and silica vs ethanol.</p></div></li>
+      <li class="key"><time>10 Dec</time><div><b>The Green Planet Dubai</b><p>Indoor rainforest: blank + 3 replicates, compared with their animal list.</p></div></li>
+      <li><time>by 15 Dec</time><div><b>Ship 13 filters to the lab</b><p>With the sample manifest and the chain-of-custody form.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="sim dark" id="sim" aria-label="Live simulator">
+    <div class="sec-head"><span class="num">05 · SIMULATOR</span><h2>Run a real mission. Right here.</h2><p>This is the same software that drives the Pod, running on its digital twin. Every cartridge it fills lands in the database below.</p></div>
+    <div class="sim-grid">
+      <div class="sim-stage stage3d" id="simStage" data-autorotate="off" style="position:relative">
+        <div class="sim-hud"><span id="hudState">IDLE</span><span id="hudTube" hidden>—</span></div>
+        <div class="sim-ctrl"><button class="btn solid" id="simStart" type="button">Start mission</button><button class="btn line" id="simPause" type="button">Pause</button><button class="btn line" id="simAbort" type="button">Safe stop</button></div>
+      </div>
+      <div class="sim-side">
+        <div class="block ring" id="simRing"></div>
+        <div class="block readings"><div><small>PH</small><b id="rPh">—</b></div><div><small>TURBIDITY NTU</small><b id="rNtu">—</b></div><div><small>FILTERED ML</small><b id="rMl">—</b></div><div><small>BATTERY V</small><b id="rBat">—</b></div></div>
+        <div class="simlog" id="simLog" aria-live="polite"></div>
       </div>
     </div>
   </section>
 
-  <section class="band" aria-labelledby="h-test">
-    <div class="wrap">
-      <h2 id="h-test">Testing plan</h2>
-      <p class="honest">Nothing has been lab-tested yet. This is what we test, and when.</p>
-      <ol class="timeline">
-        <li><time>by 8 Nov</time><span>Bleach durability (20 cycles) and flow calibration</span></li>
-        <li><time>by 15 Nov</time><span>Usability test; lab partner chosen</span></li>
-        <li><time>20–25 Nov</time><span>Waterproofing bucket test (3&nbsp;×&nbsp;30&nbsp;min)</span></li>
-        <li><time>28 Nov–3 Dec</time><span>Dye leak and carry-over test (8&nbsp;runs)</span></li>
-        <li><time>1–5 Dec</time><span>Battery life test</span></li>
-        <li class="key"><time>6 Dec</time><span>Aquarium test with known fish</span></li>
-        <li class="key"><time>10 Dec</time><span>The Green Planet Dubai indoor rainforest</span></li>
-        <li><time>by 15 Dec</time><span>Ship 13 filters to the lab</span></li>
-      </ol>
+  <section class="mapsec" id="map" aria-label="Sampling map">
+    <div class="sec-head"><span class="num">06 · MAP</span><h2>Every tube has a place.</h2><p>Sites from the console’s mission plan. Click the map in the console to add your own.</p></div>
+    <div class="map-grid">
+      <div class="map" id="siteMap"></div>
+      <div class="map-side" id="siteList"></div>
     </div>
   </section>
 
-  <section class="band band-rule" aria-labelledby="h-experts">
-    <div class="wrap">
-      <h2 id="h-experts">Experts we asked</h2>
-      <ul class="experts">
-        <li><b>Dr. Ivonne Bejarano</b><span class="org">American University of Sharjah, eDNA ecology</span><span class="st">Replied and referred us to genetics experts</span></li>
-        <li><b>Dr. Akbar John</b><span class="org">University of Khorfakkan, conservation genomics</span><span class="st">Emailed 19 Oct, waiting for a reply</span></li>
-        <li><b>Dr. Jon Lapeyra Martin</b><span class="org">University of Khorfakkan, eDNA metabarcoding</span><span class="st">Recommended to us; asking for his contact</span></li>
-        <li><b>The Green Planet Dubai</b><span class="org">Indoor rainforest</span><span class="st">Our test request is with their team</span></li>
-      </ul>
-      <p class="note">Listed so you can see who we asked. None of them has reviewed or endorsed the Pod yet.</p>
+  <section class="db" id="db" aria-label="Species database">
+    <div class="sec-head"><span class="num">07 · DATABASE</span><h2>Who was there.</h2><p>Every species the lab finds, linked to its tube, site and time. Stored on this device; export it from the console.</p></div>
+    <div class="db-bar">
+      <label class="visually-hidden" for="dbSearch" style="position:absolute;left:-9999px">Search species</label>
+      <input id="dbSearch" type="search" placeholder="Search a species, cartridge or site">
+      <button class="chip" type="button" data-f="all" aria-pressed="true">All</button>
+      <button class="chip" type="button" data-f="watch" aria-pressed="false">Watchlist</button>
+      <button class="btn dark" id="dbDemo" type="button">Load demo lab results</button>
+    </div>
+    <div class="db-table" id="dbTable"></div>
+    <div class="db-stats"><div><b id="sTubes">0</b><small>cartridges filled</small></div><div><b id="sSpecies">0</b><small>species found</small></div><div><b id="sSites">0</b><small>sites sampled</small></div><div><b id="sAlerts">0</b><small>alerts</small></div></div>
+  </section>
+
+  <section class="cta-band"><h2>Every drop of water has a guest list.</h2><a class="btn dark" href="console.html">Open the console <span class="arr">→</span></a></section>
+
+  <section id="team" aria-label="Team">
+    <div class="sec-head"><span class="num">08 · TEAM</span><h2>Canopy Keepers</h2><p>Nine students in Dubai. FIRST LEGO League BIOGLOW 2026–27.</p></div>
+    <div class="team">
+      <div class="member cap"><b>Pranav Praseen</b><span>Team Captain</span></div>
+      <div class="member"><b>Aarav Muralidharan</b><span>Project Manager</span></div>
+      <div class="member"><b>Arnav</b><span>Researcher</span></div>
+      <div class="member"><b>Atharv Prashant Naik</b><span>Builder</span></div>
+      <div class="member"><b>Dipayan Saha</b><span>Builder · Coder</span></div>
+      <div class="member"><b>Gokul Charan Chetty Umapathi</b><span>Core Values · Robot Design</span></div>
+      <div class="member"><b>Lakshanya Devidas Mehatkar</b><span>Coder</span></div>
+      <div class="member"><b>Mugilan G Srinivasan</b><span>Core Values</span></div>
+      <div class="member"><b>Jude Raphael Peter</b><span>Innovation Project</span></div>
     </div>
   </section>
 
-  <section class="band band-rule" aria-labelledby="h-team">
-    <div class="wrap">
-      <h2 id="h-team">The team</h2>
-      <p class="school">Nine students at The Indian High School, Oud Metha, Dubai.</p>
-      <ul class="team">
-        <li class="cap"><b>Pranav Praseen</b><span>Team Captain</span></li>
-        <li><b>Aarav Muralidharan</b><span>Project Manager</span></li>
-        <li><b>Arnav</b><span>Researcher</span></li>
-        <li><b>Atharv Prashant Naik</b><span>Builder</span></li>
-        <li><b>Dipayan Saha</b><span>Builder and Coder</span></li>
-        <li><b>Lakshanya Devidas Mehatkar</b><span>Coder</span></li>
-        <li><b>Gokul Charan Chetty Umapathi</b><span>Core Values and Robot Design</span></li>
-        <li><b>Mugilan G Srinivasan</b><span>Core Values</span></li>
-        <li><b>Jude Raphael Peter</b><span>Innovation Project</span></li>
-      </ul>
-    </div>
-  </section>
-
-  <section class="band leaf" aria-labelledby="h-support">
-    <div class="wrap">
-      <h2 id="h-support">Supported by</h2>
-      <div class="support">
-        <div class="sponsor">
-          <a class="wordmark" href="https://besomi.com/">Besomi Electronics</a>
-          <p>Parts sponsor. Their voucher covered our GPS module, turbidity sensor, float switch and power parts.</p>
-        </div>
-        <div class="ask">
-          <h3>Sponsor us</h3>
-          <p><b>AED 2,000</b> builds one complete Pod (about AED 1,710 in parts), with the rest going to lab tests.</p>
-          <p>Your logo goes on our team shirts, this website and the Pod.</p>
-          <div class="btns">
-            <a class="btn btn-ink" href="mailto:canopykeepers123@gmail.com?subject=Sponsoring%20the%20eDNA%20Pod">canopykeepers123@gmail.com</a>
-            <a class="btn btn-ink-line" href="https://www.instagram.com/canopy_keepers.fll26/">Instagram @canopy_keepers.fll26</a>
-          </div>
-        </div>
-      </div>
-    </div>
+  <section class="sponsors-sec" id="sponsors" aria-label="Sponsors">
+    <div class="sec-head"><span class="num">09 · SUPPORTED BY</span><h2>Thank you.</h2><p>The people and companies helping us build the Pod.</p></div>
+    <ul class="sponsors">
+      <!-- One <li class="sponsor"> per sponsor. Text wordmarks only until a sponsor gives written permission to use their logo. -->
+      <li class="sponsor">
+        <a href="https://besomi.com/" target="_blank" rel="noopener" class="wordmark">Besomi Electronics</a>
+        <span class="role">Parts sponsor · our first sponsor</span>
+        <p>Thank you to Besomi Electronics for the parts voucher that covered our GPS module, turbidity sensor, float switch and power parts.</p>
+      </li>
+      <li class="sponsor open">
+        <span class="wordmark">This space is open</span>
+        <span class="role">Lab partner · parts · printing</span>
+        <p>We are looking for a university lab partner and more sponsors. Ask our coach at The Indian High School, Oud Metha.</p>
+      </li>
+    </ul>
   </section>
 </main>
 
 <footer class="foot">
-  <div class="wrap">
-    <ul class="foot-links">
-      <li><a href="story.html">Full story</a></li>
-      <li><a href="console.html">Console</a></li>
-      <li><a href="https://github.com/pranavpraseen-png/mangrove-medics-edna">Code on GitHub</a></li>
-      <li><a href="https://github.com/pranavpraseen-png/mangrove-medics-edna/blob/main/docs/DECISIONS.md">Design values</a></li>
-      <li><a href="https://github.com/pranavpraseen-png/mangrove-medics-edna/blob/main/docs/PROTOCOL.md">Field protocol</a></li>
-    </ul>
-    <p>Team Canopy Keepers, The Indian High School, Oud Metha, Dubai. FIRST LEGO League <span class="nw">BIOGLOW 2026–27</span>. Numbers marked ≈ are estimates until tested.</p>
+  <div class="big" id="footBig">Canopy Keepers · eDNA Pod · </div>
+  <div class="row">
+    <p>Facts: National Geographic · Conservation International / WRI · rainwash eDNA study, French Guiana (bioRxiv 2025).<br>Demo results are fictional and labelled. Design values are approximate until tested.</p>
+    <p>Parts sponsor: <a href="https://besomi.com/" target="_blank" rel="noopener">Besomi Electronics</a></p>
+    <nav class="foot-links" aria-label="Footer"><a href="console.html">Console</a><a href="summary.html">One-page summary</a></nav>
   </div>
 </footer>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap">
+<div id="toasts" aria-live="polite"></div>
+<script type="module" src="js/site.js"></script>
 </body>
 </html>
