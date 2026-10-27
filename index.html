@@ -35,12 +35,12 @@
   <section class="hero" aria-labelledby="h-hero">
     <div class="wrap hero-in">
       <div>
-        <p class="team-line">Team Canopy Keepers, Dubai. FIRST LEGO League BIOGLOW 2026–27.</p>
+        <p class="team-line">Team Canopy Keepers, Dubai · FIRST LEGO League <span class="nw">BIOGLOW 2026–27</span></p>
         <h1 id="h-hero">Every drop has a guest list.</h1>
         <p class="lede">The eDNA Pod is a hand-carried canister that filters rainforest stream water and keeps the DNA animals leave behind, so a lab can tell which species live there.</p>
-        <p class="status"><span class="dot" aria-hidden="true"></span>Prototype being built · tests 8 Nov–15 Dec 2026</p>
+        <p class="status"><span class="dot" aria-hidden="true"></span><span>Prototype being built · <span class="nw">tests 8 Nov–15 Dec 2026</span></span></p>
         <div class="btns">
-          <a class="btn btn-leaf" href="story.html#sim">Try the simulator</a>
+          <a class="btn btn-leaf" href="console.html#/live?demo">Try the simulator</a>
           <a class="btn btn-line" href="console.html">Open console</a>
           <a class="btn btn-text" href="mailto:canopykeepers123@gmail.com">Contact us</a>
         </div>
@@ -78,7 +78,7 @@
       <ol class="steps">
         <li>
           <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M8 8h32L28 24v12l-8 4V24z"/><path d="M14 14h20M17 18h14" class="thin"/></svg>
-          <h3>Pull water through a filter</h3>
+          <h3>Filter the water</h3>
           <p>Up to 1&nbsp;L through a 0.45&nbsp;µm filter.</p>
         </li>
         <li>
@@ -88,8 +88,8 @@
         </li>
         <li>
           <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M24 43s-13-12-13-22a13 13 0 0 1 26 0c0 10-13 22-13 22z"/><circle cx="24" cy="21" r="5"/></svg>
-          <h3>Log GPS, temp, turbidity</h3>
-          <p>A QR sample ID links it all.</p>
+          <h3>Log the details</h3>
+          <p>GPS, time, turbidity and a QR sample ID.</p>
         </li>
         <li>
           <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path d="M16 4c0 10 16 10 16 20S16 34 16 44M32 4c0 10-16 10-16 20s16 10 16 20"/><path d="M19 10h10M18 17h12M18 31h12M19 38h10" class="thin"/></svg>
@@ -97,10 +97,17 @@
           <p>Species named from DNA barcodes.</p>
         </li>
       </ol>
-      <div class="seats" role="img" aria-label="The 8-seat carousel: seat 1 is the field blank, seats 2 to 7 are 6 samples, seat 8 is an empty flush seat">
-        <span class="seat s-blank">Blank</span><span class="seat">1</span><span class="seat">2</span><span class="seat">3</span><span class="seat">4</span><span class="seat">5</span><span class="seat">6</span><span class="seat s-flush">Flush</span>
+      <div class="carousel">
+        <p class="seats-title">One trip, one 8-seat carousel</p>
+        <div class="seats" role="img" aria-label="The 8-seat carousel: seat 1 is the field blank, seats 2 to 7 hold 6 samples, seat 8 is an empty flush seat">
+          <span class="seat s-blank">1</span><span class="seat">2</span><span class="seat">3</span><span class="seat">4</span><span class="seat">5</span><span class="seat">6</span><span class="seat">7</span><span class="seat s-flush">8</span>
+        </div>
+        <ul class="seats-key">
+          <li><i class="k-blank" aria-hidden="true"></i>Seat 1: field blank</li>
+          <li><i class="k-sample" aria-hidden="true"></i>Seats 2–7: 6 samples</li>
+          <li><i class="k-flush" aria-hidden="true"></i>Seat 8: flush, no filter</li>
+        </ul>
       </div>
-      <p class="seats-cap">1 blank + 6 samples + 1 flush per trip</p>
     </div>
   </section>
 
@@ -117,8 +124,8 @@
           <p>Every trip starts with 1&nbsp;L of distilled water. A clean blank proves the Pod did not contaminate the samples.</p>
         </div>
         <div class="tile">
-          <p class="big">No traps, no cameras</p>
-          <p>Carried by hand (about 2.5&nbsp;kg) to the stream bank. No animal is touched.</p>
+          <p class="big">No traps</p>
+          <p>No cameras either. Carried by hand (about 2.5&nbsp;kg) to the stream bank; no animal is touched.</p>
         </div>
       </div>
     </div>
@@ -130,7 +137,7 @@
       <p class="honest">Nothing has been lab-tested yet. This is what we test, and when.</p>
       <ol class="timeline">
         <li><time>by 8 Nov</time><span>Bleach durability (20 cycles) and flow calibration</span></li>
-        <li><time>by 15 Nov</time><span>Usability test with 5 classmates; lab partner chosen</span></li>
+        <li><time>by 15 Nov</time><span>Usability test; lab partner chosen</span></li>
         <li><time>20–25 Nov</time><span>Waterproofing bucket test (3&nbsp;×&nbsp;30&nbsp;min)</span></li>
         <li><time>28 Nov–3 Dec</time><span>Dye leak and carry-over test (8&nbsp;runs)</span></li>
         <li><time>1–5 Dec</time><span>Battery life test</span></li>
@@ -197,13 +204,13 @@
 <footer class="foot">
   <div class="wrap">
     <ul class="foot-links">
-      <li><a href="story.html">The full story, with the 3D Pod and simulator</a></li>
-      <li><a href="console.html">Console app</a></li>
+      <li><a href="story.html">Full story</a></li>
+      <li><a href="console.html">Console</a></li>
       <li><a href="https://github.com/pranavpraseen-png/mangrove-medics-edna">Code on GitHub</a></li>
-      <li><a href="https://github.com/pranavpraseen-png/mangrove-medics-edna/blob/main/docs/DECISIONS.md">Design values (DECISIONS.md)</a></li>
-      <li><a href="https://github.com/pranavpraseen-png/mangrove-medics-edna/blob/main/docs/PROTOCOL.md">Field protocol (PROTOCOL.md)</a></li>
+      <li><a href="https://github.com/pranavpraseen-png/mangrove-medics-edna/blob/main/docs/DECISIONS.md">Design values</a></li>
+      <li><a href="https://github.com/pranavpraseen-png/mangrove-medics-edna/blob/main/docs/PROTOCOL.md">Field protocol</a></li>
     </ul>
-    <p>Team Canopy Keepers, The Indian High School, Oud Metha, Dubai. FIRST LEGO League BIOGLOW&nbsp;2026–27. Numbers marked ≈ are estimates until tested.</p>
+    <p>Team Canopy Keepers, The Indian High School, Oud Metha, Dubai. FIRST LEGO League <span class="nw">BIOGLOW 2026–27</span>. Numbers marked ≈ are estimates until tested.</p>
   </div>
 </footer>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Black&display=swap">

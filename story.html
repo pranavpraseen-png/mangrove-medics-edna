@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>The full story · eDNA Pod · Canopy Keepers</title>
-<meta name="description" content="The eDNA Collector samples rainforest streams and canopy rain and catches the DNA every animal leaves behind. Built by Team Canopy Keepers for FIRST LEGO League BIOGLOW.">
+<meta name="description" content="The eDNA Pod samples rainforest streams and catches the DNA every animal leaves behind, so a lab can tell which species live there. Built by Team Canopy Keepers, Dubai, for FIRST LEGO League BIOGLOW.">
 <meta name="theme-color" content="#0F2620">
-<meta property="og:title" content="eDNA Collector — every drop has a guest list">
-<meta property="og:description" content="A plug-in eDNA lab for rainforest streams and rain, with the software to run it. By Team Canopy Keepers, Dubai.">
+<meta property="og:title" content="eDNA Pod — every drop has a guest list">
+<meta property="og:description" content="A low-cost, hand-carried sampler that collects animal DNA from rainforest streams. By Team Canopy Keepers, Dubai.">
 <meta property="og:type" content="website">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -29,7 +29,7 @@
 <div id="pre" aria-hidden="true"><span class="n" id="preN">000</span><span class="t">Waking the collector — Canopy Keepers · FLL BIOGLOW</span></div>
 
 <header class="nav">
-  <a class="brand" href="index.html" aria-label="Canopy Keepers home"><img src="assets/canopy-keepers-logo.svg" alt="" width="34" height="34">eDNA Collector</a>
+  <a class="brand" href="index.html" aria-label="Canopy Keepers home"><img src="assets/canopy-keepers-logo.svg" alt="" width="34" height="34"><span class="brand-t">eDNA Collector</span></a>
   <nav aria-label="Main">
     <a href="#drop">How it works</a>
     <a href="#explode">The machine</a>
@@ -39,20 +39,20 @@
     <a href="#db">Database</a>
     <a href="#team">Team</a>
   </nav>
-  <a class="home" href="index.html">← Back to home</a>
-  <a class="cta" href="console.html">Console →</a>
+  <a class="home" href="index.html">← Home</a>
+  <a class="cta" href="console.html">Console&nbsp;→</a>
 </header>
 
 <main id="top">
   <section class="hero" aria-label="Introduction">
     <div class="stage3d" id="heroStage" data-autorotate="on"></div>
-    <div class="meta"><span>FIRST LEGO League · BIOGLOW 2026–27</span><span>Team Canopy Keepers · Dubai</span></div>
+    <div class="meta"><span>FIRST LEGO League · BIOGLOW 2026–27</span><span class="meta-team">Team Canopy Keepers · Dubai</span></div>
     <div class="copy">
       <h1><span class="ln"><span>Every drop</span></span><span class="ln"><span>has a</span></span><span class="ln"><span><em>guest list.</em></span></span></h1>
       <div class="side">
         <p>The eDNA Pod is a canister you carry to a rainforest stream. It filters the water and keeps the invisible DNA every animal leaves behind, so a lab can read who lives there.</p>
         <p class="status"><b>Status:</b> prototype being built. Tests run 8 Nov–15 Dec 2026.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn solid" href="#sim">Run the simulator <span class="arr">↓</span></a><a class="btn line" href="console.html">Open console <span class="arr">→</span></a></div>
+        <div class="hero-btns"><a class="btn solid" href="#sim">Run the simulator <span class="arr">↓</span></a><a class="btn line" href="console.html">Open console <span class="arr">→</span></a></div>
       </div>
     </div>
     <div class="scroll" aria-hidden="true"><i></i></div>
@@ -136,7 +136,7 @@
 
   <section class="loop" aria-label="The mission loop">
     <div class="loop-pin">
-      <div class="loop-top"><h2>One clean loop.<br>Every site.</h2><span class="mono" style="font-size:13px;letter-spacing:.1em">SCROLL →</span></div>
+      <div class="loop-top"><h2>One clean loop.<br>Every site.</h2><span class="mono loop-hint">SCROLL →</span></div>
       <div class="loop-track">
         <div class="panel"><span class="n">01</span><div><h3>Self-check</h3><p>Battery, sensors, GPS and clock. The carousel finds seat 1 by its double magnet.</p></div></div>
         <div class="panel hot"><span class="n">02</span><div><h3>Field blank</h3><p>Seat 1 always goes first: 1 L of distilled water through the whole water path. A clean blank proves nothing leaked in.</p></div></div>
@@ -163,12 +163,12 @@
       <div class="seat-c flush"><b>8</b><span>Flush seat · empty</span></div>
     </div>
     <div class="nums">
-      <div class="num-c"><small>Per mission</small><b>1 + 6 + 1</b><p>1 field blank, 6 real samples, 1 empty flush seat. Never “8 samples”.</p></div>
+      <div class="num-c"><small>Per mission</small><b>1 + 6 + 1</b><p>1 field blank, 6 real samples (2 sites × 3 replicates) and 1 empty flush seat.</p></div>
       <div class="num-c"><small>Water per filter</small><b>1 L</b><p>Target. Stops at 1 L, 20 minutes or flow under 20 mL/min. A sample counts only if ≥250 mL went through.</p></div>
-      <div class="num-c"><small>Water path</small><b>Pull-through</b><p>Intake → cartridge (filter) → pump → waste. The pump only sees filtered water, and a clog can’t burst a tube.</p></div>
+      <div class="num-c"><small>Water path</small><b>Suction</b><p>Pull-through: intake → cartridge (filter) → pump → waste. The pump only sees filtered water, and a clog can’t burst a tube.</p></div>
       <div class="num-c"><small>Preservation</small><b>≥95%</b><p>Ethanol on every filter, shipped with it. Longmire’s buffer if the lab asks. Silica gel is tested side by side on 6 Dec.</p></div>
-      <div class="num-c"><small>Battery</small><b>≈ 2</b><p>Missions per charge (approx. 12 Wh each from 26 Wh usable); about 4 with a spare pack. Battery test 1–5 Dec.</p></div>
-      <div class="num-c hi"><small>Cost</small><b>≈ AED 1,710</b><p>For our Pod (47 parts). Commercial eDNA samplers cost about USD 7,500–11,000.</p></div>
+      <div class="num-c"><small>Battery · approx.</small><b>2</b><p>Missions per charge (about 12 Wh each from 26 Wh usable); about 4 with a spare pack. Battery test 1–5 Dec.</p></div>
+      <div class="num-c hi"><small>Cost · approx.</small><b>AED 1,710</b><p>For our Pod (47 parts). Commercial eDNA samplers cost about USD 7,500–11,000.</p></div>
     </div>
     <div class="rules">
       <div class="rule-c"><small>Between sites</small><p>New bagged, pre-bleached intake tube and funnel. 10% bleach on the nozzle for 10 minutes, then rinse. 250 mL of site water flushed through seat 8 before the first sample.</p></div>
@@ -194,7 +194,7 @@
     <div class="sec-head"><span class="num">05 · SIMULATOR</span><h2>Run a real mission. Right here.</h2><p>This is the same software that drives the Pod, running on its digital twin. Every cartridge it fills lands in the database below.</p></div>
     <div class="sim-grid">
       <div class="sim-stage stage3d" id="simStage" data-autorotate="off" style="position:relative">
-        <div class="sim-hud"><span id="hudState">IDLE</span><span id="hudTube">—</span></div>
+        <div class="sim-hud"><span id="hudState">IDLE</span><span id="hudTube" hidden>—</span></div>
         <div class="sim-ctrl"><button class="btn solid" id="simStart" type="button">Start mission</button><button class="btn line" id="simPause" type="button">Pause</button><button class="btn line" id="simAbort" type="button">Safe stop</button></div>
       </div>
       <div class="sim-side">
@@ -231,10 +231,10 @@
   <section id="team" aria-label="Team">
     <div class="sec-head"><span class="num">08 · TEAM</span><h2>Canopy Keepers</h2><p>Nine students in Dubai. FIRST LEGO League BIOGLOW 2026–27.</p></div>
     <div class="team">
-      <div class="member" style="background:var(--ink);color:var(--paper)"><b>Pranav Praseen</b><span style="color:#B9C4B5">Team Captain</span></div>
+      <div class="member cap"><b>Pranav Praseen</b><span>Team Captain</span></div>
       <div class="member"><b>Aarav Muralidharan</b><span>Project Manager</span></div>
       <div class="member"><b>Arnav</b><span>Researcher</span></div>
-      <div class="member"><b>Atharv</b><span>Builder</span></div>
+      <div class="member"><b>Atharv Prashant Naik</b><span>Builder</span></div>
       <div class="member"><b>Dipayan Saha</b><span>Builder · Coder</span></div>
       <div class="member"><b>Gokul Charan Chetty Umapathi</b><span>Core Values · Robot Design</span></div>
       <div class="member"><b>Lakshanya Devidas Mehatkar</b><span>Coder</span></div>
@@ -263,7 +263,11 @@
 
 <footer class="foot">
   <div class="big" id="footBig">Canopy Keepers · eDNA Pod · </div>
-  <div class="row"><span>Facts: National Geographic · Conservation International / WRI · rainwash eDNA study, French Guiana (bioRxiv 2025)</span><span>Demo results are fictional and labelled. Design values: approx. until tested.</span><span>Parts sponsor: <a href="https://besomi.com/" target="_blank" rel="noopener">Besomi Electronics</a></span><a href="index.html">Home</a><a href="console.html">Console</a></div>
+  <div class="row">
+    <p>Facts: National Geographic · Conservation International / WRI · rainwash eDNA study, French Guiana (bioRxiv 2025).<br>Demo results are fictional and labelled. Design values are approximate until tested.</p>
+    <p>Parts sponsor: <a href="https://besomi.com/" target="_blank" rel="noopener">Besomi Electronics</a></p>
+    <nav class="foot-links" aria-label="Footer"><a href="index.html">Home</a><a href="console.html">Console</a></nav>
+  </div>
 </footer>
 <div id="toasts" aria-live="polite"></div>
 <script type="module" src="js/site.js"></script>

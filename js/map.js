@@ -16,18 +16,19 @@ export function siteMap(el, sites, opts = {}) {
   return { draw: list => { last = list; cur.draw(list); }, destroy: () => { gone = true; cur.destroy(); } };
 }
 
-function leafletMap(el, sites, { onAdd, onSelect } = {}) {
+function leafletMap(el, sites, { onAdd, onSelect, wheel = true } = {}) {
   el.style.position = 'relative';
-  const map = L.map(el, { zoomControl: true, attributionControl: true }).setView([25.2, 55.3], 12);
+  // wheel: false on long scrolling pages, so the mouse wheel scrolls the page instead of zooming the map
+  const map = L.map(el, { zoomControl: true, attributionControl: true, scrollWheelZoom: wheel }).setView([25.2, 55.3], 12);
   let tileErrors = 0;
   const tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '© OpenStreetMap contributors' }).addTo(map);
   const note = document.createElement('div');
   note.className = 'map-note';
   note.textContent = 'Click the map to add a sampling site';
-  el.appendChild(note);
+  if (onAdd) el.appendChild(note);
   tiles.on('tileerror', () => {
     tileErrors++;
-    if (tileErrors === 4) { note.textContent = 'Map tiles offline — sites shown on a grid. Click to add a site.'; el.querySelector('.leaflet-tile-pane').style.display = 'none'; el.classList.add('fallback-map'); }
+    if (tileErrors === 4) { note.textContent = onAdd ? 'Map tiles offline — sites shown on a grid. Click to add a site.' : 'Map tiles offline — sites shown on a grid.'; el.appendChild(note); el.querySelector('.leaflet-tile-pane').style.display = 'none'; el.classList.add('fallback-map'); }
   });
   const layer = L.layerGroup().addTo(map);
   const line = L.polyline([], { color: '#24704A', weight: 2, dashArray: '6 6', opacity: .8 }).addTo(map);

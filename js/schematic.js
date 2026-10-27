@@ -64,8 +64,8 @@ export function schematicHTML() {
     <path class="sx-flow sx-f-sample sx-f-drain" d="M352 268 H 374"/>
     <rect class="sx-waste" x="374" y="244" width="38" height="40" rx="3"/>
     <rect class="sx-bottle" x="368" y="288" width="50" height="6" rx="1"/>
-    <text class="sx-lbl" x="420" y="276">Waste bottle</text>
-    <text class="sx-lbl" x="420" y="292">on load cell = volume</text>
+    <text class="sx-lbl" x="428" y="270">Waste bottle</text>
+    <text class="sx-lbl" x="428" y="286">on load cell = volume</text>
     <!-- carousel (top view) -->
     <g class="sx-carousel" id="sxCarousel" style="transform-origin:520px 160px">
       <circle class="sx-plate" cx="520" cy="160" r="98"/>

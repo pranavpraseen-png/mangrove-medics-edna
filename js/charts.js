@@ -51,13 +51,13 @@ export function missionRing(active = 0, done = 0) {
     const a0 = -Math.PI / 2 + i * (Math.PI / 4) + gap, a1 = a0 + Math.PI / 4 - gap * 2;
     const cls = i + 1 === active ? 'on' : (i + 1 < active || i + 1 <= done ? 'done' : '');
     const am = (a0 + a1) / 2, lx = cx + (r + 0) * Math.cos(am), ly = cy + (r + 0) * Math.sin(am);
-    return `<path class="seg ${cls}" d="${arc(a0, a1)}"/><text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="middle" style="font-size:11px;font-weight:700;fill:${cls === 'on' ? 'var(--surface)' : 'var(--ink)'}">${i + 1}</text>`;
+    return `<path class="seg ${cls}" d="${arc(a0, a1)}"/><text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" text-anchor="middle" style="font-size:13px;font-weight:700;fill:${cls === 'on' ? 'var(--surface)' : 'var(--ring-label, var(--ink))'}">${i + 1}</text>`;
   }).join('');
   const label = active ? names[active - 1] : 'Ready';
   return `<svg class="ring" viewBox="0 0 300 300" role="img" aria-label="Pod state ${active || 0} of 8: ${label}">
     <circle cx="150" cy="150" r="78" style="fill:var(--surface);stroke:var(--rule)"/>
     ${segs}
-    <text x="150" y="140" text-anchor="middle" style="font-size:13px;fill:var(--ink-2)">State ${active || '–'} of 8</text>
+    <text x="150" y="140" text-anchor="middle" style="font-size:13px;fill:var(--ink-2)">${active ? `Step ${active} of 8` : '8-step cycle'}</text>
     <text x="150" y="170" text-anchor="middle" style="font-size:22px;font-weight:700">${label}</text>
   </svg>`;
 }

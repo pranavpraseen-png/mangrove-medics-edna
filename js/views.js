@@ -135,7 +135,7 @@ function connect(root) {
         <label class="f" style="margin-top:16px">Simulator speed: <b id="spdV">×${state.settings.simSpeed}</b>
           <input type="range" min="1" max="120" value="${state.settings.simSpeed}" id="spd">
         </label>
-        <p class="dim" style="font-size:13px;margin-top:10px">If the app won’t connect, the Pod still logs everything to its microSD card. Keep the pencil datasheet as the last backup.</p>
+        <p class="dim" style="font-size:14px;margin-top:10px">If the app won’t connect, the Pod still logs everything to its microSD card. Keep the pencil datasheet as the last backup.</p>
       </div>
       <div class="card"><h2>Protocol log <span class="tag">JSON lines</span></h2><div class="term" id="term"></div></div>
     </div>
@@ -208,7 +208,7 @@ function planner(root) {
   const siteOpts = sel => `<option value="">— choose —</option>${state.sites.map(s => `<option value="${esc(s.id)}" ${s.id === sel ? 'selected' : ''}>${esc(s.code)} · ${esc(s.name)}</option>`).join('')}`;
   root.innerHTML = `
   <section class="grid">
-    <div class="grid" style="grid-template-columns:minmax(0,1.6fr) minmax(300px,1fr)" id="mapRow">
+    <div class="grid map-row" id="mapRow">
       <div class="card" style="padding:14px"><div class="map" id="map"></div></div>
       <div class="card">
         <h2>Sites <span class="tag" id="siteN">${state.sites.length}</span></h2>
@@ -240,7 +240,7 @@ function planner(root) {
         <h2>Seat layout <span class="tag">1 blank · 6 samples · 1 flush</span></h2>
         <div id="layout"></div>
         <div class="row" style="margin-top:12px"><button class="btn" id="labels">Print QR labels</button></div>
-        <p class="dim" style="font-size:13px;margin-top:8px">Print on waterproof label paper, stick on each cartridge, cover with clear tape. You scan each one before the Pod fills it.</p>
+        <p class="dim" style="font-size:14px;margin-top:8px">Print on waterproof label paper, stick on each cartridge, cover with clear tape. You scan each one before the Pod fills it.</p>
       </div>
       <div class="card">
         <h2>Sampling rules</h2>
@@ -252,7 +252,7 @@ function planner(root) {
           <label class="f">Valid if at least (mL)<input type="number" name="minValidMl" value="${r.minValidMl}" min="50" step="50"></label>
           <label class="f">Site flush, seat 8 (mL)<input type="number" name="flushMl" value="${r.flushMl}" min="0" step="50"></label>
         </form>
-        <p class="dim" style="font-size:13px;margin-top:10px">Agreed values: stop at 1 L, 20 min, or flow below 20 mL/min. A sample counts only if ≥ 250 mL. The field blank is always seat 1 and always runs first.</p>
+        <p class="dim" style="font-size:14px;margin-top:10px">Agreed values: stop at 1 L, 20 min, or flow below 20 mL/min. A sample counts only if ≥ 250 mL. The field blank is always seat 1 and always runs first.</p>
       </div>
     </div>
     <div class="grid g2">
@@ -267,7 +267,7 @@ function planner(root) {
           <label class="f">Time<input type="time" name="time" value="${esc(sch.time)}"></label>
           <label class="f">Rain-run time (after a shower)<input type="time" name="tide" value="${esc(sch.tide)}"></label>
         </form>
-        <p class="dim" style="font-size:13px;margin-top:10px">Stored missions run on their own (no blank-bottle or site prompts, no label scans), so they do not follow the agreed field method — use them only for tests.</p>
+        <p class="dim" style="font-size:14px;margin-top:10px">Stored missions run on their own (no blank-bottle or site prompts, no label scans), so they do not follow the agreed field method — use them only for tests.</p>
       </div>
       <div class="card">
         <h2>Ready check</h2>
@@ -312,7 +312,7 @@ function planner(root) {
       [!!state.plan.operator, state.plan.operator ? `Operator: ${esc(state.plan.operator)}` : 'Add the operator’s name for the custody form'],
       [link.connected, link.connected ? `Connected via ${link.label}` : 'Not connected — the simulator will be used'],
     ];
-    $('#ready', root).innerHTML = items.map(([ok, t]) => `<div class="check-item"><span class="tag ${ok ? 'ok' : 'warn'}">${ok ? 'OK' : 'Check'}</span><span>${t}</span></div>`).join('') + `<p class="dim" style="font-size:13px;margin-top:8px">Estimated field time ≈ ${Math.round(est)} min (1 L takes 10–17 min at 60–100 mL/min)</p>`;
+    $('#ready', root).innerHTML = items.map(([ok, t]) => `<div class="check-item"><span class="tag ${ok ? 'ok' : 'warn'}">${ok ? 'OK' : 'Check'}</span><span>${t}</span></div>`).join('') + `<p class="dim" style="font-size:14px;margin-top:8px">Estimated field time ≈ ${Math.round(est)} min (1 L takes 10–17 min at 60–100 mL/min)</p>`;
   };
   map = siteMap($('#map', root), state.sites, {
     onAdd: (lat, lon) => { const n = `Site ${state.sites.length + 1}`; addSite({ name: n, lat, lon }); planner(root); toast('Site added', 'ok', 'Pick it as site A or B in the mission plan.'); },
@@ -362,7 +362,7 @@ function live(root) {
   <section class="grid">
     <div class="live-wrap">
       <div class="card live-stage stage" id="liveStage" data-autorotate="off">
-        <div class="live-hud"><span class="tag ok" id="hState">IDLE</span><span class="tag" id="hSite">No site</span><span class="tag info" id="hTube">—</span></div>
+        <div class="live-hud"><span class="tag ok" id="hState">IDLE</span><span class="tag" id="hSite">No site</span><span class="tag info" id="hTube" hidden>—</span></div>
         <div class="live-ctrl">
           <button class="btn primary" id="start">Start mission</button>
           <button class="btn" id="demo">Demo run (judges)</button>
@@ -388,7 +388,7 @@ function live(root) {
     </div>
     <div class="grid g2">
       <div class="card confirm-card" id="confirmCard"></div>
-      <div class="card"><h2>Mission sheet <span class="tag" id="sheetTag">—</span></h2><div id="sheet"></div>
+      <div class="card"><h2>Mission sheet <span class="tag" id="sheetTag" hidden></span></h2><div id="sheet"></div>
         <div id="ahead" style="margin-top:14px"></div>
       </div>
     </div>
@@ -400,7 +400,7 @@ function live(root) {
       <div class="card"><h2>Mission log</h2><div class="term" id="term"></div></div>
       <div class="card"><h2>Carousel <span class="tag" id="seatTag">Seat 1 of 8</span></h2>
         <div class="slotgrid" id="seatGrid" style="grid-template-columns:repeat(8,1fr)"></div>
-        <p class="dim" style="font-size:13px;margin-top:10px">Pump current: <b id="cur">—</b> · Water: <b id="temp">—</b> · Battery: <b id="bat">—</b> · Waste bottle: <b id="grams">—</b> · GPS: <b id="gps">—</b></p>
+        <p class="dim" style="font-size:14px;margin-top:10px">Pump current: <b id="cur">—</b> · Water: <b id="temp">—</b> · Battery: <b id="bat">—</b> · Waste bottle: <b id="grams">—</b> · GPS: <b id="gps">—</b></p>
         <p class="dim" style="font-size:13px">B = field blank (seat 1) · 2–7 = samples · F = flush seat 8, no filter.</p>
       </div>
     </div>
@@ -427,10 +427,10 @@ function live(root) {
   };
   const sheet = () => {
     const m = curMission();
-    if (!m) { $('#sheet', root).innerHTML = '<div class="empty">No mission yet. Plan one in the Mission planner.</div>'; $('#sheetTag', root).textContent = '—'; $('#ahead', root).innerHTML = ''; return; }
+    if (!m) { $('#sheet', root).innerHTML = '<div class="empty">No mission yet. Plan one in the Mission planner.</div>'; $('#sheetTag', root).hidden = true; $('#ahead', root).innerHTML = ''; return; }
     const running = m.status === 'running';
     const bd = running ? blankIsDone() : blankDone(m.id);
-    $('#sheetTag', root).textContent = `${m.id} · ${m.status}`;
+    $('#sheetTag', root).textContent = `${m.id} · ${m.status}`; $('#sheetTag', root).hidden = false;
     $('#sheet', root).innerHTML = `<div class="table-wrap"><table class="seat-table"><thead><tr><th>Seat</th><th>Role</th><th>Sample ID</th><th>Status</th></tr></thead><tbody>
       ${m.layout.map(e => {
         const s = state.samples.find(x => x.mission === m.id && x.seat === e.seat && e.role !== 'flush');
@@ -452,7 +452,7 @@ function live(root) {
     if (box.dataset.n === String(pend.length) + bd && box.innerHTML) return;   // keep what is typed
     box.dataset.n = String(pend.length) + bd;
     box.innerHTML = pend.length ? `<label class="f">Scan labels ahead (any order)<input type="text" id="aheadIn" autocomplete="off" spellcheck="false" placeholder="${bd ? 'Scan the next cartridge’s QR label' : 'Locked until the field blank is logged'}" ${bd ? '' : 'disabled'}></label>
-      <p class="dim" style="font-size:13px;margin-top:6px">${pend.length} sample label${pend.length === 1 ? '' : 's'} still to scan. If the Pod reaches a cartridge whose label is not scanned, it pauses until you scan it.</p><p class="c-msg" id="aheadMsg"></p>` : '<p class="dim" style="font-size:13px">All sample labels scanned.</p>';
+      <p class="dim" style="font-size:14px;margin-top:6px">${pend.length} sample label${pend.length === 1 ? '' : 's'} still to scan. If the Pod reaches a cartridge whose label is not scanned, it pauses until you scan it.</p><p class="c-msg" id="aheadMsg"></p>` : '<p class="dim" style="font-size:13px">All sample labels scanned.</p>';
     const ai = $('#aheadIn', root);
     if (ai) ai.onkeydown = ev => { if (ev.key !== 'Enter') return; ev.preventDefault(); const r = prescan(ai.value); $('#aheadMsg', root).textContent = r.ok ? '' : r.msg; if (r.ok) { toast(r.msg, 'ok'); ai.value = ''; box.dataset.n = ''; sheet(); setTimeout(() => $('#aheadIn', root)?.focus(), 30); } else ai.select(); };
   };
@@ -495,7 +495,7 @@ function live(root) {
     if (key !== draft.key) draft = { text: '', manual: false, lat: '', lon: '', key };
     if (!m) {
       el.dataset.mode = '';
-      el.innerHTML = `<h2>Next step</h2><div class="empty">No mission running.</div><p class="dim" style="font-size:13px;margin-top:8px">When a mission runs, this card tells you exactly what the Pod needs: the blank bottle, the next site, an empty waste bottle — and the QR label to scan before each cartridge is filled.</p>`;
+      el.innerHTML = `<h2>Next step</h2><div class="empty">No mission running.</div><p class="dim" style="font-size:14px;margin-top:8px">When a mission runs, this card tells you exactly what the Pod needs: the blank bottle, the next site, an empty waste bottle — and the QR label to scan before each cartridge is filled.</p>`;
       return;
     }
     if (!k) {
@@ -581,7 +581,7 @@ function live(root) {
     const d = ev.detail;
     $('#ring', root).innerHTML = missionRing(d.n || 0);
     $('#hSite', root).textContent = d.siteName || d.site || '—';
-    $('#hTube', root).textContent = d.seat ? (tubeId(d.seat) || `Seat ${d.seat}`) : '—';
+    $('#hTube', root).textContent = d.seat ? (tubeId(d.seat) || `Seat ${d.seat}`) : '—'; $('#hTube', root).hidden = !d.seat;
     const on = root.querySelector('#ring .seg.on');
     if (window.gsap && on) gsap.fromTo(on, { opacity: .3 }, { opacity: 1, duration: .5 });
     if (!waiting.kind) confirmCard();
@@ -589,7 +589,7 @@ function live(root) {
   };
   const onAwait = () => { confirmCard(); sheet(); };
   const onSample = () => setTimeout(() => { sheet(); seats(link.tele?.seat); if (!waiting.kind) confirmCard(); }, 30);
-  const onEnd = () => { $('#ring', root).innerHTML = missionRing(0, 8); $('#hSite', root).textContent = 'Mission finished'; $('#hTube', root).textContent = '—'; $('#hState', root).textContent = 'IDLE'; setTimeout(() => { sheet(); confirmCard(); }, 30); };
+  const onEnd = () => { $('#ring', root).innerHTML = missionRing(0, 8); $('#hSite', root).textContent = 'Mission finished'; $('#hTube', root).textContent = '—'; $('#hTube', root).hidden = true; $('#hState', root).textContent = 'IDLE'; setTimeout(() => { sheet(); confirmCard(); }, 30); };
   const onStatus = () => { $('#hLink', root).textContent = link.connected ? link.label : 'Not connected'; };
   link.addEventListener('tele', onTele); link.addEventListener('step', onStep); link.addEventListener('await', onAwait); link.addEventListener('sample', onSample);
   link.addEventListener('done', onEnd); link.addEventListener('aborted', onEnd); link.addEventListener('status', onStatus);
@@ -647,14 +647,14 @@ function samples(root) {
         <thead><tr><th><input type="checkbox" id="all" aria-label="Select all"></th><th>Sample ID</th><th>Role</th><th>Site</th><th>Collected</th><th>Volume</th><th>Stop</th><th>Location</th><th>Seal no.</th><th>Status</th><th></th></tr></thead>
         <tbody id="rows"></tbody>
       </table></div>
-      <p class="dim" style="font-size:13px;margin-top:10px">Valid = at least ${state.rules.minValidMl} mL filtered. Stop reasons: VOLUME (reached target), TIME (20 min), CLOG (flow below ${state.rules.minFlowMlMin} mL/min), AIR (intake out of water). Everything is saved on this device and works offline — export after every mission.</p>
+      <p class="dim" style="font-size:14px;margin-top:10px">Valid = at least ${state.rules.minValidMl} mL filtered. Stop reasons: VOLUME (reached target), TIME (20 min), CLOG (flow below ${state.rules.minFlowMlMin} mL/min), AIR (intake out of water). Everything is saved on this device and works offline — export after every mission.</p>
     </div>
     <div class="grid g2">
       <div class="card"><h2>Chain of custody <span class="tag" id="bN">${state.batches.length} batches</span></h2>
         <p>A batch is what travels together to the lab. Give every bag a numbered tamper-evident seal, record each hand-over, and print the form to sign.</p>
         <div id="batches"></div>
       </div>
-      <div class="card"><h2>Carousels <span class="tag">B = blank · F = flush</span></h2><div class="slotgrid" id="rack" style="grid-template-columns:repeat(8,1fr)"></div><p class="dim" style="font-size:13px;margin-top:8px">One row per mission carousel: seat 1 blank, seats 2–7 samples, seat 8 flush (no filter).</p></div>
+      <div class="card"><h2>Carousels <span class="tag">B = blank · F = flush</span></h2><div class="slotgrid" id="rack" style="grid-template-columns:repeat(8,1fr)"></div><p class="dim" style="font-size:14px;margin-top:8px">One row per mission carousel: seat 1 blank, seats 2–7 samples, seat 8 flush (no filter).</p></div>
     </div>
   </section>`;
   const sel = new Set();
@@ -686,7 +686,7 @@ function samples(root) {
     $('#rack', root).innerHTML = ms.length ? ms.map(m => Array.from({ length: 8 }, (_, i) => {
       const s = state.samples.find(x => x.mission === m.id && x.seat === i + 1);
       return `<span class="${s ? (s.blank ? 'blank' : s.valid ? 'used' : 'bad') : ''}" title="${s ? esc(s.id) : `${esc(m.id)}, seat ${i + 1}`}">${i === 0 ? 'B' : i === 7 ? 'F' : i + 1}</span>`;
-    }).join('')).join('') : '<span class="dim" style="grid-column:1/-1;aspect-ratio:auto;border:0">No carousels used yet</span>';
+    }).join('')).join('') : '<span class="dim empty-note">No carousels used yet</span>';
     drawBatches();
   };
   const chosen = () => sel.size ? state.samples.filter(s => sel.has(s.id)) : list();
@@ -696,7 +696,7 @@ function samples(root) {
       <div class="batch">
         <div class="row"><b class="mono">${esc(b.id)}</b><span class="tag">${b.samples.length} samples</span><span class="dim" style="font-size:13px">${fmtTime(b.created)}</span><span class="spacer"></span>
           <button class="btn sm" data-print="${esc(b.id)}">Print custody form</button></div>
-        ${b.handovers.length ? `<ol class="handovers">${b.handovers.map(h => `<li><b>${esc(h.from)}</b> → <b>${esc(h.to) || "—"}</b> · ${fmtTime(h.ts)} · seals ${esc(h.seals)}${h.condition ? ` · ${esc(h.condition)}` : ''}</li>`).join('')}</ol>` : '<p class="dim" style="font-size:13px;margin:6px 0">No hand-overs recorded yet.</p>'}
+        ${b.handovers.length ? `<ol class="handovers">${b.handovers.map(h => `<li><b>${esc(h.from)}</b> → <b>${esc(h.to) || "—"}</b> · ${fmtTime(h.ts)} · seals ${esc(h.seals)}${h.condition ? ` · ${esc(h.condition)}` : ''}</li>`).join('')}</ol>` : '<p class="dim" style="font-size:14px;margin:6px 0">No hand-overs recorded yet.</p>'}
         <form class="form c3 ho" data-ho="${esc(b.id)}">
           <input type="text" name="from" placeholder="Released by" required aria-label="Released by">
           <input type="text" name="to" placeholder="Received by" required aria-label="Received by">
@@ -808,7 +808,7 @@ function results(root) {
         <span>${RESULT_TAG['not-detected']}</span>
         <span>${RESULT_TAG.unreliable}<span>the blank showed DNA, so the whole site is flagged</span></span>
       </div>
-      <p class="dim" style="font-size:13px;margin:10px 0 0">Locations of sensitive species are shown on a ~10 km grid (rounded to 0.1°). Exact points stay with approved scientists and rangers.</p>
+      <p class="dim" style="font-size:14px;margin:10px 0 0">Locations of sensitive species are shown on a ~10 km grid (rounded to 0.1°). Exact points stay with approved scientists and rangers.</p>
     </div>
     <div class="grid g2" id="visits">
       ${sr.length ? sr.map(v => {
@@ -833,7 +833,7 @@ function results(root) {
         <div class="drop" id="drop">Drop the lab’s CSV here, or <label style="color:var(--mint);cursor:pointer;text-decoration:underline">browse<input type="file" accept=".csv,text/csv" id="file" hidden></label><br><span class="dim" style="font-size:13px">Columns: sample_id, species, common_name, reads (a row with no species = tested, nothing found)</span></div>
         <div class="row" style="margin-top:12px"><button class="btn" id="demo">Demo results for my samples</button><button class="btn" id="demoFile">Load demo CSV</button><a class="btn ghost" href="docs/sample-results.csv" download>Download demo CSV</a></div>
         <div class="row" style="margin-top:10px"><button class="btn" id="expRes">Export results (public, rounded)</button><button class="btn ghost" id="clear">Clear results</button></div>
-        <p class="dim" style="font-size:13px;margin-top:10px">Demo results are fictional, for training only.</p>
+        <p class="dim" style="font-size:14px;margin-top:10px">Demo results are fictional, for training only.</p>
       </div>
     </div>
     <div class="grid g2">
@@ -843,7 +843,7 @@ function results(root) {
     <div class="card"><h2>Watchlist <span class="tag">${state.watchlist.length}</span></h2>
       <p><b>Invasive</b> species raise an alert. <b>Sensitive</b> species (threatened, or wanted by poachers) make the app round that site’s coordinates to ~10 km.</p>
       <div class="species" id="wl"></div>
-      <form class="form c3" id="wlForm" style="margin-top:12px;grid-template-columns:1.2fr 1fr .8fr auto">
+      <form class="form wl-form" id="wlForm">
         <input type="text" name="species" placeholder="Scientific name" required aria-label="Scientific name">
         <input type="text" name="common" placeholder="Common name" aria-label="Common name">
         <select name="kind" aria-label="Kind"><option value="invasive">Invasive (alert)</option><option value="sensitive">Sensitive (round location)</option></select>
@@ -916,7 +916,7 @@ function calibrate(root) {
           <label class="f">Voltage at pH 4<input type="number" step="0.001" id="v4" value="${st.ph.v4}"></label>
         </div>
         <div class="row" style="margin-top:10px"><button class="btn" data-cap="v7">Capture pH 7</button><button class="btn" data-cap="v4">Capture pH 4</button><button class="btn primary" id="phSave">Save &amp; send</button></div>
-        <p class="dim" style="font-size:13px;margin-top:10px" id="phSlope"></p>
+        <p class="dim" style="font-size:14px;margin-top:10px" id="phSlope"></p>
         <h2 style="margin-top:18px">Load cell (waste bottle)</h2>
         <p>The Pod weighs the waste bottle: 1 g of water = 1 mL. Tare with the empty bottle, then calibrate with a known weight.</p>
         <div class="row"><button class="btn" id="tare">Tare (empty bottle)</button><label class="f" style="flex:1;min-width:120px">Known weight (g)<input type="number" id="scalG" placeholder="e.g. 500"></label><button class="btn" id="scal" style="align-self:end">Calibrate</button></div>
@@ -993,7 +993,7 @@ let calRaw = null;
 
 /* ─────────────────────────── Help ─────────────────────────── */
 function help(root) {
-  const team = [['Pranav Praseen', 'Team Captain'], ['Aarav Muralidharan', 'Project Manager'], ['Arnav', 'Researcher'], ['Atharv', 'Builder'], ['Dipayan Saha', 'Builder · Coder'], ['Gokul Charan Chetty Umapathi', 'Core Values · Robot Design'], ['Lakshanya Devidas Mehatkar', 'Coder'], ['Mugilan G Srinivasan', 'Core Values'], ['Jude Raphael Peter', 'Innovation Project']];
+  const team = [['Pranav Praseen', 'Team Captain'], ['Aarav Muralidharan', 'Project Manager'], ['Arnav', 'Researcher'], ['Atharv Prashant Naik', 'Builder'], ['Dipayan Saha', 'Builder · Coder'], ['Gokul Charan Chetty Umapathi', 'Core Values · Robot Design'], ['Lakshanya Devidas Mehatkar', 'Coder'], ['Mugilan G Srinivasan', 'Core Values'], ['Jude Raphael Peter', 'Innovation Project']];
   root.innerHTML = `
   <section class="grid g2">
     <div class="card prose">
@@ -1029,7 +1029,7 @@ function help(root) {
       <div class="card">
         <h2><img src="assets/canopy-keepers-logo.svg" alt="" width="40" height="40"> Made by Team Canopy Keepers</h2>
         <div class="team">${team.map(([n, r]) => `<div class="member"><span class="av">${n[0]}</span><div><b>${n}</b><small>${r}</small></div></div>`).join('')}</div>
-        <p class="dim" style="margin-top:12px;font-size:13px">FIRST LEGO League · BIOGLOW 2026–27 · Dubai, UAE. Demo results in this app are fictional.</p>
+        <p class="dim" style="margin-top:12px;font-size:14px">FIRST LEGO League · BIOGLOW 2026–27 · Dubai, UAE. Demo results in this app are fictional.</p>
       </div>
     </div>
   </section>`;

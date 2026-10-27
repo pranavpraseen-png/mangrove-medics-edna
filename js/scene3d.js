@@ -224,7 +224,7 @@ class CollectorScene {
     this.ring.material.opacity = on ? 0.25 : 0.5;
     if (on) this.setRain(false);
   }
-  setViewShift(f) { this.viewShift = f; this.resize(); }
+  setViewShift(f, fy = 0) { this.viewShift = f; this.viewShiftY = fy; this.resize(); }
   setInteractive(on) { if (this.controls) { this.controls.enabled = on; this.controls.enableZoom = on; } }
 
   attach(container) {
@@ -244,7 +244,7 @@ class CollectorScene {
     this.renderer.setSize(w, h, false);
     this.composer.setSize(w, h);
     this.camera.aspect = w / h;
-    if (this.viewShift) this.camera.setViewOffset(w, h, -w * this.viewShift, 0, w, h); else this.camera.clearViewOffset();
+    if (this.viewShift || this.viewShiftY) this.camera.setViewOffset(w, h, -w * (this.viewShift || 0), -h * (this.viewShiftY || 0), w, h); else this.camera.clearViewOffset();
     this.camera.updateProjectionMatrix();
   }
 

@@ -10,6 +10,7 @@ import { esc, toast, tubeId, fmtNum } from './util.js';
 const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const G = window.gsap, ST = window.ScrollTrigger;
+const NARROW = matchMedia('(max-width: 700px)').matches;
 if (G && ST) G.registerPlugin(ST);
 
 /* ── smooth scroll ─────────────────────────────────────────── */
@@ -43,11 +44,11 @@ function use(name) {
   if (name !== 'explode' && collector.root) collector.root.rotation.y = 0;
   if (name === 'hero') {
     collector.setClean(true); collector.setInteractive(false); ctl.autoRotate = !RM; ctl.autoRotateSpeed = 0.5;
-    cam.position.set(11.5, 6.2, 11.5); ctl.target.set(0, 1.5, 0); collector.setViewShift(innerWidth > 900 ? 0.2 : 0);
+    cam.position.set(NARROW ? 10 : 11.5, NARROW ? 5.4 : 6.2, NARROW ? 10 : 11.5); ctl.target.set(0, NARROW ? 2.3 : 1.5, 0); collector.setViewShift(innerWidth > 900 ? 0.2 : 0);
     collector.explode(0);
   } else if (name === 'explode') {
     collector.setClean(false); collector.setRain(false); collector.setInteractive(false); ctl.autoRotate = false;
-    cam.position.set(12, 7, 12); ctl.target.set(0, 2.2, 0); collector.setViewShift(innerWidth > 900 ? 0.16 : 0);
+    cam.position.set(NARROW ? 15 : 12, NARROW ? 8.5 : 7, NARROW ? 15 : 12); ctl.target.set(0, 2.2, 0); collector.setViewShift(innerWidth > 900 ? 0.16 : 0, NARROW ? 0.17 : 0);
   } else {
     collector.setClean(true); collector.setRain(false); collector.setInteractive(true); ctl.enableZoom = false; ctl.autoRotate = false;
     const narrow = innerWidth < 900;
@@ -87,6 +88,8 @@ $$('[data-count]').forEach(el => {
 /* ── follow one drop (pinned, scrubbed) ───────────────────── */
 (function dropStory() {
   const steps = $$('.drop .step'), bars = $$('.drop .prog b');
+  // phones: crop the scene to where the action is (drop, filter, tube, species) and keep it below the text
+  if (NARROW) { const sv = $('.drop svg.scene'); sv.setAttribute('viewBox', '930 180 510 720'); sv.setAttribute('preserveAspectRatio', 'xMidYMax meet'); }
   let shown = -1;
   const show = i => {
     if (i === shown) return; shown = i;
@@ -138,14 +141,26 @@ $$('[data-count]').forEach(el => {
 (function explodeStory() {
   const tags = $$('.tag3d');
   let t = 0;
+  const box = $('#explodeStage'), head = $('.explode .head');
   function place() {
     if (current === 'explode') {
-      tags.forEach(el => {
-        const p = collector.partScreen(el.dataset.part);
-        if (!p) return;
-        el.style.left = `${p.x}px`; el.style.top = `${p.y}px`;
-        el.style.opacity = t > 0.35 && p.visible ? Math.min(1, (t - 0.35) * 3) : 0;
-      });
+      const W = box.clientWidth, top = NARROW ? head.offsetTop + head.offsetHeight + 8 : 76, placed = [];
+      tags.map(el => ({ el, p: collector.partScreen(el.dataset.part), w: el.offsetWidth, h: el.offsetHeight }))
+        .filter(o => o.p).sort((a, b) => a.p.y - b.p.y)
+        .forEach(o => {
+          // label box: centred on x, bottom (with its leader line) on y
+          const lead = NARROW ? 14 : 26;
+          let x = Math.max(o.w / 2 + 8, Math.min(W - o.w / 2 - 8, o.p.x)), y = Math.max(top + o.h, o.p.y);
+          for (let k = 0; k < 8; k++) {
+            // text boxes are [y - h, y - lead]; push this label down until it clears the ones above it
+            const hit = placed.find(q => Math.abs(q.x - x) < (q.w + o.w) / 2 + 6 && y - o.h < q.y - lead + 4 && q.y - q.h < y - lead);
+            if (!hit) break;
+            y = hit.y - lead + 4 + o.h;
+          }
+          placed.push({ x, y, w: o.w, h: o.h });
+          o.el.style.left = `${x}px`; o.el.style.top = `${y}px`;
+          o.el.style.opacity = t > 0.35 && o.p.visible ? Math.min(1, (t - 0.35) * 3) : 0;
+        });
     }
     requestAnimationFrame(place);
   }
@@ -167,6 +182,7 @@ $$('[data-count]').forEach(el => {
 /* ── horizontal mission loop ──────────────────────────────── */
 (function loop() {
   const track = $('.loop-track');
+  if (NARROW) { document.querySelector('.loop').classList.add('stacked'); return; }
   if (!G || !ST || RM) { track.style.overflowX = 'auto'; return; }
   const dist = () => track.scrollWidth - innerWidth + 80;
   G.to(track, { x: () => -dist(), ease: 'none', scrollTrigger: { trigger: '.loop', start: 'top top', end: () => `+=${dist()}`, pin: '.loop-pin', scrub: 1, invalidateOnRefresh: true } });
@@ -185,7 +201,7 @@ $$('[data-count]').forEach(el => {
     $('#hudState').textContent = t.paused ? 'PAUSED' : t.state;
     $('#simPause').textContent = t.paused ? 'Resume' : 'Pause';
   });
-  link.addEventListener('step', e => { ring.innerHTML = missionRing(e.detail.n); if (e.detail.tube) $('#hudTube').textContent = tubeId(e.detail.tube); add(`Step ${e.detail.n}/8 · ${e.detail.name.toLowerCase()} · ${e.detail.siteName}`); });
+  link.addEventListener('step', e => { ring.innerHTML = missionRing(e.detail.n); if (e.detail.tube) { $('#hudTube').textContent = tubeId(e.detail.tube); $('#hudTube').hidden = false; } add(`Step ${e.detail.n}/8 · ${e.detail.name.toLowerCase()} · ${e.detail.siteName}`); });
   link.addEventListener('log', e => add(e.detail.msg, '#B9C4B5'));
   link.addEventListener('sample', e => add(`Preserved ${tubeId(e.detail.tube)} · seat ${e.detail.seat || '?'} · ${e.detail.name} · ${e.detail.ml} mL${e.detail.blank ? ' · field blank' : ''}`, '#B8E07A'));
   link.addEventListener('err', e => add(`! ${e.detail.msg}`, '#E8A23A'));
@@ -212,7 +228,7 @@ $$('[data-count]').forEach(el => {
   };
   const init = () => {
     if (map) return;
-    map = siteMap($('#siteMap'), state.sites);
+    map = siteMap($('#siteMap'), state.sites, { wheel: false });
     document.querySelectorAll('#siteMap .site-pin').forEach(p => { p.className = 'pin ok'; });
   };
   list();

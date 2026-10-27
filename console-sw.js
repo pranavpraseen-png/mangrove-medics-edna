@@ -1,7 +1,7 @@
 // Offline cache for the eDNA Collector Console (console.html only — scope "/console").
 // Network first, so updates arrive when online; falls back to the cached copy in the field.
 // Only same-origin files are handled (Google Fonts fall back to system fonts offline).
-const CACHE = 'ck-console-v5';
+const CACHE = 'ck-console-v6';
 const CORE = [
   'console.html', 'css/app.css',
   'js/main.js', 'js/views.js', 'js/store.js', 'js/device.js', 'js/mission.js', 'js/sim.js', 'js/charts.js', 'js/map.js', 'js/util.js',

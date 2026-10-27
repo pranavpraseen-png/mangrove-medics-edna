@@ -22,6 +22,11 @@ function route() {
   document.body.classList.remove('nav-open');
   $('#menuBtn').setAttribute('aria-expanded', 'false');
   cleanup = v.render(view);
+  // console.html#/live?demo (the homepage's "Try the simulator") starts the short judges' demo on the simulator
+  if (key === 'live' && /[?&]demo\b/.test(location.hash)) {
+    history.replaceState(null, '', `${location.pathname}${location.search}#/live`);
+    setTimeout(() => view.querySelector('#demo')?.click(), 600);
+  }
   pageIn(view, $('#viewTitle'));
   view.focus({ preventScroll: true });
   window.scrollTo({ top: 0 });

@@ -54,8 +54,11 @@ export function initMotion() {
 export function pageIn(view, title) {
   // headline letters rise
   if (title) {
-    title.innerHTML = [...title.textContent].map((c, i) => `<span class="mx-ch" style="--i:${i}">${c === ' ' ? '&nbsp;' : c.replace(/[<>&]/g, '')}</span>`).join('');
-    title.setAttribute('aria-label', title.textContent);
+    // letters rise one by one; each word stays whole so a narrow screen never splits it mid-word
+    const text = title.textContent, html = c => c.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    let i = 0;
+    title.innerHTML = text.split(' ').map(w => `<span class="mx-w">${[...w].map(c => `<span class="mx-ch" style="--i:${i++}">${html(c)}</span>`).join('')}</span>`).join(' ');
+    title.setAttribute('aria-label', text);
   }
   if (RM()) return;
   // leaf wipe across the work area
@@ -64,9 +67,10 @@ export function pageIn(view, title) {
 
   // panels draw in as they scroll into view
   io?.disconnect();
-  io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('mx-in'); io.unobserve(e.target); } }), { threshold: 0.12 });
+  io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('mx-in'); io.unobserve(e.target); } }), { threshold: 0, rootMargin: '0px 0px 15% 0px' });
   const items = view.querySelectorAll('.card, .ov-fact, .ov-loop, .loop li, tbody tr, .site, .alert, .gauge, .io span, .sp, .member');
-  items.forEach((el, i) => { el.classList.add('mx-rv'); el.style.setProperty('--d', `${Math.min(i, 12) * 45}ms`); io.observe(el); });
+  let k = 0;
+  items.forEach(el => { const onScreen = el.getBoundingClientRect().top < innerHeight; el.classList.add('mx-rv'); el.style.setProperty('--d', onScreen ? `${Math.min(k++, 8) * 40}ms` : '0ms'); io.observe(el); });
   // fail-safe: never leave something hidden if the observer is late (slow devices, background tabs)
   const sweep = () => view.querySelectorAll('.mx-rv:not(.mx-in)').forEach(el => { const r = el.getBoundingClientRect(); if (r.top < innerHeight && r.bottom > 0) el.classList.add('mx-in'); });
   setTimeout(sweep, 700); setTimeout(sweep, 1600);
