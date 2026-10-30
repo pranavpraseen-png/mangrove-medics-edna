@@ -98,6 +98,8 @@ Bluetooth and USB links need Chrome or Edge. The simulator works everywhere.
 
 ## Supported by
 
+<img src="assets/sponsor-besomi.png" alt="Besomi Academy" width="220">
+
 - **[Besomi Electronics](https://besomi.com/)** — parts sponsor, and our first sponsor. Thank you for the voucher that covered our GPS module, turbidity sensor, float switch and power parts.
 
 We are looking for a university lab partner and more sponsors.

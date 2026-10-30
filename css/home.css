@@ -155,3 +155,8 @@ ul,ol{list-style:none;margin:0;padding:0}
 .foot-links{display:flex;flex-wrap:wrap;gap:12px 28px;margin-bottom:20px}
 .foot-links a{color:var(--paper);font-weight:600;font-size:15px;text-underline-offset:3px}
 .foot p{max-width:70ch}
+
+/* sponsor logos sit on a white plate so they read on any background */
+.sponsor .logo-plate{margin-bottom:14px;display:inline-flex;align-self:flex-start;background:#fff;border:3px solid var(--ink);padding:14px 18px;line-height:0;text-decoration:none;background-image:none}
+.sponsor .logo-plate::after{content:none}
+.sponsor .logo-plate img{display:block;width:clamp(180px,22vw,260px);height:auto}

@@ -425,3 +425,8 @@ img,svg{display:block}
   /* tablets: the drop scene gets its own band under the step text */
   .drop svg.scene{top:260px;height:calc(100% - 260px)}
 }
+
+/* sponsor logos sit on a white plate so they read on any background */
+.sponsor .logo-plate{display:inline-flex;align-self:flex-start;background:#fff;border:3px solid var(--ink);padding:14px 18px;line-height:0;text-decoration:none;background-image:none}
+.sponsor .logo-plate::after{content:none}
+.sponsor .logo-plate img{display:block;width:clamp(180px,22vw,260px);height:auto}
